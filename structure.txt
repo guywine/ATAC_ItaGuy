@@ -24,9 +24,10 @@ Function to get list of desired genes:
 
 Function plot ATAC-seq signal. Choose:
 - Experiment: exp1 / exp_gonads / exp_hrde_gonads / exp_hrde_guy / exp_metsetset
+- set of genes: list
 - Normalize: to highly_lowly / none
 - Mean 3 all replicates? : yes or seperately?
-    - STD size?
+- STD size?
 - Plot
 
 
