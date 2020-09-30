@@ -51,7 +51,7 @@ def read_and_format_atac_table(f_name: Union[pathlib.Path, str]):
     index_wbid(atac_table)
     return atac_table
 
-def read_experiment(exp_name='exp1': str):
+def read_experiment(exp_name: str='exp1'):
     '''
     Gets an experiment name, reads all of the relevant tables to a list.
 
@@ -59,7 +59,7 @@ def read_experiment(exp_name='exp1': str):
     
     Return
     -------
-    - list_of_tables
+    - exp_dfs_list: list of dfs, each is a sample of the desired experiment
     '''
     exp1_files = ["DATA/ATAC_R0-iGFP.csv", "DATA/ATAC_R1-iGFP.csv", "DATA/ATAC_R2-iGFP.csv", "DATA/ATAC_R4-iGFP.csv", 'DATA/ATAC_R0-iOMA-1.csv', 'DATA/ATAC_R1-iOMA-1.csv', 'DATA/ATAC_R2-iOMA-1.csv', 'DATA/ATAC_R4-iOMA-1.csv']
     exp_gonads_files = [] # to fill later
@@ -69,19 +69,14 @@ def read_experiment(exp_name='exp1': str):
 
     exps_dict = {'exp1':exp1_files, 'exp_gonads':exp_gonads_files, 'exp_hrde_gonads':exp_hrde_gonads_files, 'exp_hrde_guy':exp_hrde_guy_files, 'exp_metsetset':exp_metsetset_files}
 
+    exp_dfs_list = []
+    for f_name in exps_dict[exp_name]:
+        exp_dfs_list.append(read_and_format_atac_table(f_name))
+    
+    return exp_dfs_list
+
 if __name__=='__main__':
-    gfp_0 = read_and_format_atac_table("DATA/ATAC_R0-iGFP.csv")
-    gfp_1 = read_and_format_atac_table("DATA/ATAC_R1-iGFP.csv")
-    gfp_2 = read_and_format_atac_table("DATA/ATAC_R2-iGFP.csv")
-    gfp_4 = read_and_format_atac_table("DATA/ATAC_R4-iGFP.csv")
-    oma1_0 = read_and_format_atac_table('DATA/ATAC_R0-iOMA-1.csv')
-    oma1_1 = read_and_format_atac_table('DATA/ATAC_R1-iOMA-1.csv')
-    oma1_2 = read_and_format_atac_table('DATA/ATAC_R2-iOMA-1.csv')
-    oma1_4 = read_and_format_atac_table('DATA/ATAC_R4-iOMA-1.csv')
+    exp1_dfs_list = read_experiment(exp_name='exp1')
+    gfp_0, gfp_1, gfp_2, gfp_4, oma1_0, oma1_1, oma1_2, oma1_4 = exp1_dfs_list
     
     plt.plot(gfp_0.iloc[0])
-# shape: 20083 * 2004
-# type:
-# 19906 - protein_coding
-# 13 - pseudogenes
-# rest - NaN
