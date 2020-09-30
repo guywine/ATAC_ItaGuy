@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+### Guy Added ####
+Data/
+ATAC_bigtable_1.xlsx
+extendedCelegansIDs_bigTable_39col_2019format_edit.csv
+
+
 # User-specific files
 *.rsuser
 *.suo

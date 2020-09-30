@@ -1,0 +1,35 @@
+DATA:
+- ATAC-seq signal
+- ALL kinds of features ((hrde-1 score, H3K9, mRNA level...)
+
+
+Function to calculate ATAC_contin_param for all genes:
+- choose range: -500:-100
+- choose experiment: exp1 / exp_gonads / exp_hrde_gonads / exp_hrde_guy / exp_metsetset
+- Normalize: to highly_lowly / none
+- choose "treated" condition: gfp / oma-1 / hrde-1 / sx / metsetset / 
+- Mean 3 all replicates? : yes or seperately?
+- log2 FC
+- median
+returns a table/dic, for each gene the value of paramaters
+
+** To test the range: it can be interesting to plot a correlation between the range of 500:100 to a range of 150-450 for instance. 
+** To test the normalization: plot a correlation between results with and without normalization
+
+
+Function to get list of desired genes:
+- groups from table: by ATAC_bigtable (hrde-1 score, H3K9, mRNA level...)
+- a set of the most / least 10% of ATAC_contin_param for a desired condition (choose percentage)
+
+
+Function plot ATAC-seq signal. Choose:
+- Experiment: exp1 / exp_gonads / exp_hrde_gonads / exp_hrde_guy / exp_metsetset
+- Normalize: to highly_lowly / none
+- Mean 3 all replicates? : yes or seperately?
+    - STD size?
+- Plot
+
+
+Test models:
+- Can we predict "strange genes" from one of the features?
+
