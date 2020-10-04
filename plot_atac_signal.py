@@ -33,7 +33,7 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
     dic_means = {}
     for group in dic_groups:
         group_ids = dic_groups[group]
-        dic_means[group] = gfp_0.loc[group_ids].mean()
+        dic_means[group] = sample_df.loc[group_ids].mean()
     return dic_means
     
 def plot_groups(dic_means):
@@ -50,8 +50,20 @@ if __name__=='__main__':
 
     dic_groups = generate_mock_groups()
 
-    dic_means = mean_gene_groups_of_sample(sample_df=gfp_0, dic_groups=dic_groups)
-    plot_groups(dic_means)
+    reps_dic = {0:[gfp_0, oma1_0], 1:[gfp_1, oma1_1], 2:[gfp_2, oma1_2], 4:[gfp_4, oma1_4]}
+
+    for rep in reps_dic:
+        a = reps_dic[rep][0]
+        b = reps_dic[rep][1]
+        print(f'a {rep} : ')
+        dic_means = mean_gene_groups_of_sample(sample_df=a, dic_groups=dic_groups)
+        plot_groups(dic_means)
+        plt.show()
+        
+        print(f'b {rep} : ')
+        dic_means = mean_gene_groups_of_sample(sample_df=b, dic_groups=dic_groups)
+        plot_groups(dic_means)
+        plt.show()
 
 
 
