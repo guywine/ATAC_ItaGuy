@@ -92,7 +92,3 @@ if __name__ == "__main__":
     dic_groups = generate_mock_groups()
 
     plot_replicates(reps_dic, dic_groups)
-
-
-
-
