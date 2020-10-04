@@ -56,7 +56,7 @@ def plot_replicates(reps_dic: dict, dic_groups: dict):
     Gets a dict with all samples (dfs) ordered by replicates, 
     and the desired groups of genes, and plots them seperately.
     """
-    for rep in reps_dic:
+    for rep in reps_dic:v
         group_a = reps_dic[rep][0]
         group_b = reps_dic[rep][1]
 
@@ -75,6 +75,8 @@ def plot_replicates(reps_dic: dict, dic_groups: dict):
 def plot_mean_of_replicates(reps_dic: dict, dic_groups: dict):
     '''
     '''
+    ### compute mean of samples and std (as shadow) between samples.
+    ### 
 
 
 if __name__ == "__main__":

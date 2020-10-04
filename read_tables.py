@@ -14,7 +14,6 @@ def read_atac_table(f_name: Union[pathlib.Path, str]):
     Return
     ---------
     - atac_table: pd.DataFrame
-    
     """
     f_path = pathlib.Path(f_name)
     if not f_path.exists():
