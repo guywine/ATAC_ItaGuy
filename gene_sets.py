@@ -12,7 +12,7 @@ def read_big_table():
     return big_table
 
 
-def get_list(col_name:str, prcnt:float=0, upper:bool = True):
+def get_list(big_table, col_name:str, prcnt:float=0, upper:bool = True):
     '''
     Parameters
     ----------
@@ -46,8 +46,8 @@ if __name__=='__main__':
     big_table = read_big_table()
     # clean zeros from Ketting and Kennedy
     col_name = 'isHrde1'
-    ids_list = get_list(col_name)
-    ids_list_2 = get_list(col_name, prcnt=10)
-    ids_list_3 = get_list(col_name, prcnt=20, upper=False)
+    ids_list = get_list(big_table, col_name)
+    ids_list_2 = get_list(big_table, col_name, prcnt=10)
+    ids_list_3 = get_list(big_table, col_name, prcnt=20, upper=False)
 
     print('hey')

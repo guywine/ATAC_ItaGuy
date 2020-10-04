@@ -8,6 +8,7 @@ Plot ATAC-seq signal. Choose:
 import read_tables as rdt
 import matplotlib.pyplot as plt
 import pandas as pd
+import gene_sets as gset
 
 
 def generate_mock_groups():
@@ -39,7 +40,9 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
     dic_means = {}
     for group in dic_groups:
         group_ids = dic_groups[group]
-        dic_means[group] = sample_df.loc[group_ids].mean()
+        # take only genes that appear in the sample df:
+        intersected_list = list(set(sample_df.index) & set(group_ids))
+        dic_means[group] = sample_df.loc[intersected_list, :].mean()
     return dic_means
 
 
@@ -51,30 +54,33 @@ def plot_groups(dic_means, ax_place):
     df_groups.plot(ax=ax_place)
 
 
-def plot_replicates(reps_dic: dict, dic_groups: dict):
+def plot_replicates(reps_dic: dict, dic_groups: dict, conditions: tuple=('gfp','oma-1')):
     """
     Gets a dict with all samples (dfs) ordered by replicates, 
     and the desired groups of genes, and plots them seperately.
     """
-    for rep in reps_dic:v
+    for rep in reps_dic:
         group_a = reps_dic[rep][0]
         group_b = reps_dic[rep][1]
 
-        fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True)
+        fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(9,4))
 
         print(f"Replicate {rep} :")
         dic_means_a = mean_gene_groups_of_sample(sample_df=group_a, dic_groups=dic_groups)
         ax_a = axes[0]
         plot_groups(dic_means_a, ax_a)
+        axes[0].set_title(conditions[0], fontsize=18)
 
         dic_means_b = mean_gene_groups_of_sample(sample_df=group_b, dic_groups=dic_groups)
         ax_b = axes[1]
         plot_groups(dic_means_b, ax_b)
+        axes[1].set_title(conditions[1], fontsize=18)
         plt.show()
 
 def plot_mean_of_replicates(reps_dic: dict, dic_groups: dict):
     '''
     '''
+    pass
     ### compute mean of samples and std (as shadow) between samples.
     ### https://seaborn.pydata.org/generated/seaborn.lineplot.html
 
@@ -91,6 +97,13 @@ if __name__ == "__main__":
     }
 
     ## generate lists of genes to be plotted
-    dic_groups = generate_mock_groups()
+    # dic_groups = generate_mock_groups()
+    big_table = gset.read_big_table()
+    # hrde_upper = gset.get_list(big_table, 'isHrde1', prcnt=10)
+    # hrde_lower = gset.get_list(big_table, 'isHrde1', prcnt=10, upper=False)
+    # dic_groups = {'hrde_lower':hrde_lower, 'hrde_upper':hrde_upper}
+
+    oma_1_gene = ['WBGene00003864']
+    dic_groups = {'oma-1 gene': oma_1_gene}
 
     plot_replicates(reps_dic, dic_groups)
