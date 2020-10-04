@@ -95,18 +95,4 @@ if __name__ == "__main__":
 
 
 
-    # for rep in reps_dic:
-    #     a = reps_dic[rep][0]
-    #     b = reps_dic[rep][1]
 
-    #     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True)
-
-    #     print(f"Replicate {rep} : ")
-    #     dic_means_a = mean_gene_groups_of_sample(sample_df=a, dic_groups=dic_groups)
-    #     ax_a = axes[0]
-    #     plot_groups(dic_means_a, ax_a)
-
-    #     dic_means_b = mean_gene_groups_of_sample(sample_df=b, dic_groups=dic_groups)
-    #     ax_b = axes[1]
-    #     plot_groups(dic_means_b, ax_b)
-    #     plt.show()
