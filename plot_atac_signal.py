@@ -76,7 +76,7 @@ def plot_mean_of_replicates(reps_dic: dict, dic_groups: dict):
     '''
     '''
     ### compute mean of samples and std (as shadow) between samples.
-    ### 
+    ### https://seaborn.pydata.org/generated/seaborn.lineplot.html
 
 
 if __name__ == "__main__":
