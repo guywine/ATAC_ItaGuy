@@ -3,15 +3,14 @@ This will provide the user to choose which gene set to get.
 - groups from table: by ATAC_bigtable (hrde-1 score, H3K9, mRNA level...)
 - a set of the most / least 10% of ATAC_FC for a desired condition (choose percentage)
 '''
-
 import pandas as pd 
 
-big_table = pd.read_excel('ATAC_bigtable_1.xlsx', header=1)
-big_table.set_index('gene', inplace=True)
+def read_big_table():
+    big_table = pd.read_excel('ATAC_bigtable_1.xlsx', header=1)
+    big_table.set_index('gene', inplace=True)
+    # clean zeros from Ketting and Kennedy
+    return big_table
 
-
-
-# clean zeros from Ketting and Kennedy
 
 def get_list(col_name:str, prcnt:float=0, upper:bool = True):
     '''
@@ -30,7 +29,7 @@ def get_list(col_name:str, prcnt:float=0, upper:bool = True):
             # get upper percnage
             quantile = col_orig.quantile(1-(prcnt/100))
             new_col = col_orig[col_orig>=quantile]    
-        elif lower:
+        else:
             # get lower percentage
             quantile = col_orig.quantile((prcnt/100))
             new_col = col_orig[col_orig<=quantile]
@@ -42,7 +41,13 @@ def get_list(col_name:str, prcnt:float=0, upper:bool = True):
     return wbid_list
 
 
-
-if '__name__'=='__main__':
+if __name__=='__main__':
+    print('hey')
+    big_table = read_big_table()
+    # clean zeros from Ketting and Kennedy
     col_name = 'isHrde1'
     ids_list = get_list(col_name)
+    ids_list_2 = get_list(col_name, prcnt=10)
+    ids_list_3 = get_list(col_name, prcnt=20, upper=False)
+
+    print('hey')
