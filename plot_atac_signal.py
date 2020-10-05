@@ -37,18 +37,18 @@ def plot_replicates(
     
         ## get mean of groups for first condition
         cond_a_df = reps_dic[rep_num][0]
-        dic_means_a = mean_gene_groups_of_sample(
+        df_means_a = mean_gene_groups_of_sample(
             sample_df=cond_a_df, dic_groups=dic_groups
         )
 
         ## get mean of groups for second condition
         cond_b_df = reps_dic[rep_num][1]
-        dic_means_b = mean_gene_groups_of_sample(
+        df_means_b = mean_gene_groups_of_sample(
             sample_df=cond_b_df, dic_groups=dic_groups
         )
 
         ## plot
-        plot_panel(dic_means_a, dic_means_b, conditions)
+        plot_panel(df_means_a, df_means_b, conditions)
 
 def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
     """
@@ -61,36 +61,31 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
 
     Return
     -----------
-    - dic_means: dict of pd.Series, group_name : mean_of_all_genes_in_group
+    - df_groups_means: pd.DataFrame, group_name:mean_of_all_genes_in_group
     """
-    dic_means = {}
+    df_groups_means = pd.DataFrame([])
     for group in dic_groups:
         group_ids = dic_groups[group]
         # take only genes that appear in the sample df:
         intersected_list = list(set(sample_df.index) & set(group_ids))
-        dic_means[group] = sample_df.loc[intersected_list, :].mean()
-    return dic_means
+        df_groups_means[group] = sample_df.loc[intersected_list, :].mean()
+    return df_groups_means
 
-def plot_panel(dic_means_a: dict, dic_means_b: dict, conditions: tuple=('cond1', 'cond2')):
+def plot_panel(df_means_a, df_means_b, conditions: tuple=('cond1', 'cond2')):
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(9, 4))
+    
     # plot first condition
-    plot_groups(dic_means_a, axes[0])
+    df_means_a.plot(ax=axes[0])
     axes[0].set_title(conditions[0], fontsize=18)
 
     # plot second condition
-    plot_groups(dic_means_b, axes[1])
+    df_means_b.plot(ax=axes[1])
     axes[1].set_title(conditions[1], fontsize=18)
 
     plt.show()
 
     return fig, axes
 
-def plot_groups(dic_means, ax_place):
-    """
-    Gets a dict of means and plots.
-    """
-    df_groups = pd.DataFrame(dic_means)
-    df_groups.plot(ax=ax_place)
 
 def get_mean_of_replicates(
     reps_dic: dict, dic_groups: dict, conditions: tuple = ("condition 1", "condition 2")
