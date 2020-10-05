@@ -109,4 +109,4 @@ if __name__ == "__main__":
     # oma_1_gene = ['WBGene00003864']
     # dic_groups = {'oma-1 gene': oma_1_gene}
 
-    plot_replicates(reps_dic, dic_groups)
+    plot_replicates(reps_dic, dic_groups, conditions=('anti-gfp RNAi', 'anti-oma-1 RNAi'))
