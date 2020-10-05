@@ -71,37 +71,68 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
         df_groups_means[group] = sample_df.loc[intersected_list, :].mean()
     return df_groups_means
 
-def plot_panel(df_means_a, df_means_b, conditions: tuple=('cond1', 'cond2')):
+
+def plot_panel(df_means_a, df_means_b, df_std_a=0, df_std_b=0, conditions: tuple=('cond1', 'cond2')):
+    '''
+    '''
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(9, 4))
     
-    # plot first condition
+    # plot both conditions
     df_means_a.plot(ax=axes[0])
-    axes[0].set_title(conditions[0], fontsize=18)
-
-    # plot second condition
     df_means_b.plot(ax=axes[1])
+    
+    # set titles
+    axes[0].set_title(conditions[0], fontsize=18)
     axes[1].set_title(conditions[1], fontsize=18)
 
     plt.show()
 
     return fig, axes
 
+def get_df_means_list(reps_dic: dict, dic_groups: dict, cond_num:int=0):
+    '''
+    '''
+    df_means_list = []
+    for rep_num in reps_dic:
+        sample_df = reps_dic[rep_num][cond_num]
+        df_means = mean_gene_groups_of_sample(
+            sample_df=sample_df, dic_groups=dic_groups
+        )
+        df_means_list.append(df_means)
+    
+    return df_means_list
 
-def get_mean_of_replicates(
-    reps_dic: dict, dic_groups: dict, conditions: tuple = ("condition 1", "condition 2")
+
+def get_mean_of_groups_all_replicates(
+    reps_dic: dict, dic_groups: dict, cond_num:int=0
 ):
     """
-
     """
+    df_means_list = []
     for rep_num in reps_dic:
-
-        cond_a_df = reps_dic[rep_num][0]
-        dic_means_a = mean_gene_groups_of_sample(
-            sample_df=cond_a_df, dic_groups=dic_groups
+        sample_df = reps_dic[rep_num][cond_num]
+        df_means = mean_gene_groups_of_sample(
+            sample_df=sample_df, dic_groups=dic_groups
         )
+        df_means_list.append(df_means)
+    
+    ### create single df average across replicates:
+    df_mean_all_reps = pd.concat(df_means_list).groupby(level=0).mean()
+    df_std = pd.concat(df_means_list).groupby(level=0).std()
 
+    return df_mean_all_reps, df_std
+
+def plot_all_replicates_mean(reps_dic: dict, dic_groups: dict, conditions: tuple = ("condition 1", "condition 2")):
+    '''
     ### compute mean of samples and std (as shadow) between samples.
     ### https://seaborn.pydata.org/generated/seaborn.lineplot.html
+    '''
+    df_mean_all_reps_a, df_std_a = get_mean_of_groups_all_replicates(reps_dic, dic_groups, cond_num=0)
+    df_mean_all_reps_b, df_std_b = get_mean_of_groups_all_replicates(reps_dic, dic_groups, cond_num=1)
+    plot_panel(df_mean_all_reps_a, df_mean_all_reps_b, df_std_a, df_std_b, conditions)
+
+
+
 
 
 if __name__ == "__main__":
@@ -134,3 +165,5 @@ if __name__ == "__main__":
     plot_replicates(
         reps_dic, dic_groups, conditions=("anti-gfp RNAi", "anti-oma-1 RNAi")
     )
+
+    plot_all_replicates_mean(reps_dic, dic_groups, conditions=('gfp RNAi','oma-1 RNAi'))
