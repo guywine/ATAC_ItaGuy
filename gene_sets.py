@@ -6,7 +6,7 @@ This will provide the user to choose which gene set to get.
 import pandas as pd
 import numpy as np
 
-class Big_table():
+class Gene_sets():
     def __init__(self):
         self.big_table = self._read_big_table()
         self.all_wbids = list(self.big_table.index)
@@ -80,7 +80,7 @@ class Big_table():
 
 
 if __name__=='__main__':
-    at = Big_table()
+    gs = Gene_sets()
 
     ## add option of all genes
     col_name = 'isHrde1'
@@ -91,6 +91,6 @@ if __name__=='__main__':
         'highly':['R1-SX_S14', 10],
         'all genes':['ALL']}
 
-    dic_groups = at.get_multiple_lists(dic_list)
+    dic_groups = gs.get_multiple_lists(dic_list)
 
     print('done')

@@ -8,7 +8,7 @@ Plot ATAC-seq signal. Choose:
 import read_tables as rdt
 import matplotlib.pyplot as plt
 import pandas as pd
-import gene_sets as gset
+from gene_sets import Gene_sets
 
 
 def generate_mock_groups():
@@ -97,13 +97,16 @@ if __name__ == "__main__":
     }
 
     ## generate lists of genes to be plotted
-    # dic_groups = generate_mock_groups()
-    big_table = gset.read_big_table()
-    # hrde_upper = gset.get_list(big_table, 'isHrde1', prcnt=10)
-    # hrde_lower = gset.get_list(big_table, 'isHrde1', prcnt=10, upper=False)
-    # dic_groups = {'hrde_lower':hrde_lower, 'hrde_upper':hrde_upper}
+    gs = Gene_sets()
 
-    oma_1_gene = ['WBGene00003864']
-    dic_groups = {'oma-1 gene': oma_1_gene}
+    dic_list = {'hrde-1':['isHrde1', 10], 
+        'pol-2':['isPol2'], 
+        'highly':['R1-SX_S14', 10],
+        'all genes':['ALL']}
+
+    dic_groups = gs.get_multiple_lists(dic_list)
+
+    # oma_1_gene = ['WBGene00003864']
+    # dic_groups = {'oma-1 gene': oma_1_gene}
 
     plot_replicates(reps_dic, dic_groups)
