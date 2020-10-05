@@ -24,6 +24,32 @@ def generate_mock_groups():
     return dic_groups
 
 
+
+def plot_replicates(
+    reps_dic: dict, dic_groups: dict, conditions: tuple = ("condition 1", "condition 2")
+):
+    """
+    Gets a dict with all samples (dfs) ordered by replicates,
+    and the desired groups of genes, and plots them seperately.
+    """
+    for rep_num in reps_dic:
+        print(f"Replicate {rep_num} :")
+    
+        ## get mean of groups for first condition
+        cond_a_df = reps_dic[rep_num][0]
+        dic_means_a = mean_gene_groups_of_sample(
+            sample_df=cond_a_df, dic_groups=dic_groups
+        )
+
+        ## get mean of groups for second condition
+        cond_b_df = reps_dic[rep_num][1]
+        dic_means_b = mean_gene_groups_of_sample(
+            sample_df=cond_b_df, dic_groups=dic_groups
+        )
+
+        ## plot
+        plot_panel(dic_means_a, dic_means_b, conditions)
+
 def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
     """
     Gets df of sample and groups and returns a dict with mean of these groups.
@@ -45,6 +71,19 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
         dic_means[group] = sample_df.loc[intersected_list, :].mean()
     return dic_means
 
+def plot_panel(dic_means_a: dict, dic_means_b: dict, conditions: tuple=('cond1', 'cond2')):
+    fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(9, 4))
+    # plot first condition
+    plot_groups(dic_means_a, axes[0])
+    axes[0].set_title(conditions[0], fontsize=18)
+
+    # plot second condition
+    plot_groups(dic_means_b, axes[1])
+    axes[1].set_title(conditions[1], fontsize=18)
+
+    plt.show()
+
+    return fig, axes
 
 def plot_groups(dic_means, ax_place):
     """
@@ -53,40 +92,26 @@ def plot_groups(dic_means, ax_place):
     df_groups = pd.DataFrame(dic_means)
     df_groups.plot(ax=ax_place)
 
-
-def plot_replicates(reps_dic: dict, dic_groups: dict, conditions: tuple=('gfp','oma-1')):
+def get_mean_of_replicates(
+    reps_dic: dict, dic_groups: dict, conditions: tuple = ("condition 1", "condition 2")
+):
     """
-    Gets a dict with all samples (dfs) ordered by replicates, 
-    and the desired groups of genes, and plots them seperately.
+
     """
-    for rep in reps_dic:
-        group_a = reps_dic[rep][0]
-        group_b = reps_dic[rep][1]
+    for rep_num in reps_dic:
 
-        fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(9,4))
+        cond_a_df = reps_dic[rep_num][0]
+        dic_means_a = mean_gene_groups_of_sample(
+            sample_df=cond_a_df, dic_groups=dic_groups
+        )
 
-        print(f"Replicate {rep} :")
-        dic_means_a = mean_gene_groups_of_sample(sample_df=group_a, dic_groups=dic_groups)
-        ax_a = axes[0]
-        plot_groups(dic_means_a, ax_a)
-        axes[0].set_title(conditions[0], fontsize=18)
-
-        dic_means_b = mean_gene_groups_of_sample(sample_df=group_b, dic_groups=dic_groups)
-        ax_b = axes[1]
-        plot_groups(dic_means_b, ax_b)
-        axes[1].set_title(conditions[1], fontsize=18)
-        plt.show()
-
-def plot_mean_of_replicates(reps_dic: dict, dic_groups: dict):
-    '''
-    '''
-    pass
     ### compute mean of samples and std (as shadow) between samples.
     ### https://seaborn.pydata.org/generated/seaborn.lineplot.html
 
 
 if __name__ == "__main__":
-    ## generate dictionary of all samples of experiment
+    ## generate dictionary of all samples of experiment / 
+    ## namedtuple of [conditions=('a', 'b'), reps_dic = {0:}]
     exp1_dfs_list = rdt.read_experiment(exp_name="exp1")
     gfp_0, gfp_1, gfp_2, gfp_4, oma1_0, oma1_1, oma1_2, oma1_4 = exp1_dfs_list
     reps_dic = {
@@ -99,14 +124,18 @@ if __name__ == "__main__":
     ## generate lists of genes to be plotted
     gs = Gene_sets()
 
-    dic_list = {'hrde-1':['isHrde1', 10], 
-        'pol-2':['isPol2'], 
-        'highly':['R1-SX_S14', 10],
-        'all genes':['ALL']}
+    dic_list = {
+        "hrde-1": ["isHrde1"],
+        "pol-2": ["isPol2"],
+        "highly": ["R1-SX_S14", 10],
+        "all genes": ["ALL"],
+    }
 
     dic_groups = gs.get_multiple_lists(dic_list)
 
     # oma_1_gene = ['WBGene00003864']
     # dic_groups = {'oma-1 gene': oma_1_gene}
 
-    plot_replicates(reps_dic, dic_groups, conditions=('anti-gfp RNAi', 'anti-oma-1 RNAi'))
+    plot_replicates(
+        reps_dic, dic_groups, conditions=("anti-gfp RNAi", "anti-oma-1 RNAi")
+    )
