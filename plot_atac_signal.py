@@ -133,19 +133,9 @@ def plot_all_replicates_mean(reps_dic: dict, dic_groups: dict, conditions: tuple
 
 
 
-
-
 if __name__ == "__main__":
-    ## generate dictionary of all samples of experiment / 
-    ## namedtuple of [conditions=('a', 'b'), reps_dic = {0:}]
-    exp1_dfs_list = rdt.read_experiment(exp_name="exp1")
-    gfp_0, gfp_1, gfp_2, gfp_4, oma1_0, oma1_1, oma1_2, oma1_4 = exp1_dfs_list
-    reps_dic = {
-        0: [gfp_0, oma1_0],
-        1: [gfp_1, oma1_1],
-        2: [gfp_2, oma1_2],
-        4: [gfp_4, oma1_4],
-    }
+    ## generate dictionary of all samples of experiment
+    exp1_dic = rdt.read_experiment_to_dic(exp_name="exp1")
 
     ## generate lists of genes to be plotted
     gs = Gene_sets()
@@ -163,7 +153,7 @@ if __name__ == "__main__":
     # dic_groups = {'oma-1 gene': oma_1_gene}
 
     plot_replicates(
-        reps_dic, dic_groups, conditions=("anti-gfp RNAi", "anti-oma-1 RNAi")
+        exp1_dic, dic_groups, conditions=("anti-gfp RNAi", "anti-oma-1 RNAi")
     )
 
-    plot_all_replicates_mean(reps_dic, dic_groups, conditions=('gfp RNAi','oma-1 RNAi'))
+    plot_all_replicates_mean(exp1_dic, dic_groups, conditions=('gfp RNAi','oma-1 RNAi'))
