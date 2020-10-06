@@ -9,6 +9,7 @@ import read_tables as rdt
 import matplotlib.pyplot as plt
 import pandas as pd
 from gene_sets import Gene_sets
+import seaborn as sns
 
 
 def generate_mock_groups():
@@ -72,7 +73,7 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
     return df_groups_means
 
 
-def plot_panel(df_means_a, df_means_b, df_std_a=0, df_std_b=0, conditions: tuple=('cond1', 'cond2')):
+def plot_panel(df_means_a, df_means_b, conditions: tuple=('cond1', 'cond2')):
     '''
     '''
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(9, 4))
@@ -108,6 +109,19 @@ def get_mean_of_groups_all_replicates(
 ):
     """
     """
+    df_means_list = get_df_means_list(reps_dic, dic_groups, cond_num)
+
+    ### create single df average across replicates:
+    df_mean_all_reps = pd.concat(df_means_list).groupby(level=0).mean()
+    df_std = pd.concat(df_means_list).groupby(level=0).std()
+
+    return df_mean_all_reps, df_std
+
+def get_df_means_list(reps_dic: dict, dic_groups: dict, cond_num:int=0):
+    """
+    Returns a list of all samples from this condition, means of groups.
+    --------
+    """
     df_means_list = []
     for rep_num in reps_dic:
         sample_df = reps_dic[rep_num][cond_num]
@@ -115,21 +129,17 @@ def get_mean_of_groups_all_replicates(
             sample_df=sample_df, dic_groups=dic_groups
         )
         df_means_list.append(df_means)
-    
-    ### create single df average across replicates:
-    df_mean_all_reps = pd.concat(df_means_list).groupby(level=0).mean()
-    df_std = pd.concat(df_means_list).groupby(level=0).std()
-
-    return df_mean_all_reps, df_std
+    return df_means_list
 
 def plot_all_replicates_mean(reps_dic: dict, dic_groups: dict, conditions: tuple = ("condition 1", "condition 2")):
     '''
     ### compute mean of samples and std (as shadow) between samples.
     ### https://seaborn.pydata.org/generated/seaborn.lineplot.html
     '''
+    print('Mean of all repeats:')
     df_mean_all_reps_a, df_std_a = get_mean_of_groups_all_replicates(reps_dic, dic_groups, cond_num=0)
     df_mean_all_reps_b, df_std_b = get_mean_of_groups_all_replicates(reps_dic, dic_groups, cond_num=1)
-    plot_panel(df_mean_all_reps_a, df_mean_all_reps_b, df_std_a, df_std_b, conditions)
+    plot_panel(df_mean_all_reps_a, df_mean_all_reps_b, conditions)
 
 
 
@@ -157,3 +167,6 @@ if __name__ == "__main__":
     )
 
     plot_all_replicates_mean(exp1_dic, dic_groups, conditions=('gfp RNAi','oma-1 RNAi'))
+
+    ### work with four concat tables to create STD?
+    df_means_list = get_df_means_list(exp1_dic, dic_groups)
