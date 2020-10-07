@@ -36,27 +36,28 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
 def plot_new(exp_dic: dict, dic_groups: dict, conditions: tuple = ("c1", "c2"), mean_all:bool=False, compare:bool=False):
     '''
     '''
-    ## get a list of dfs for condition a, each with means of all groups
+    ## get a list of dfs for conditions, each with means of all groups
     df_means_list_a = get_df_means_list(exp_dic, dic_groups, cond_num=0)
-    ## get a list of dfs for condition b, each with means of all groups
     df_means_list_b = get_df_means_list(exp_dic, dic_groups, cond_num=1)
-    ## if mean_all:
+
     if mean_all:
+        print('Mean of all replicates:')
         # concat
         df_means_concat_a = pd.concat(df_means_list_a)
         df_means_concat_b = pd.concat(df_means_list_b)
-        ## mean all:
+        
+        # mean all:
         df_means_a = df_means_concat_a.groupby(level=0).mean()
         df_means_b = df_means_concat_b.groupby(level=0).mean()
-        # plot_panel(all_reps_a, all_reps_b, compare/not)
 
-    ## else:
-        # for rep_num in reps_dic:
-            # print(f"Replicate {rep_num} :")
-            # plot_panel(rep_num_a, rep_num_b, compare/not)
+        # plot
+        plot_panel(df_means_a, df_means_b, conditions, compare)
 
-
-
+    else:
+        for rep_i in range(len(df_means_list_a)): ## later fix
+            print(f"Replicate {rep_i}:")
+            # plot
+            plot_panel(df_means_list_a[rep_i], df_means_list_b[rep_i], conditions, compare)
 
 
 # def plot_replicates(
@@ -85,21 +86,30 @@ def plot_new(exp_dic: dict, dic_groups: dict, conditions: tuple = ("c1", "c2"), 
 #         plot_panel(df_means_a, df_means_b, conditions)
 
 
-def plot_panel(df_means_a, df_means_b, conditions: tuple=('cond1', 'cond2')):
+def plot_panel(df_means_a, df_means_b, conditions: tuple=('cond1', 'cond2'), compare:bool=False):
     '''
     Can plot panel with:
     - 2 axes, one for each condition
     - 1 ax, with both conditions, when the condition name is added to the group name
     '''
-    fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(9, 4))
-    
-    # plot both conditions
-    df_means_a.plot(ax=axes[0])
-    df_means_b.plot(ax=axes[1])
-    
-    # set titles
-    axes[0].set_title(conditions[0], fontsize=18)
-    axes[1].set_title(conditions[1], fontsize=18)
+    if compare:
+        fig, axes = plt.subplots(nrows=1, ncols=1, sharey=True, figsize=(4, 4))
+
+        add_cond_to_col_names(df=df_means_a, condition=conditions[0])
+        add_cond_to_col_names(df=df_means_b, condition=conditions[1])
+        df_both_conds = pd.concat([df_means_a, df_means_b])
+        df_both_conds.plot(ax=axes)
+
+    else:
+        fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(9, 4))
+
+        # plot both conditions
+        df_means_a.plot(ax=axes[0])
+        df_means_b.plot(ax=axes[1])
+        
+        # set titles
+        axes[0].set_title(conditions[0], fontsize=18)
+        axes[1].set_title(conditions[1], fontsize=18)
 
     plt.show()
 
@@ -134,15 +144,15 @@ def get_df_means_list(reps_dic: dict, dic_groups: dict, cond_num:int):
         df_means_list.append(df_means)
     return df_means_list
 
-def plot_all_replicates_mean(reps_dic: dict, dic_groups: dict, conditions: tuple = ("condition 1", "condition 2")):
-    '''
-    ### compute mean of samples and std (as shadow) between samples.
-    ### https://seaborn.pydata.org/generated/seaborn.lineplot.html
-    '''
-    print('Mean of all repeats:')
-    df_mean_all_reps_a, df_std_a = get_mean_of_groups_all_replicates(reps_dic, dic_groups, cond_num=0)
-    df_mean_all_reps_b, df_std_b = get_mean_of_groups_all_replicates(reps_dic, dic_groups, cond_num=1)
-    plot_panel(df_mean_all_reps_a, df_mean_all_reps_b, conditions)
+# def plot_all_replicates_mean(reps_dic: dict, dic_groups: dict, conditions: tuple = ("condition 1", "condition 2")):
+#     '''
+#     ### compute mean of samples and std (as shadow) between samples.
+#     ### https://seaborn.pydata.org/generated/seaborn.lineplot.html
+#     '''
+#     print('Mean of all repeats:')
+#     df_mean_all_reps_a, df_std_a = get_mean_of_groups_all_replicates(reps_dic, dic_groups, cond_num=0)
+#     df_mean_all_reps_b, df_std_b = get_mean_of_groups_all_replicates(reps_dic, dic_groups, cond_num=1)
+#     plot_panel(df_mean_all_reps_a, df_mean_all_reps_b, conditions)
 
 
 def add_cond_to_col_names(df:pd.DataFrame, condition:str='treated'):
@@ -174,19 +184,30 @@ if __name__ == "__main__":
     # oma_1_gene = ['WBGene00003864']
     # dic_groups = {'oma-1 gene': oma_1_gene}
 
-    plot_replicates(
-        exp1_dic, dic_groups, conditions=("anti-gfp RNAi", "anti-oma-1 RNAi")
-    )
+    # plot_replicates(
+    #     exp1_dic, dic_groups, conditions=("anti-gfp RNAi", "anti-oma-1 RNAi")
+    # )
 
-    plot_all_replicates_mean(exp1_dic, dic_groups, conditions=('gfp RNAi','oma-1 RNAi'))
+    plot_new(exp1_dic, dic_groups, conditions=("anti-gfp RNAi", "anti-oma-1 RNAi"), mean_all=False)
+    plot_new(exp1_dic, dic_groups, conditions=("anti-gfp RNAi", "anti-oma-1 RNAi"), mean_all=True)
+    plot_new(exp1_dic, dic_groups, conditions=("anti-gfp RNAi", "anti-oma-1 RNAi"), mean_all=False, compare=True)
+
+
+
+    # plot_all_replicates_mean(exp1_dic, dic_groups, conditions=('gfp RNAi','oma-1 RNAi'))
 
     ### work with four concat tables to create STD?
-    df_means_list = get_df_means_list(exp1_dic, dic_groups, cond_num=0)
-    means_concat = pd.concat(df_means_list)
-    means_computed_a = means_concat.groupby(level=0).mean()
+    # df_means_list = get_df_means_list(exp1_dic, dic_groups, cond_num=0)
+    # means_concat = pd.concat(df_means_list)
+    # means_computed_a = means_concat.groupby(level=0).mean()
 
-    df_means_list_b = get_df_means_list(exp1_dic, dic_groups, cond_num=1)
-    means_concat_b = pd.concat(df_means_list_b)
-    means_computed_b = means_concat_b.groupby(level=0).mean()
+    # df_means_list_b = get_df_means_list(exp1_dic, dic_groups, cond_num=1)
+    # means_concat_b = pd.concat(df_means_list_b)
+    # means_computed_b = means_concat_b.groupby(level=0).mean()
+
+    # means_computed_a['cond']='a'
+    # means_computed_b['cond']='b'
+
+
 
     
