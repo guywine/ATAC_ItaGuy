@@ -33,31 +33,56 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
         df_groups_means[group] = sample_df.loc[intersected_list, :].mean()
     return df_groups_means
 
+def plot_new(exp_dic: dict, dic_groups: dict, conditions: tuple = ("c1", "c2"), mean_all:bool=False, compare:bool=False):
+    '''
+    '''
+    ## get a list of dfs for condition a, each with means of all groups
+    df_means_list_a = get_df_means_list(exp_dic, dic_groups, cond_num=0)
+    ## get a list of dfs for condition b, each with means of all groups
+    df_means_list_b = get_df_means_list(exp_dic, dic_groups, cond_num=1)
+    ## if mean_all:
+    if mean_all:
+        # concat
+        df_means_concat_a = pd.concat(df_means_list_a)
+        df_means_concat_b = pd.concat(df_means_list_b)
+        ## mean all:
+        df_means_a = df_means_concat_a.groupby(level=0).mean()
+        df_means_b = df_means_concat_b.groupby(level=0).mean()
+        # plot_panel(all_reps_a, all_reps_b, compare/not)
 
-def plot_replicates(
-    reps_dic: dict, dic_groups: dict, conditions: tuple = ("condition 1", "condition 2")
-):
-    """
-    Gets a dict with all samples (dfs) ordered by replicates,
-    and the desired groups of genes, and plots them seperately.
-    """
-    for rep_num in reps_dic:
-        print(f"Replicate {rep_num} :")
+    ## else:
+        # for rep_num in reps_dic:
+            # print(f"Replicate {rep_num} :")
+            # plot_panel(rep_num_a, rep_num_b, compare/not)
+
+
+
+
+
+# def plot_replicates(
+#     reps_dic: dict, dic_groups: dict, conditions: tuple = ("condition 1", "condition 2")
+# ):
+#     """
+#     Gets a dict with all samples (dfs) ordered by replicates,
+#     and the desired groups of genes, and plots them seperately.
+#     """
+#     for rep_num in reps_dic:
+#         print(f"Replicate {rep_num} :")
     
-        ## get mean of groups for first condition
-        cond_a_df = reps_dic[rep_num][0]
-        df_means_a = mean_gene_groups_of_sample(
-            sample_df=cond_a_df, dic_groups=dic_groups
-        )
+#         ## get mean of groups for first condition
+#         cond_a_df = reps_dic[rep_num][0]
+#         df_means_a = mean_gene_groups_of_sample(
+#             sample_df=cond_a_df, dic_groups=dic_groups
+#         )
 
-        ## get mean of groups for second condition
-        cond_b_df = reps_dic[rep_num][1]
-        df_means_b = mean_gene_groups_of_sample(
-            sample_df=cond_b_df, dic_groups=dic_groups
-        )
+#         ## get mean of groups for second condition
+#         cond_b_df = reps_dic[rep_num][1]
+#         df_means_b = mean_gene_groups_of_sample(
+#             sample_df=cond_b_df, dic_groups=dic_groups
+#         )
 
-        ## plot
-        plot_panel(df_means_a, df_means_b, conditions)
+#         ## plot
+#         plot_panel(df_means_a, df_means_b, conditions)
 
 
 def plot_panel(df_means_a, df_means_b, conditions: tuple=('cond1', 'cond2')):
@@ -95,7 +120,7 @@ def get_mean_of_groups_all_replicates(
     return df_mean_all_reps, df_std
 
 
-def get_df_means_list(reps_dic: dict, dic_groups: dict, cond_num:int=0):
+def get_df_means_list(reps_dic: dict, dic_groups: dict, cond_num:int):
     """
     Returns a list of all samples from this condition, means of groups.
     --------
@@ -118,6 +143,15 @@ def plot_all_replicates_mean(reps_dic: dict, dic_groups: dict, conditions: tuple
     df_mean_all_reps_a, df_std_a = get_mean_of_groups_all_replicates(reps_dic, dic_groups, cond_num=0)
     df_mean_all_reps_b, df_std_b = get_mean_of_groups_all_replicates(reps_dic, dic_groups, cond_num=1)
     plot_panel(df_mean_all_reps_a, df_mean_all_reps_b, conditions)
+
+
+def add_cond_to_col_names(df:pd.DataFrame, condition:str='treated'):
+    '''
+    Changes inplace.
+    '''
+    new_cols = [f'{name} {condition}' for name in df.columns]
+    cols_dict = dict(zip(df.columns, new_cols))
+    df.rename(columns=cols_dict, inplace=True)
 
 
 
@@ -147,5 +181,12 @@ if __name__ == "__main__":
     plot_all_replicates_mean(exp1_dic, dic_groups, conditions=('gfp RNAi','oma-1 RNAi'))
 
     ### work with four concat tables to create STD?
-    df_means_list = get_df_means_list(exp1_dic, dic_groups)
+    df_means_list = get_df_means_list(exp1_dic, dic_groups, cond_num=0)
     means_concat = pd.concat(df_means_list)
+    means_computed_a = means_concat.groupby(level=0).mean()
+
+    df_means_list_b = get_df_means_list(exp1_dic, dic_groups, cond_num=1)
+    means_concat_b = pd.concat(df_means_list_b)
+    means_computed_b = means_concat_b.groupby(level=0).mean()
+
+    
