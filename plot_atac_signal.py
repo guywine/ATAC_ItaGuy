@@ -141,13 +141,13 @@ if __name__ == "__main__":
     dic_list = {
         "hrde-1": ["isHrde1"],
         "pol-2": ["isPol2"],
-        "highly": ["R1-SX_S14", 10],
-        "all genes": ["ALL"],
+        "highly": ["R1-SX_S14", 10]#,
+        # "all genes": ["ALL"],
     }
-    # dic_groups = gs.get_multiple_lists(dic_list)
+    dic_groups = gs.get_multiple_lists(dic_list)
 
-    oma_1_gene = ['WBGene00003864']
-    dic_groups = {'oma-1 gene': oma_1_gene}
+    # oma_1_gene = ['WBGene00003864']
+    # dic_groups = {'oma-1 gene': oma_1_gene}
 
     plot_new(exp1_dic, dic_groups, conditions=("anti-gfp RNAi", "anti-oma-1 RNAi"), mean_all=False)
     plot_new(exp1_dic, dic_groups, conditions=("anti-gfp RNAi", "anti-oma-1 RNAi"), mean_all=True)
