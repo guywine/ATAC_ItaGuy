@@ -12,18 +12,26 @@ from gene_sets import Gene_sets
 import seaborn as sns
 
 
-def generate_mock_groups():
-    gene_list_1 = ["WBGene00007063", "WBGene00007064", "WBGene00007067"]
-    gene_list_2 = [
-        "WBGene00017071",
-        "WBGene00019895",
-        "WBGene00009583",
-        "WBGene00018682",
-    ]
+def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
+    """
+    Gets df of sample and groups and returns a dict with mean of these groups.
 
-    dic_groups = {"group 1": gene_list_1, "group 2": gene_list_2}
-    return dic_groups
+    Parameters
+    -----------
+    - sample_df: pd.DataFrame of ATAC-seq signal
+    - dic_groups: dict, group_name : list_of_ids
 
+    Return
+    -----------
+    - df_groups_means: pd.DataFrame, group_name:mean_of_all_genes_in_group
+    """
+    df_groups_means = pd.DataFrame([])
+    for group in dic_groups:
+        group_ids = dic_groups[group]
+        # take only genes that appear in the sample df:
+        intersected_list = list(set(sample_df.index) & set(group_ids))
+        df_groups_means[group] = sample_df.loc[intersected_list, :].mean()
+    return df_groups_means
 
 
 def plot_replicates(
@@ -51,30 +59,12 @@ def plot_replicates(
         ## plot
         plot_panel(df_means_a, df_means_b, conditions)
 
-def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
-    """
-    Gets df of sample and groups and returns a dict with mean of these groups.
-
-    Parameters
-    -----------
-    - sample_df: pd.DataFrame of ATAC-seq signal
-    - dic_groups: dict, group_name : list_of_ids
-
-    Return
-    -----------
-    - df_groups_means: pd.DataFrame, group_name:mean_of_all_genes_in_group
-    """
-    df_groups_means = pd.DataFrame([])
-    for group in dic_groups:
-        group_ids = dic_groups[group]
-        # take only genes that appear in the sample df:
-        intersected_list = list(set(sample_df.index) & set(group_ids))
-        df_groups_means[group] = sample_df.loc[intersected_list, :].mean()
-    return df_groups_means
-
 
 def plot_panel(df_means_a, df_means_b, conditions: tuple=('cond1', 'cond2')):
     '''
+    Can plot panel with:
+    - 2 axes, one for each condition
+    - 1 ax, with both conditions, when the condition name is added to the group name
     '''
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(9, 4))
     
@@ -90,19 +80,6 @@ def plot_panel(df_means_a, df_means_b, conditions: tuple=('cond1', 'cond2')):
 
     return fig, axes
 
-def get_df_means_list(reps_dic: dict, dic_groups: dict, cond_num:int=0):
-    '''
-    '''
-    df_means_list = []
-    for rep_num in reps_dic:
-        sample_df = reps_dic[rep_num][cond_num]
-        df_means = mean_gene_groups_of_sample(
-            sample_df=sample_df, dic_groups=dic_groups
-        )
-        df_means_list.append(df_means)
-    
-    return df_means_list
-
 
 def get_mean_of_groups_all_replicates(
     reps_dic: dict, dic_groups: dict, cond_num:int=0
@@ -116,6 +93,7 @@ def get_mean_of_groups_all_replicates(
     df_std = pd.concat(df_means_list).groupby(level=0).std()
 
     return df_mean_all_reps, df_std
+
 
 def get_df_means_list(reps_dic: dict, dic_groups: dict, cond_num:int=0):
     """
@@ -170,3 +148,4 @@ if __name__ == "__main__":
 
     ### work with four concat tables to create STD?
     df_means_list = get_df_means_list(exp1_dic, dic_groups)
+    means_concat = pd.concat(df_means_list)
