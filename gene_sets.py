@@ -5,6 +5,8 @@ This will provide the user to choose which gene set to get.
 '''
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2, venn3
 
 class Gene_sets():
     def __init__(self):
@@ -23,10 +25,21 @@ class Gene_sets():
         big_table = pd.read_excel('ATAC_bigtable_1.xlsx', header=1)
         big_table.set_index('gene', inplace=True)
 
+        big_table_with_exp = self._add_expression_levels(big_table)
+
         # clean zeros from Ketting and Kennedy
         cols_to_drop_zero = ['isHrde1', 'ketting_score_all', 'ketting_score_20_23']
-        big_table[cols_to_drop_zero] = big_table[cols_to_drop_zero].replace(0,np.nan)
-        return big_table
+        big_table_with_exp[cols_to_drop_zero] = big_table_with_exp[cols_to_drop_zero].replace(0,np.nan)
+        return big_table_with_exp
+
+    def _add_expression_levels(self, big_table):
+        f_name = 'geneExprTable_YA.csv'
+        exp_table = pd.read_csv(f_name)
+        exp_table.set_index('geneID', inplace=True)
+        exp_table.rename(columns={'median_adult Ce':'expression_median','mean_adult Ce':'expression_mean'}, inplace=True)
+
+        big_table_with_exp = big_table.join(exp_table, how='outer')
+        return big_table_with_exp
 
 
     def get_list(self, col_name:str, prcnt:float=0, upper:bool = True):
@@ -78,6 +91,36 @@ class Gene_sets():
    
         return dic_groups
 
+def plot_venn_from_dic(dic_groups:dict, list_of_names:list):
+    '''
+    Gets dic_groups, and list of lists names (len 2 or 3).
+    Plots venn diagram of the matching lists
+    '''
+    assert all([name in dic_groups.keys() for name in list_of_names]), 'Some group names are not found in the dic_groups'
+    
+    list_of_sets = [set(dic_groups[lst_name]) for lst_name in list_of_names]
+    plot_ven(list_of_sets, list_of_names)
+
+def plot_ven(list_of_sets: list, list_of_names: list):
+    '''
+    Plots venn diagram for 2/3 sets.
+
+    list_of_sets: list of lists or of sets
+    '''
+    assert len(list_of_names) in [2,3], 'Venn diagram only works for 2/3 sets'
+    assert len(list_of_names)==len(list_of_sets), 'Num of names does not match num of groups'
+
+    if not all(isinstance(elem, set) for elem in list_of_sets): # if some are not sets
+        list_of_sets = [set(group) for group in list_of_sets]
+    
+    plt.figure()
+    plt.title('Venn Diagram of gene lists', fontsize=16)
+    if len(list_of_names)==2:
+        venn2(subsets=(list_of_sets), set_labels=(list_of_names))
+    if len(list_of_names)==3:
+        venn3(subsets=(list_of_sets), set_labels=(list_of_names))
+    
+
 
 if __name__=='__main__':
     gs = Gene_sets()
@@ -88,9 +131,14 @@ if __name__=='__main__':
 
     dic_list = {'hrde-1':['isHrde1', 10], 
         'pol-2':['isPol2'], 
-        'highly':['R1-SX_S14', 10],
+        'highly1':['expression_median', 10],
+        'highly2':['expression_mean', 10],
         'all genes':['ALL']}
 
     dic_groups = gs.get_multiple_lists(dic_list)
 
     print('done')
+
+
+    # name1 = 'WBGene00268208'
+    plot_venn_from_dic(dic_groups, list_of_names=['highly2', 'highly1'])
