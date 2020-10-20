@@ -28,7 +28,7 @@ class Gene_sets():
         big_table_with_exp = self._add_expression_levels(big_table)
 
         # clean zeros from Ketting and Kennedy
-        cols_to_drop_zero = ['isHrde1', 'ketting_score_all', 'ketting_score_20_23']
+        cols_to_drop_zero = ['hrde-1-Kennedy', 'hrde-1-Ketting-all', 'hrde-1-Ketting-20-23']
         big_table_with_exp[cols_to_drop_zero] = big_table_with_exp[cols_to_drop_zero].replace(0,np.nan)
         return big_table_with_exp
 
@@ -129,7 +129,7 @@ if __name__=='__main__':
     col_name = 'isHrde1'
     # ids_list = at.get_list(col_name, 10, False)
 
-    dic_list = {'hrde-1':['isHrde1', 10], 
+    dic_list = {'hrde-1':['hrde-1-Kennedy', 10], 
         'pol-2':['isPol2'], 
         'highly1':['expression_median', 10],
         'highly2':['expression_mean', 10],
