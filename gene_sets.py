@@ -139,6 +139,55 @@ def plot_ven(list_of_sets: list, list_of_names: list):
         venn3(subsets=(list_of_sets), set_labels=(list_of_names))
 
 
+def add_intersect(
+    dic_groups: dict,
+    group1: str,
+    group2: str,
+    inter_type: str = "intersection",
+    replace: bool = False,
+):
+    """
+    Takes a dictionary containing lists of genes, and operates on the two groups.
+    Adds the resulted group to the dictionary with an automatic name.
+    Can also replace the two original groups if chosen.
+
+    Parameters
+    ----------
+    - dic_groups: dict. 'group_name':list_of_wbids
+    - group1: str. name of group.
+    - group2: str. name of group.
+    - inter_type: str. 'intersection' / 'only first' / 'only second' / 'union'
+    - replace: bool. Default: False. If True, removes the 2 original groups from the dict.
+
+    Return
+    ----------
+    **changes dic_groups in place.**
+    """
+    ### Verify all group names appear in dictionary
+    if group1 not in dic_groups.keys():
+        KeyError, f"group {group1} is not found in the dic_groups"
+    if group2 not in dic_groups.keys():
+        KeyError, f"group {group2} is not found in the dic_groups"
+
+    ### generate list
+    new_list = intersect_lists(dic_groups[group1], dic_groups[group2], inter_type)
+
+    ### generate new name
+    if inter_type.lower() == "union":
+        new_name = f"{group1} union {group2}"
+    elif inter_type.lower() == "intersection":
+        new_name = f"{group1} and {group2}"
+    elif inter_type.lower() == "only first":
+        new_name = f"{group1} (without {group2})"
+    elif inter_type.lower() == "only second":
+        new_name = f"{group2} (without {group1})"
+
+    ### edit dictionary
+    dic_groups[new_name] = new_list
+    if replace:
+        del dic_groups[group1], dic_groups[group2]
+
+
 def intersect_lists(lst1, lst2, inter_type: str = "intersection"):
     """
     Takes two lists, returns a list of required relation.
@@ -187,7 +236,7 @@ if __name__ == "__main__":
     # ids_list = at.get_list(col_name, 10, False)
 
     dic_list = {
-        "hrde-1 all": ["hrde-1-Kennedy"],
+        "hrde-1": ["hrde-1-Kennedy"],
         "pol-2": ["isPol2"],
         "highly 10%": ["expression_mean", 10],
         "lowly 10%": ["expression_mean", 10, True],
@@ -199,4 +248,5 @@ if __name__ == "__main__":
     print("done")
 
     # name1 = 'WBGene00268208'
-    plot_venn_from_dic(dic_groups, list_of_names=["highly 10%", "hrde-1 all"])
+    plot_venn_from_dic(dic_groups, list_of_names=["highly 10%", "hrde-1"])
+    add_intersect(dic_groups, 'highly 10%', 'hrde-1', inter_type='only second')
