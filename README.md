@@ -9,3 +9,4 @@
 ---
 **Done**
 - Fix column names in big_table file
+- Add option to intersect two gene sets (replace them or add them to groups_dic)
