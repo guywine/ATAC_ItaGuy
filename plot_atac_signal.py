@@ -139,9 +139,9 @@ if __name__ == "__main__":
     ## generate lists of genes to be plotted
     gs = Gene_sets()
     dic_list = {
-        "hrde-1": ["isHrde1"],
+        "hrde-1": ["hrde-1-Kennedy"],
         "pol-2": ["isPol2"],
-        "highly": ["R1-SX_S14", 10]#,
+        "highly 10%": ["expression_mean", 10]#,
         # "all genes": ["ALL"],
     }
     dic_groups = gs.get_multiple_lists(dic_list)
