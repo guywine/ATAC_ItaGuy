@@ -6,6 +6,7 @@
 - ADD "std/95/none" parameter in plotting functions
 - Add function "ATAC_FC" for a single gene
 - Add function "ATAC_FC_Group"
+- Rolling mean for the std to smoothen the graphs
 ---
 **Done**
 - Fix column names in big_table file
