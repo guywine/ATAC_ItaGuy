@@ -46,6 +46,8 @@ def plot_new(exp_dic: dict, dic_groups: dict, conditions: tuple = ("c1", "c2"), 
             # plot
             plot_panel(df_means_list_a[rep_i], df_means_list_b[rep_i], conditions, compare)
 
+
+############# moved to calculation #################
 def get_df_means_list(reps_dic: dict, dic_groups: dict, cond_num:int):
     """
     Returns a list of all samples from this condition, means of groups.
@@ -59,6 +61,7 @@ def get_df_means_list(reps_dic: dict, dic_groups: dict, cond_num:int):
         )
         df_means_list.append(df_means)
     return df_means_list
+############# moved to calculation #################
 
 
 def get_mean_variance(df_means_list: list, variance_type: str):
@@ -92,15 +95,15 @@ def plot_panel(df_means_a, fill_a, df_means_b, fill_b, conditions: tuple=('cond1
         fig, axes = plt.subplots()
         sns.lineplot(data=long_ab, x=long_ab.index, y='signal', hue='group', style='condition', ax=axes)
         
-        for col in df_means_a.columns:
-            y = df_means_a[col]
-            var = fill_a[col]
-            plt.fill_between(range(-1000,1001), y+var, y-var, alpha=0.4)
+        # for col in df_means_a.columns:
+        #     y = df_means_a[col]
+        #     var = fill_a[col]
+        #     plt.fill_between(range(-1000,1001), y+var, y-var, alpha=0.4)
         
-        for col in df_means_b.columns:
-            y = df_means_b[col]
-            var = fill_b[col]
-            plt.fill_between(range(-1000,1001), y+var, y-var, alpha=0.4)
+        # for col in df_means_b.columns:
+        #     y = df_means_b[col]
+        #     var = fill_b[col]
+        #     plt.fill_between(range(-1000,1001), y+var, y-var, alpha=0.4)
 
     else:
         fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(9, 4))
@@ -117,9 +120,13 @@ def plot_panel(df_means_a, fill_a, df_means_b, fill_b, conditions: tuple=('cond1
 
     return fig, axes
 
+
+
+
+############# moved to calculation #################
 def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
     """
-    Gets df of sample and groups and returns a dict with mean of these groups.
+    Gets df of sample and dic of groups and returns a df with mean for each of these groups.
 
     Parameters
     -----------
@@ -137,7 +144,7 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
         intersected_list = list(set(sample_df.index) & set(group_ids))
         df_groups_means[group] = sample_df.loc[intersected_list, :].mean()
     return df_groups_means
-
+############# moved to calculation #################
 
 
 
@@ -161,7 +168,7 @@ def combine_conditions_to_long(df_a, df_b, conditions:tuple=('a','b')):
 
 ############################
 def calculate_std():
-    pvalueSTD= np.std(pvalues,axis=0)
+    pvalueSTD = np.std(pvalues,axis=0)
     pvalueSEM = stats.sem(pvalues,axis=0)
     
     plt.fill_between(xGraph, mean+std, mean-std,
@@ -196,9 +203,9 @@ if __name__ == "__main__":
 
 
     ### work with four concat tables to create STD?
-    # df_means_list_a = get_df_means_list(exp1_dic, dic_groups, cond_num=0)
-    # means_concat_a = pd.concat(df_means_list_a)
-    # a_long = means_concat_a.melt(var_name='group',value_name='signal', ignore_index=False)
+    df_means_list_a = get_df_means_list(exp1_dic, dic_groups, cond_num=0)
+    means_concat_a = pd.concat(df_means_list_a)
+    a_long = means_concat_a.melt(var_name='group',value_name='signal', ignore_index=False)
     # a_long['condition']='a'
 
     # df_means_list_b = get_df_means_list(exp1_dic, dic_groups, cond_num=1)
@@ -208,7 +215,7 @@ if __name__ == "__main__":
 
     # a_b_df = pd.concat([a_long, b_long])
 
-    # sns.lineplot(data=a_b_df, x=a_b_df.index, y='signal', hue='group', style='condition')
+    sns.lineplot(data=a_long, x=a_long.index, y='signal', hue='group', ci='sd')
 
 
     
