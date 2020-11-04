@@ -8,7 +8,7 @@ Gets df os samples and can calculate:
 import pandas as pd
 
 
-def get_df_means_list(reps_dic: dict, dic_groups: dict, cond_num:int):
+def get_group_means_df_list(reps_dic: dict, dic_groups: dict, cond_num:int):
     """
     Returns a list of all samples from this condition, means of groups.
     --------

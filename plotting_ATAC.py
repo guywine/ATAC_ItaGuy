@@ -6,8 +6,7 @@ import seaborn as sns
 import calc_signals as cas 
 
 def plot_experiment_dfs(
-    results_df_dict: dict,
-    conditions: tuple = ("c1", "c2"),
+    dict_conditions: dict,
     mean_all_reps: bool = False,
     compare_conditions: bool = False,
     variance_type: str = "none",
@@ -21,46 +20,55 @@ def plot_experiment_dfs(
 
     Parameters
     ------------
-    - results_df_dict: dict. {#rep_num : #list_of_dfs_for_this_rep}. Each df row is a gene_name/group_name. Each rep is a list of length 2 or one (Depends if conditions were merged in calculation).
-    - conditions: tuple of str. Either two condition names or one name for the calculation (e.g. "ATAC FC - GFP/OMA-1")
+    - dict_conditions: dict. "condition_name":list_of_sample_dfs_from_all_reps. Can have 1/2 conditions
     - mean_all_reps: bool=False. If true, means all replicates an plots on the same panel.
     - compare_conditions: bool=False. If True, plots both condition on the same axe.
     - variance_type: str='none'. Can be ['none','std','sem']. Only relevant if mean_all_reps = True.
     """
 
     #### verify input
-    # num_of_conds = # get 1 or 2
-    # if num_of_conds==1:
-        # assert compare_conditions=False
-    # if mean_all_reps==False:
-        # assert variance_type=='none'
-    # else:
-        # assert variance_type.lower() in ['none', 'std', 'sem']
-    # if compare_conditions == True:
-        # assert that the rows are the same in all dfs
+    num_of_conds = len(dict_conditions)
+    conditions = list(dict_conditions.keys())
+    df_list_a = dict_conditions[conditions[0]]
+    df_list_b = dict_conditions[conditions[1]]
 
-
-    # if mean_all:
-        ### calculate mean and variance
-        # initiate mean_dfs_list, var_df_list
-        # for each condition:
-            # df_mean, df_var = get_mean_variance(df_list, variance_type)
-            # add them to mean_dfs_list, var_df_list
-
-        # plot_panel(mean_dfs_list, var_df_list, conditions, compare_conditions)
+    assert num_of_conds in {1,2}
+    if num_of_conds==1:
+        assert compare_conditions=False, 'Cannot comapre conditions, only one condition given'
     
-    # If not mean all:
+    if mean_all_reps==False:
+        assert variance_type=='none', 'Cannot plot variance for independent repeats'
+    else:
+        assert variance_type.lower() in {'none', 'std', 'sem'}, 'Variance type should be "none"/"std"/"sem"'
+    
+    if compare_conditions == True:
+        assert assert_conditions_are_comparable(df_list_a, df_list_b)
+
+    #### plot
+    if mean_all:
+        ### calculate mean and variance
+        mean_dfs_list = [] 
+        var_df_list = []
+        for condition in conditions:
+            df_mean, df_var = cas.get_mean_variance(dict_conditions[condition], variance_type)
+            mean_dfs_list.append(df_mean)
+            var_df_list.append(df_var)
+
+        plot_panel(mean_dfs_list, conditions, compare_conditions, var_df_list)
+    
+    else: # if not mean all:
         # for each rep_num in results_df_dict:
             # print: replicate {rep_num}
             # plot_panel (dfs_list, conditions, compare_conditions)
 
 
-def plot_panel(dfs_list, conditions, compare_conditions, var_df_list=0):
+def plot_panel(dfs_list:list, conditions: list, compare_conditions: bool, var_df_list=[0]):
     '''
     Gets 1/2 dfs and plots them on 1/2 axes in same panel.
     If plotted on the same panel, there will be two different styles.
 
-    If var_df_list is [0,0,0,0] it will not 
+    If var_df_list is list of zeros, it will not plot.
+
     '''
     # create color pallete?
 
@@ -94,6 +102,44 @@ def plot_vector(vec, variance_vec, ax, color, style):
         # plot variance band
 
 
+def assert_conditions_are_comparable(df_list_a: pd.DataFrame, df_list_b: pd.DataFrame):
+    '''
+    Takes two conditions, each with its df_list, and verifies that the structures of the data are the same.
+    Verifies the shape, indices, and columns.
+
+    * Checks only first df in list, assuming inside the list the dfs are the same.
+
+    Parameters
+    ----------
+    - df_list_a: pd.DataFrame
+    - df_list_b: pd.DataFrame
+
+    Return
+    ---------
+    - bool. True if the dfs are equal.
+    '''
+    a0 = df_list_a[0]
+    b0 = df_list_b[0]
+
+    if a0.shape!=b0.shape:
+        return False
+    
+    inds_same = a0.index==b0.index
+    if not all(inds_same):
+        return False
+    
+    cols_same = a0.columns==b0.columns
+    if not all(cols_same):
+        return False
+    
+    return True
+
+    
+
+
+    
+
+
 if __name__ == "__main__":
     ## generate dictionary of all samples of experiment
     exp_dic = rdt.read_experiment_to_dic(exp_name="exp1")
@@ -109,7 +155,9 @@ if __name__ == "__main__":
 
     # create means of these groups, one for each condition:
     df_means_list_a = cas.get_group_means_df_list(exp_dic, dic_groups, cond_num=0)
-    df_means_list_b = cas.get_group_means_df_list(exp_dic, dic_groups, cond_num=0)
+    df_means_list_b = cas.get_group_means_df_list(exp_dic, dic_groups, cond_num=1)
+
+    dict_conditions = {'group a':df_means_list_a, 'group b':df_means_list_b}
     
 
 
