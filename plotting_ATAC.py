@@ -108,8 +108,9 @@ if __name__ == "__main__":
     dic_groups = gs.get_multiple_lists(dic_list)
 
     # create means of these groups, one for each condition:
-    df_means_list_a = cas.get_df_means_list(exp_dic, dic_groups, cond_num=0)
-    df_means_list_b = cas.get_df_means_list(exp_dic, dic_groups, cond_num=0)
+    df_means_list_a = cas.get_group_means_df_list(exp_dic, dic_groups, cond_num=0)
+    df_means_list_b = cas.get_group_means_df_list(exp_dic, dic_groups, cond_num=0)
+    
 
 
 
