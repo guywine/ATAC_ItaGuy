@@ -27,22 +27,20 @@ def plot_experiment_dfs(
     """
 
     #### verify input
-    num_of_conds = len(dict_conditions)
     conditions = list(dict_conditions.keys())
-    df_list_a = dict_conditions[conditions[0]]
-    df_list_b = dict_conditions[conditions[1]]
+    num_of_conds = len(conditions)
 
     assert num_of_conds in {1,2}
     if num_of_conds==1:
-        assert compare_conditions=False, 'Cannot comapre conditions, only one condition given'
+        assert compare_conditions == False, 'Cannot comapre conditions, only one condition given'
     
-    if mean_all_reps==False:
+    if mean_all_reps == False:
         assert variance_type=='none', 'Cannot plot variance for independent repeats'
     else:
         assert variance_type.lower() in {'none', 'std', 'sem'}, 'Variance type should be "none"/"std"/"sem"'
     
     if compare_conditions == True:
-        assert assert_conditions_are_comparable(df_list_a, df_list_b)
+        assert assert_conditions_are_comparable(dict_conditions[conditions[0]], dict_conditions[conditions[1]])
 
     #### plot
     if mean_all:
@@ -57,9 +55,10 @@ def plot_experiment_dfs(
         plot_panel(mean_dfs_list, conditions, compare_conditions, var_df_list)
     
     else: # if not mean all:
-        # for each rep_num in results_df_dict:
-            # print: replicate {rep_num}
-            # plot_panel (dfs_list, conditions, compare_conditions)
+        for rep_num in len(df_list_a):
+            dfs_list = [df_list[rep_num] for df_list in dict_conditions.values()]
+            print(f'Replicate #{rep_num}:')
+            plot_panel(dfs_list, conditions, compare_conditions)
 
 
 def plot_panel(dfs_list:list, conditions: list, compare_conditions: bool, var_df_list=[0]):
@@ -70,6 +69,7 @@ def plot_panel(dfs_list:list, conditions: list, compare_conditions: bool, var_df
     If var_df_list is list of zeros, it will not plot.
 
     '''
+    return 0
     # create color pallete?
 
     # if dfs_list has only 1:
@@ -158,6 +158,8 @@ if __name__ == "__main__":
     df_means_list_b = cas.get_group_means_df_list(exp_dic, dic_groups, cond_num=1)
 
     dict_conditions = {'group a':df_means_list_a, 'group b':df_means_list_b}
+
+    plot_experiment_dfs(dict_conditions, mean_all_reps=True, compare_conditions=False, variance_type='std')
     
 
 
