@@ -101,33 +101,28 @@ def plot_panel(
         plt.ylabel('ATAC-seq signal (norm.)')
 
         plot_ax(df, axes, var_df)
-        # if not isinstance(var_df, int):
-        #     for col_i in range(df.shape[1]):
-        #         line = plot_vector(vec=df.iloc[:,col_i], ax=axes, color=colors(col_i), variance_vec=var_df.iloc[:,col_i])
-        #         lines.append(line)
-        # else:
-        #     for col_i in range(df.shape[1]):
-        #         line = plot_vector(vec=df.iloc[:,col_i], ax=axes, color=colors(col_i))
-        #         lines.append(line)
 
-        # plt.legend(lines, df.columns)
 
-    # if dfs_list has 2:
-    else:
+    else: # if dfs_list has 2:
         if compare_conditions==False:
-            fig, axes = plt.subplots(1,2)
+            fig, axes = plt.subplots(1,2, figsize=(12,5), sharey=True)
             axes[0].set_title(conditions[0], fontsize=16)
             axes[1].set_title(conditions[1], fontsize=16)
 
-        # loop on cols:
-            # plot_vector(df1_col, variance_col, ax1, color, style)
-            # plot_vector(df2_col, variance_col, ax2, color, style)
-    # else: # if compare==True:
-    # create a panel of 1 ax.
-    # legend!!!
-    # loop on cols:
-    # plot_vector(df1_col, variance_col, ax, color, style1)
-    # plot_vector(df2_col, variance_col, ax, color, style2)
+            df_a = dfs_list[0]
+            var_df_a = var_df_list[0]
+            plot_ax(df_a, axes[0], var_df_a, legend_flag=False)
+
+            df_b = dfs_list[1]
+            var_df_b = var_df_list[1]
+            plot_ax(df_b, axes[1], var_df_b)
+        
+        # else: # if compare==True:
+            # create a panel of 1 ax.
+            # legend!!!
+            # loop on cols:
+                # plot_vector(df1_col, variance_col, ax, color, style1)
+                # plot_vector(df2_col, variance_col, ax, color, style2)
 
     plt.show()
 
@@ -156,7 +151,7 @@ def plot_ax(vec_df, ax, var_df=0, style='solid', legend_flag:bool = True):
             lines.append(line)
     
     if legend_flag:
-        plt.legend(lines, vec_df.columns)
+        ax.legend(lines, vec_df.columns)
 
 
 def plot_vector(vec, ax, color, style="solid", var_vec=0):
@@ -227,30 +222,42 @@ if __name__ == "__main__":
     dict_condition = {"group a": df_means_list_a}
 
 
-    print('mean, std, one condition')
-    plot_experiment_dfs(
-        dict_condition,
-        compare_conditions=False,
-        variance_type="std",
-    )
+    # print('mean, std, one condition')
+    # plot_experiment_dfs(
+    #     dict_condition,
+    #     compare_conditions=False,
+    #     variance_type="std",
+    # )
 
-    print('\n\nmean, sem, one condition')
-    plot_experiment_dfs(
-        dict_condition,
-        compare_conditions=False,
-        variance_type="sem",
-    )
+    # print('\n\nmean, sem, one condition')
+    # plot_experiment_dfs(
+    #     dict_condition,
+    #     compare_conditions=False,
+    #     variance_type="sem",
+    # )
 
-    print('\n\nmean, none, one condition')
-    plot_experiment_dfs(
-        dict_condition,
-        compare_conditions=False,
-        variance_type="none",
-    )
+    # print('\n\nmean, none, one condition')
+    # plot_experiment_dfs(
+    #     dict_condition,
+    #     compare_conditions=False,
+    #     variance_type="none",
+    # )
 
 
-    # print('do not mean, one condition\n\n')
+    # print('\n\ndo not mean, one condition')
     # plot_experiment_dfs(dict_condition, mean_all_reps=False)
+
+    # print('\n\ndo not mean, 2 conditions')
+    # plot_experiment_dfs(dict_conditions, mean_all_reps=False)
+
+    print('\n\nmean, 2 conditions')
+    plot_experiment_dfs(dict_conditions, mean_all_reps=True)
+    plot_experiment_dfs(dict_conditions, mean_all_reps=True, variance_type='std')
+    plot_experiment_dfs(dict_conditions, mean_all_reps=True, variance_type='sem')
+
+
+
+
 
     df_mean, df_std = cas.get_mean_variance(df_means_list_a, 'std')
     df_col = df_mean.iloc[:,0]
