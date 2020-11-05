@@ -47,14 +47,17 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
 
 def get_mean_variance(df_means_list: list, variance_type: str):
     """
+    Parameters
+    ----------
+    - variance_type: str. ['std' / 'sem' / 'none']
     """
     ### create single df average across replicates:
     df_mean_all_reps = pd.concat(df_means_list).groupby(level=0).mean()
-    if variance_type=='std':
+    if variance_type.lower()=='std':
         df_variance = pd.concat(df_means_list).groupby(level=0).std()
-    elif variance_type=='sem':
+    elif variance_type.lower()=='sem':
         df_variance = pd.concat(df_means_list).groupby(level=0).sem()
-    elif variance_type=='none':
+    elif variance_type.lower()=='none':
         df_variance = 0
 
     return df_mean_all_reps, df_variance
