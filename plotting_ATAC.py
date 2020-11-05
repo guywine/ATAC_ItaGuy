@@ -1,5 +1,6 @@
 import read_tables as rdt
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 import pandas as pd
 from gene_sets import Gene_sets
 import seaborn as sns
@@ -104,25 +105,30 @@ def plot_panel(
 
 
     else: # if dfs_list has 2:
+        df_a = dfs_list[0]
+        var_df_a = var_df_list[0]
+        df_b = dfs_list[1]
+        var_df_b = var_df_list[1]
+
         if compare_conditions==False:
             fig, axes = plt.subplots(1,2, figsize=(12,5), sharey=True)
             axes[0].set_title(conditions[0], fontsize=16)
             axes[1].set_title(conditions[1], fontsize=16)
 
-            df_a = dfs_list[0]
-            var_df_a = var_df_list[0]
             plot_ax(df_a, axes[0], var_df_a, legend_flag=False)
-
-            df_b = dfs_list[1]
-            var_df_b = var_df_list[1]
             plot_ax(df_b, axes[1], var_df_b)
         
-        # else: # if compare==True:
-            # create a panel of 1 ax.
-            # legend!!!
-            # loop on cols:
-                # plot_vector(df1_col, variance_col, ax, color, style1)
-                # plot_vector(df2_col, variance_col, ax, color, style2)
+        else: # if compare==True:
+            fig, axes = plt.subplots()
+            plt.title(f"{conditions[0]} and {conditions[1]}", fontsize=16)
+
+            plot_ax(df_a, axes, var_df_a, style='solid')
+            plot_ax(df_b, axes, var_df_b, style='dashed', legend_flag=False)
+
+            ### add legend of conditions:
+            # black_line = mlines.Line2D([], [], color='black', label=conditions[0])
+            # dashed_line = mlines.Line2D([], [], color='black', label=conditions[1], linestyle='dashed')
+            # plt.legend(handles=[black_line, dashed_line])
 
     plt.show()
 
@@ -143,15 +149,21 @@ def plot_ax(vec_df, ax, var_df=0, style='solid', legend_flag:bool = True):
 
     if not isinstance(var_df, int): # if a variance vector was given
         for col_i in range(vec_df.shape[1]):
-            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i), var_vec=var_df.iloc[:,col_i])
+            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i), style=style, var_vec=var_df.iloc[:,col_i])
             lines.append(line)
     else:
         for col_i in range(vec_df.shape[1]):
-            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i))
+            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i), style=style)
             lines.append(line)
     
     if legend_flag:
-        ax.legend(lines, vec_df.columns)
+        first_leg = plt.legend(lines, vec_df.columns)
+        ax = plt.gca().add_artist(first_leg)
+
+        black_line = mlines.Line2D([], [], color='black', label='aa')
+        dashed_line = mlines.Line2D([], [], color='black', label='bb', linestyle='dashed')
+        plt.legend(handles=[black_line, dashed_line], loc='lower right')
+        
 
 
 def plot_vector(vec, ax, color, style="solid", var_vec=0):
@@ -218,7 +230,7 @@ if __name__ == "__main__":
     df_means_list_a = cas.get_group_means_df_list(exp_dic, dic_groups, cond_num=0)
     df_means_list_b = cas.get_group_means_df_list(exp_dic, dic_groups, cond_num=1)
 
-    dict_conditions = {"group a": df_means_list_a, "group b": df_means_list_b}
+    dict_conditions = {"GFP": df_means_list_a, "OMA-1": df_means_list_b}
     dict_condition = {"group a": df_means_list_a}
 
 
@@ -250,10 +262,18 @@ if __name__ == "__main__":
     # print('\n\ndo not mean, 2 conditions')
     # plot_experiment_dfs(dict_conditions, mean_all_reps=False)
 
-    print('\n\nmean, 2 conditions')
-    plot_experiment_dfs(dict_conditions, mean_all_reps=True)
-    plot_experiment_dfs(dict_conditions, mean_all_reps=True, variance_type='std')
-    plot_experiment_dfs(dict_conditions, mean_all_reps=True, variance_type='sem')
+    # print('\n\nmean, 2 conditions')
+    # plot_experiment_dfs(dict_conditions, mean_all_reps=True)
+    # plot_experiment_dfs(dict_conditions, mean_all_reps=True, variance_type='std')
+    # plot_experiment_dfs(dict_conditions, mean_all_reps=True, variance_type='sem')
+
+    print('\n\nmean, 2 conditions, compare')
+    plot_experiment_dfs(dict_conditions, mean_all_reps=True, compare_conditions=True)
+
+    print('\n\nno mean, 2 conditions, compare')
+    plot_experiment_dfs(dict_conditions, mean_all_reps=False, compare_conditions=True)
+
+
 
 
 

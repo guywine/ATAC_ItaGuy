@@ -98,7 +98,7 @@ def read_experiment(exp_name: str = "exp1"):
 def create_exp_dic(exp_dfs_list: list, exp_name: str):
     """"""
     exp_dic = {}
-    if exp_name == "exp1":
+    if exp_name == "exp1": # first GFP, than OMA-1
         exp_dic[0] = [exp_dfs_list[0], exp_dfs_list[4]]
         exp_dic[1] = [exp_dfs_list[1], exp_dfs_list[5]]
         exp_dic[2] = [exp_dfs_list[2], exp_dfs_list[6]]
