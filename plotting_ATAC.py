@@ -8,7 +8,7 @@ import calc_signals as cas
 
 def plot_experiment_dfs(
     dict_conditions: dict,
-    mean_all_reps: bool = False,
+    mean_all_reps: bool = True,
     compare_conditions: bool = False,
     variance_type: str = "none",
 ):
@@ -67,6 +67,7 @@ def plot_experiment_dfs(
             mean_dfs_list.append(df_mean)
             var_df_list.append(df_var)
 
+        # print(f'df_var 1: {df_var}') ### later
         plot_panel(mean_dfs_list, conditions, compare_conditions, var_df_list)
 
     else:  # if not mean all:
@@ -74,9 +75,8 @@ def plot_experiment_dfs(
             dfs_list = [df_list[rep_num] for df_list in dict_conditions.values()]
             print(f"Replicate #{rep_num+1}:")
             plot_panel(dfs_list, conditions, compare_conditions)
-            
-
-
+        
+   
 def plot_panel(
     dfs_list: list, conditions: list, compare_conditions: bool, var_df_list=[0]
 ):
@@ -91,37 +91,38 @@ def plot_panel(
     if isinstance(var_df_list[0],int):
         var_df_list = [0] * len(dfs_list)
 
-    # generate color pallete
-    colors = plt.get_cmap('Accent')
-    lines = []
-
     if len(dfs_list) == 1:
         df = dfs_list[0]
         var_df = var_df_list[0]
+        # print(f'var_df 2: {var_df}') ### later
         fig, axes = plt.subplots()
         plt.title(f"{conditions[0]}", fontsize=14)
         plt.xlabel('Location relative to TSS')
         plt.ylabel('ATAC-seq signal (norm.)')
 
-        if not isinstance(var_df, int):
-            for col_i in range(df.shape[1]):
-                line = plot_vector(vec=df.iloc[:,col_i], ax=axes, color=colors(col_i), variance_vec=var_df.iloc[:,col_i])
-                lines.append(line)
-        else:
-            for col_i in range(df.shape[1]):
-                line = plot_vector(vec=df.iloc[:,col_i], ax=axes, color=colors(col_i))
-                lines.append(line)
+        plot_ax(df, axes, var_df)
+        # if not isinstance(var_df, int):
+        #     for col_i in range(df.shape[1]):
+        #         line = plot_vector(vec=df.iloc[:,col_i], ax=axes, color=colors(col_i), variance_vec=var_df.iloc[:,col_i])
+        #         lines.append(line)
+        # else:
+        #     for col_i in range(df.shape[1]):
+        #         line = plot_vector(vec=df.iloc[:,col_i], ax=axes, color=colors(col_i))
+        #         lines.append(line)
 
-        plt.legend(lines, df.columns)
+        # plt.legend(lines, df.columns)
 
     # if dfs_list has 2:
-    # if compare==False:
-    # create a panel of 2 axes.
-    # title 1 and 2 from conditions
-    # loop on cols:
-    # plot_vector(df1_col, variance_col, ax1, color, style)
-    # plot_vector(df2_col, variance_col, ax2, color, style)
-    # if compare==True:
+    else:
+        if compare_conditions==False:
+            fig, axes = plt.subplots(1,2)
+            axes[0].set_title(conditions[0], fontsize=16)
+            axes[1].set_title(conditions[1], fontsize=16)
+
+        # loop on cols:
+            # plot_vector(df1_col, variance_col, ax1, color, style)
+            # plot_vector(df2_col, variance_col, ax2, color, style)
+    # else: # if compare==True:
     # create a panel of 1 ax.
     # legend!!!
     # loop on cols:
@@ -130,8 +131,35 @@ def plot_panel(
 
     plt.show()
 
+def plot_ax(vec_df, ax, var_df=0, style='solid', legend_flag:bool = True):
+    '''
+    Gets:
+    - vec_df: df. 
+    - ax: ax to plot on.
+    - colors: color pallete
+    - style: str. linestyle.
+    - var_df: either 0 or given pd.DataFrame with same columns as vec_df.
+    - legend_flag: bool. If true, plot legend on this axis.
+    '''
+    lines = []
+    colors = plt.get_cmap('Accent')
 
-def plot_vector(vec, ax, color, style="solid", variance_vec=0):
+    # print(f'var_df: {var_df}') ### later
+
+    if not isinstance(var_df, int): # if a variance vector was given
+        for col_i in range(vec_df.shape[1]):
+            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i), var_vec=var_df.iloc[:,col_i])
+            lines.append(line)
+    else:
+        for col_i in range(vec_df.shape[1]):
+            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i))
+            lines.append(line)
+    
+    if legend_flag:
+        plt.legend(lines, vec_df.columns)
+
+
+def plot_vector(vec, ax, color, style="solid", var_vec=0):
     """
     Plots a line on the graph, with variance as a band.
     if variance_vec==0, doesn't plot variance.
@@ -139,8 +167,8 @@ def plot_vector(vec, ax, color, style="solid", variance_vec=0):
     ## print(f'variance_vec: {variance_vec}') ### later
 
     line = ax.plot(vec, c=color, linestyle=style)
-    if not isinstance(variance_vec, int):
-        ax.fill_between(vec.index, vec-variance_vec, vec+variance_vec, fc=color, alpha=0.2)
+    if not isinstance(var_vec, int):
+        ax.fill_between(vec.index, vec-var_vec, vec+var_vec, fc=color, alpha=0.2)
     return line[0]
 
 
@@ -199,30 +227,32 @@ if __name__ == "__main__":
     dict_condition = {"group a": df_means_list_a}
 
 
-    print('do not mean, one condition')
+    print('mean, std, one condition')
     plot_experiment_dfs(
         dict_condition,
-        mean_all_reps=True,
         compare_conditions=False,
         variance_type="std",
     )
 
-    print('do not mean, one condition')
+    print('\n\nmean, sem, one condition')
     plot_experiment_dfs(
         dict_condition,
-        mean_all_reps=False,
+        compare_conditions=False,
+        variance_type="sem",
+    )
+
+    print('\n\nmean, none, one condition')
+    plot_experiment_dfs(
+        dict_condition,
         compare_conditions=False,
         variance_type="none",
     )
 
+
+    # print('do not mean, one condition\n\n')
+    # plot_experiment_dfs(dict_condition, mean_all_reps=False)
+
     df_mean, df_std = cas.get_mean_variance(df_means_list_a, 'std')
     df_col = df_mean.iloc[:,0]
     std_col = df_std.iloc[:,0]
-
-    # fig, axes = plt.subplots()
-    # line = axes.plot(df_col, color='red')
-    # y1 = df_col+std_col
-    # y2 = df_col-std_col
-    # axes.fill_between(df_col.index, y1, y2, fc='red', alpha=0.2)
-    # plt.legend(line,[df_col.name])
 
