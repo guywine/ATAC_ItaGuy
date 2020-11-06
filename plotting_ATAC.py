@@ -22,7 +22,7 @@ def plot_experiment_dfs(
 
     Parameters
     ------------
-    - dict_conditions: dict. "condition_name":list_of_sample_dfs_from_all_reps. Can have 1/2 conditions
+    - dict_conditions: dict. "condition_name":list_of_dfs_from_all_reps. Can have 1/2 conditions
     - mean_all_reps: bool=False. If true, means all replicates an plots on the same panel.
     - compare_conditions: bool=False. If True, plots both condition on the same axe.
     - variance_type: str='none'. Can be ['none','std','sem']. Only relevant if mean_all_reps = True.
@@ -126,9 +126,9 @@ def plot_panel(
             plot_ax(df_b, axes, var_df_b, style='dashed', legend_flag=False)
 
             ### add legend of conditions:
-            # black_line = mlines.Line2D([], [], color='black', label=conditions[0])
-            # dashed_line = mlines.Line2D([], [], color='black', label=conditions[1], linestyle='dashed')
-            # plt.legend(handles=[black_line, dashed_line])
+            black_line = mlines.Line2D([], [], color='black', label=conditions[0])
+            dashed_line = mlines.Line2D([], [], color='black', label=conditions[1], linestyle='dashed')
+            plt.legend(handles=[black_line, dashed_line], loc='right')
 
     plt.show()
 
@@ -159,10 +159,6 @@ def plot_ax(vec_df, ax, var_df=0, style='solid', legend_flag:bool = True):
     if legend_flag:
         first_leg = plt.legend(lines, vec_df.columns)
         ax = plt.gca().add_artist(first_leg)
-
-        black_line = mlines.Line2D([], [], color='black', label='aa')
-        dashed_line = mlines.Line2D([], [], color='black', label='bb', linestyle='dashed')
-        plt.legend(handles=[black_line, dashed_line], loc='lower right')
         
 
 
@@ -219,42 +215,37 @@ if __name__ == "__main__":
 
         ## generate lists of genes to be plotted
         gs = Gene_sets()
-        dic_list = {
+        dic_names = {
             "hrde-1": ["hrde-1-Kennedy"],
             "pol-2": ["isPol2"],
             "highly 10%": ["expression_mean", 10],
         }
-        dic_groups = gs.get_multiple_lists(dic_list)
+        dic_groups = gs.get_multiple_lists(dic_names)
 
     # create means of these groups, one for each condition:
     df_means_list_a = cas.get_group_means_df_list(exp_dic, dic_groups, cond_num=0)
     df_means_list_b = cas.get_group_means_df_list(exp_dic, dic_groups, cond_num=1)
 
     dict_conditions = {"GFP": df_means_list_a, "OMA-1": df_means_list_b}
-    dict_condition = {"group a": df_means_list_a}
+    dict_condition = {"Calculated": df_means_list_b}
 
 
-    # print('mean, std, one condition')
-    # plot_experiment_dfs(
-    #     dict_condition,
-    #     compare_conditions=False,
-    #     variance_type="std",
-    # )
-
-    # print('\n\nmean, sem, one condition')
-    # plot_experiment_dfs(
-    #     dict_condition,
-    #     compare_conditions=False,
-    #     variance_type="sem",
-    # )
-
-    # print('\n\nmean, none, one condition')
-    # plot_experiment_dfs(
-    #     dict_condition,
-    #     compare_conditions=False,
-    #     variance_type="none",
-    # )
-
+    print('mean, 1 condition')
+    plot_experiment_dfs(
+        dict_condition,
+        compare_conditions=False,
+        variance_type="std",
+    )
+    plot_experiment_dfs(
+        dict_condition,
+        compare_conditions=False,
+        variance_type="sem",
+    )
+    plot_experiment_dfs(
+        dict_condition,
+        compare_conditions=False,
+        variance_type="none",
+    )
 
     # print('\n\ndo not mean, one condition')
     # plot_experiment_dfs(dict_condition, mean_all_reps=False)
@@ -262,21 +253,17 @@ if __name__ == "__main__":
     # print('\n\ndo not mean, 2 conditions')
     # plot_experiment_dfs(dict_conditions, mean_all_reps=False)
 
-    # print('\n\nmean, 2 conditions')
-    # plot_experiment_dfs(dict_conditions, mean_all_reps=True)
-    # plot_experiment_dfs(dict_conditions, mean_all_reps=True, variance_type='std')
-    # plot_experiment_dfs(dict_conditions, mean_all_reps=True, variance_type='sem')
+    print('\n\nmean, 2 conditions')
+    plot_experiment_dfs(dict_conditions, mean_all_reps=True)
+    plot_experiment_dfs(dict_conditions, mean_all_reps=True, variance_type='std')
+    plot_experiment_dfs(dict_conditions, mean_all_reps=True, variance_type='sem')
 
     print('\n\nmean, 2 conditions, compare')
     plot_experiment_dfs(dict_conditions, mean_all_reps=True, compare_conditions=True)
+    plot_experiment_dfs(dict_conditions, mean_all_reps=True, compare_conditions=True, variance_type='sem')
 
-    print('\n\nno mean, 2 conditions, compare')
-    plot_experiment_dfs(dict_conditions, mean_all_reps=False, compare_conditions=True)
-
-
-
-
-
+    # print('\n\nno mean, 2 conditions, compare')
+    # plot_experiment_dfs(dict_conditions, mean_all_reps=False, compare_conditions=True)
 
 
     df_mean, df_std = cas.get_mean_variance(df_means_list_a, 'std')
