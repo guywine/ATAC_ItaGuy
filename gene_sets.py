@@ -54,7 +54,7 @@ class Gene_sets:
         big_table_with_exp = big_table.join(exp_table, how="outer")
         return big_table_with_exp
 
-    def get_list(self, col_name: str, prcnt: float = 0, bottom: bool = False):
+    def get_list(self, col_name: str, prcnt: float = 0, bottom: bool = False, thresh=None):
         """
         Parameters
         ----------
@@ -81,6 +81,9 @@ class Gene_sets:
                 new_col = col_orig[col_orig < quantile]
         else:
             new_col = col_orig
+        
+        if thresh:
+            new_col = new_col[new_col > thresh]
 
         wbid_list = list(new_col.index)
 
@@ -250,3 +253,6 @@ if __name__ == "__main__":
     # name1 = 'WBGene00268208'
     plot_venn_from_dic(dic_groups, list_of_names=["highly 10%", "hrde-1"])
     add_intersect(dic_groups, 'highly 10%', 'hrde-1', inter_type='only second')
+
+    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
+    hrde_regulated = gs.get_list('mRNA_isSig')
