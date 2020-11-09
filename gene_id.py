@@ -26,22 +26,37 @@ class Gene_IDs():
         '''
         '''
         if 'WBGene' not in gene:
-            return gene
+            if gene in self.table['name']:
+                return gene
+            else: 
+                return f'gene "{gene}" not found'
         
-        name = self.table.loc[gene,'name']
+        ### later add assertion this gene exists
+        try:
+            name = self.table.loc[gene,'name']
+        except KeyError:
+            name = f'gene "{gene}" not found' 
         return name
     
     def to_wbid(self, gene: str):
         '''
         '''
         if 'WBGene' in gene:
-            return gene
+            if gene in self.table['wbid']:
+                return gene
+            else: 
+                return f'gene "{gene}" not found'            
         
         gene = gene.strip().lower()
-        wbid = self.name_table.loc[gene, 'wbid']
+
+        try:
+            wbid = self.name_table.loc[gene, 'wbid']
+        except KeyError:
+            wbid = f'gene "{gene}" not found' 
         return wbid
     
         
 if __name__=='__main__':
     gid = Gene_IDs()
+    gid.to_wbid('oma-1')
 
