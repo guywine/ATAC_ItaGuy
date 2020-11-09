@@ -85,5 +85,12 @@ if __name__=='__main__':
     t = m.mRNA
     m.get_gene_rank('GFP')
     m.get_gene_rank('WBGene00000002')
+    m.get_gene_rank('oma-1')
+    m.get_gene_rank('oma-2')
+    m.get_gene_rank('ppw-1')
+    m.get_gene_rank('sago-2')
+    m.get_gene_rank('pptr-1')
+    m.get_gene_rank('pptr-2')
+    m.get_gene_rank('lin-15a')
 
 
