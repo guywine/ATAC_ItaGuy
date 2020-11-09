@@ -21,18 +21,25 @@ class Gene_IDs():
         rev.set_index('name',inplace=True)
         return rev
 
-    def to_name(self, wbid: str):
+    def to_name(self, gene: str):
         '''
         '''
-        name = self.table.loc[wbid,'name']
+        if 'WBGene' not in gene:
+            return gene
+        
+        name = self.table.loc[gene,'name']
         return name
     
-    def to_wbid(self, name: str):
+    def to_wbid(self, gene: str):
         '''
         '''
-        gene_name = name.strip().lower()
-        wbid = self.name_table.loc[gene_name, 'wbid']
+        if 'WBGene' in gene:
+            return gene
+        
+        gene = gene.strip().lower()
+        wbid = self.name_table.loc[gene, 'wbid']
         return wbid
+    
         
 if __name__=='__main__':
     gid = Gene_IDs()
