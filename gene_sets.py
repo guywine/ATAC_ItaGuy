@@ -231,13 +231,27 @@ def intersect_lists(lst1, lst2, inter_type: str = "intersection"):
         elif inter_type.lower() == "only second":
             return list(st2.difference(st1))
 
-def translate_wbid_to_name(wbid_list):
+def wbid_list_to_names(wbid_list: list):
     '''
     '''
     gid = Gene_IDs()
     gene_names = [gid.to_name(wbid) for wbid in wbid_list if str(gid.to_name(wbid)) != 'nan']
     return gene_names
 
+def gene_is_in_list(wbid_list:list , gene_name:str, print_flag: bool=False):
+    '''
+    '''
+    gene_names = wbid_list_to_names(wbid_list)
+    if gene_name in gene_names:
+        if print_flag:    
+            gid = Gene_IDs()
+            wbid = gid.to_wbid(gene_name)
+            print(f'gene {wbid} found')
+        return True
+    else:
+        if print_flag:
+            print('gene {gene_name} not found.')
+        return False
 
 if __name__ == "__main__":
     if "gs" not in locals():
