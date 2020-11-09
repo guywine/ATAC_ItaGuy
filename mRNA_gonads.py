@@ -13,7 +13,24 @@ class Table_mRNA():
         mRNA_path = pathlib.Path(mRNA_table)
         mRNA = pd.read_csv(mRNA_path, index_col='Wbid')
         mRNA.drop('Unnamed: 0', axis=1, inplace=True)
+
+        mRNA = self._protein_coding_only(mRNA)
+
         return mRNA
+    
+    def _protein_coding_only(self, table):
+        '''
+        '''
+        pc_wbids = pd.read_csv('protein_coding_wbids.csv')
+
+        ### add gfp
+        pc_list = list(pc_wbids['genes'])
+        pc_list.append('GFP')
+
+        pc_series = pd.Series(pc_list)
+
+        table = table[table.index.isin(pc_series)]
+        return table
 
     def _create_mean_ranks(self):
         means = self._add_mean_cols()
