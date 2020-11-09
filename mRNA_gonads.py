@@ -1,5 +1,6 @@
 import pandas as pd 
 import pathlib
+from gene_id import Gene_IDs
 
 class Table_mRNA():
 
@@ -33,16 +34,25 @@ class Table_mRNA():
         means['hrde-1 rank'] = means['hrde-1 mean'].rank()
         return means
 
-    def get_gene_rank(self, gene_name:str):
-        exp_level = self.mRNA.loc[gene_name,'sx mean']
-        if exp_level == 0:
-            print(f'Expression for gene {gene_name} is 0')
+    def get_gene_rank(self, gene:str):
+        if gene.lower()=='gfp':
+            wbid='GFP'
+            name = wbid
         else:
-            sx_rank = self.mRNA.loc[gene_name,'sx rank']
+            gid = Gene_IDs()
+            wbid = gid.to_wbid(gene)
+            name = gid.to_name(gene)
+            if str(name)=='nan':
+                name = wbid
+        exp_level = self.mRNA.loc[wbid,'sx mean']
+        if exp_level == 0:
+            print(f'Expression for gene {name} is 0')
+        else:
+            sx_rank = self.mRNA.loc[wbid,'sx rank']
             percentile = (sx_rank/self.mRNA.shape[0])*100
-            print(f'Gene - {gene_name}\nExp:\t{exp_level:.2f}\nRank: {sx_rank} ({percentile:.2f}%)')
+            print(f'Gene - {name}\nExp:\t{exp_level:.2f}\nRank: {sx_rank} ({percentile:.2f}%)')
         
-            mutant_rank = self.mRNA.loc[gene_name,'hrde-1 rank']
+            mutant_rank = self.mRNA.loc[wbid,'hrde-1 rank']
             if abs(sx_rank-mutant_rank)>1000:
                 perc_mutant = (mutant_rank/self.mRNA.shape[0])*100
                 print(f'in the mutant, the rank is {mutant_rank} ({perc_mutant:.2f}%)')
