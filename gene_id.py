@@ -12,6 +12,7 @@ class Gene_IDs():
 
         id_table = big_table[['gene ID','Sequence ID','Other IDs']].copy()
         id_table.rename(columns={'gene ID':'name'}, inplace=True)
+        id_table['name'] = id_table['name'].str.lower()
         id_table.index.names = ['wbid']
         return id_table
     
