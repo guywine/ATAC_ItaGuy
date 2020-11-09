@@ -274,11 +274,16 @@ if __name__ == "__main__":
     add_intersect(dic_groups, 'highly 10%', 'hrde-1', inter_type='only second')
 
     hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
-    hrde_sig = gs.get_list('mRNA_isSig')
-    hrde_upregulated = gs.get_list('mRNA_log2_FC', thresh=0)
+    hrde_FC_sig = gs.get_list('mRNA_isSig')
+    hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
 
-    hrde_up_sig = intersect_lists(hrde_sig, hrde_upregulated)
+    hrde_up_sig = intersect_lists(hrde_FC_sig, hrde_up)
     hrde_regulated = intersect_lists(hrde_up_sig, hrde1_kennedy)
+
+    print('Genes that are mRNA-up and hrde-1 targets:')
+    hrde_regulated_names = wbid_list_to_names(hrde_regulated)
+
+
     
 
 
