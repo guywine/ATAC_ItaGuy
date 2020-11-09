@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2, venn3
 
+from gene_id import Gene_IDs
 
 class Gene_sets:
     def __init__(self):
@@ -82,7 +83,7 @@ class Gene_sets:
         else:
             new_col = col_orig
         
-        if thresh:
+        if thresh is not None:
             new_col = new_col[new_col > thresh]
 
         wbid_list = list(new_col.index)
@@ -230,13 +231,17 @@ def intersect_lists(lst1, lst2, inter_type: str = "intersection"):
         elif inter_type.lower() == "only second":
             return list(st2.difference(st1))
 
+def translate_wbid_to_name(wbid_list):
+    '''
+    '''
+    gid = Gene_IDs()
+    gene_names = [gid.to_name(wbid) for wbid in wbid_list if str(gid.to_name(wbid)) != 'nan']
+    return gene_names
+
 
 if __name__ == "__main__":
-    gs = Gene_sets()
-
-    ## add option of all genes
-    col_name = "isHrde1"
-    # ids_list = at.get_list(col_name, 10, False)
+    if "gs" not in locals():
+        gs = Gene_sets()
 
     dic_list = {
         "hrde-1": ["hrde-1-Kennedy"],
@@ -255,4 +260,11 @@ if __name__ == "__main__":
     add_intersect(dic_groups, 'highly 10%', 'hrde-1', inter_type='only second')
 
     hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
-    hrde_regulated = gs.get_list('mRNA_isSig')
+    hrde_sig = gs.get_list('mRNA_isSig')
+    hrde_upregulated = gs.get_list('mRNA_log2_FC', thresh=0)
+
+    hrde_up_sig = intersect_lists(hrde_sig, hrde_upregulated)
+    hrde_regulated = intersect_lists(hrde_up_sig, hrde1_kennedy)
+    
+
+
