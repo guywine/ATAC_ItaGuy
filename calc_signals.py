@@ -50,18 +50,18 @@ def get_group_means_for_from_dict(exp_dic: dict, group_dic: dict):
     '''
 
 
-def get_mean_variance(df_means_list: list, variance_type: str):
+def get_mean_variance(df_list: list, variance_type: str='none'):
     """
     Parameters
     ----------
     - variance_type: str. ['std' / 'sem' / 'none']
     """
     ### create single df average across replicates:
-    df_mean_all_reps = pd.concat(df_means_list).groupby(level=0).mean()
+    df_mean_all_reps = pd.concat(df_list).groupby(level=0).mean()
     if variance_type.lower()=='std':
-        df_variance = pd.concat(df_means_list).groupby(level=0).std()
+        df_variance = pd.concat(df_list).groupby(level=0).std()
     elif variance_type.lower()=='sem':
-        df_variance = pd.concat(df_means_list).groupby(level=0).sem()
+        df_variance = pd.concat(df_list).groupby(level=0).sem()
     elif variance_type.lower()=='none':
         df_variance = 0
 
