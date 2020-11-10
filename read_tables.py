@@ -56,7 +56,7 @@ def read_and_format_atac_table(f_name: Union[pathlib.Path, str]):
 
 def read_experiment(exp_name: str = "exp1"):
     """
-    Gets an experiment name, reads all of the relevant tables to a list.
+    Gets an experiment name, reads all of the relevant tables to two lists, one for each condition.
 
     exp_names can be: 'exp1' / 'exp_gonads' / 'exp_hrde_gonads' / 'exp_hrde_guy' / 'exp_metsetset'
 
@@ -66,14 +66,14 @@ def read_experiment(exp_name: str = "exp1"):
     """
     #### file_names
     exp1_files = [
-        "DATA/ATAC_R0-iGFP.csv",
+        ["DATA/ATAC_R0-iGFP.csv",
         "DATA/ATAC_R1-iGFP.csv",
         "DATA/ATAC_R2-iGFP.csv",
-        "DATA/ATAC_R4-iGFP.csv",
-        "DATA/ATAC_R0-iOMA-1.csv",
+        "DATA/ATAC_R4-iGFP.csv"],
+        ["DATA/ATAC_R0-iOMA-1.csv",
         "DATA/ATAC_R1-iOMA-1.csv",
         "DATA/ATAC_R2-iOMA-1.csv",
-        "DATA/ATAC_R4-iOMA-1.csv",
+        "DATA/ATAC_R4-iOMA-1.csv",]
     ]
     exp_gonads_files = []  # to fill later
     exp_hrde_gonads_files = []  # to fill later
@@ -88,38 +88,64 @@ def read_experiment(exp_name: str = "exp1"):
         "exp_metsetset": exp_metsetset_files,
     }
 
-    exp_dfs_list = []
-    for f_name in exps_dict[exp_name]:
-        exp_dfs_list.append(read_and_format_atac_table(f_name))
+    exp_dfs_cond1 = []
+    exp_dfs_cond2 = []
+    num_of_reps = len(exps_dict[exp_name][0])
+    for rep_i in range(num_of_reps):
+        exp_dfs_cond1.append(read_and_format_atac_table(exps_dict[exp_name][0][rep_i]))
+        exp_dfs_cond2.append(read_and_format_atac_table(exps_dict[exp_name][1][rep_i]))
 
-    return exp_dfs_list
+    return exp_dfs_cond1, exp_dfs_cond2
 
 
-def create_exp_dic(exp_dfs_list: list, exp_name: str):
+def create_exp_dic(exp_dfs_cond1: list, exp_dfs_cond2: list, exp_name: str):
     """"""
     exp_dic = {}
     if exp_name == "exp1": # first GFP, than OMA-1
-        exp_dic[0] = [exp_dfs_list[0], exp_dfs_list[4]]
-        exp_dic[1] = [exp_dfs_list[1], exp_dfs_list[5]]
-        exp_dic[2] = [exp_dfs_list[2], exp_dfs_list[6]]
-        exp_dic[4] = [exp_dfs_list[3], exp_dfs_list[7]]
+        exp_dic[0] = [exp_dfs_cond1[0], exp_dfs_cond2[0]]
+        exp_dic[1] = [exp_dfs_cond1[1], exp_dfs_cond2[1]]
+        exp_dic[2] = [exp_dfs_cond1[2], exp_dfs_cond2[2]]
+        exp_dic[4] = [exp_dfs_cond1[3], exp_dfs_cond2[3]]
     else:  # if other experiments than the order is the same:
         for rep_num in range(3):
-            exp_dic[rep_num] = [exp_dfs_list[rep_num], exp_dfs_list[rep_num + 3]]
+            exp_dic[rep_num] = [exp_dfs_cond1[rep_num], exp_dfs_cond2[rep_num]]
     return exp_dic
+
+def create_exp_df(exp_dfs_cond1: list, exp_dfs_cond2: list, exp_name: str):
+    '''
+    '''
+    columns_dic = {'cond1':exp_dfs_cond1, 'cond2':exp_dfs_cond2}
+    exp_df = pd.DataFrame(columns_dic)
+    
+    if exp_name in ['exp1', 'exp_gonads', 'exp_metsetset']:
+        conds = {'cond1':'anti gfp','cond2':'anti OMA-1'}
+    elif exp_name in ['exp_hrde_gonads', 'exp_hrde_guy']:
+        conds = {'cond1':'SX','cond2':'hrde-1;SX'}
+    else:
+        NameError, 'exp name not recognized'
+    
+    exp_df.rename(columns=conds, inplace=True)
+    exp_df.index.name = 'rep'
+
+    return exp_df
 
 
 def read_experiment_to_dic(exp_name: str = "exp1"):
     """"""
-    exp_dfs_list = read_experiment(exp_name)
-    exp_dic = create_exp_dic(exp_dfs_list, exp_name)
+    exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name)
+    exp_dic = create_exp_dic(exp_dfs_cond1, exp_dfs_cond2, exp_name)
     return exp_dic
+
+def read_experiment_to_df(exp_name: str = "exp1"):
+    exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name)
+    exp_df = create_exp_df(exp_dfs_cond1, exp_dfs_cond2, exp_name)
+    return exp_df
 
 
 if __name__ == "__main__":
-    # exp1_dfs_list = read_experiment(exp_name="exp1")
-    # gfp_0, gfp_1, gfp_2, gfp_4, oma1_0, oma1_1, oma1_2, oma1_4 = exp1_dfs_list
+    # exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name="exp1")
 
-    exp1_test = read_experiment_to_dic(exp_name="exp1")
+    # exp1_dic = read_experiment_to_dic(exp_name="exp1")
+    exp1_df = read_experiment_to_df()
 
     # plt.plot(gfp_0.iloc[0])
