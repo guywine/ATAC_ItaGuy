@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import read_tables as rt
 import calc_signals as cas
+from gene_id import Gene_IDs
 
 class ATAC_signal():
 
@@ -33,8 +34,8 @@ class ATAC_signal():
             rep_series = self.calc_hotspot_of_sample(df_list[df_i], calc_type)
             df_calc[f'rep {df_i}']=rep_series
         return df_calc
-
-    def calc_hotspot_of_sample(self, signal_df: pd.DataFrame, calc_type: str):
+    
+    def calc_node_hotspot_of_sample(self, signal_df: pd.DataFrame, calc_type: str):
         '''
         Produces a Series, with the calculated values for all genes.
         The value of Mean / Median is calculated only for the "hotspot" defined in the ATAC_signal object.
@@ -55,7 +56,29 @@ class ATAC_signal():
             rep_series = signal_df.iloc[:,hot_inds[0]:hot_inds[1]].mean(axis=1)
         return rep_series
     
-    def calc_fc_hotspot(self, rep_num: int, div_2_by_1: bool=True, log2: bool=True):
+    def generate_FC_median_df(self, div_2_by_1: bool=True, log2: bool=True):
+        '''
+        Generats a df. Row: gene, Column: replicate. Value is the fc_median_parameter.
+        Values calculated for "hotspot" defined in the object.
+
+        Parameters
+        ----------
+        - div_2_by_1: bool. If True, divide condition 2 by condition 1. If False, other way around.  (default True)
+        - log2: bool. If True, return results in log2 scale. (default True)
+
+        return
+        ----------
+        - df_FC_median: pd.DataFrame. Row: gene, Column: replicate. Value is the fc_median_parameter.
+        '''
+        num_of_reps = self.exp_df.shape[0]
+        df_FC_median = pd.DataFrame([])
+        for rep_i in range(num_of_reps):
+            median_FC_series = self.calc_median_fc_hotspot_of_sample(rep_i, div_2_by_1, log2)
+            df_FC_median[f'rep {rep_i}']=median_FC_series
+        return df_FC_median
+
+    
+    def calc_median_fc_hotspot_of_sample(self, rep_num: int, div_2_by_1: bool=True, log2: bool=True):
         '''
         Given a replicate number, calculates the FC-median (log2) parameter for every gene.
         Calculated for the "hotspot" defined in the ATAC_signal object.
@@ -71,7 +94,7 @@ class ATAC_signal():
         - median_FC_log2_series: pd.Series. For each gene calculated log2(FC-median). 
         '''
         df_FC_along_gene = self._fc_signal_of_rep(rep_num, div_2_by_1)
-        median_FC_series = self.calc_hotspot_of_sample(signal_df=df_FC_along_gene, calc_type='median')
+        median_FC_series = self.calc_node_hotspot_of_sample(signal_df=df_FC_along_gene, calc_type='median')
         if log2:
             median_FC_log2_series = np.log2(median_FC_series)
             return median_FC_log2_series
@@ -107,16 +130,17 @@ class ATAC_signal():
 
 
 if __name__=='__main__':
-    exp1_atac = ATAC_signal('exp1')
+    if 'exp1' not in locals():
+        exp1 = ATAC_signal('exp1')
 
-    a1 = exp1_atac.exp_df.loc[1,'anti gfp']
-    b1 = exp1_atac.exp_df.loc[1,'anti OMA-1']
+    a1 = exp1.exp_df.loc[1,'anti gfp']
+    b1 = exp1.exp_df.loc[1,'anti OMA-1']
 
-    gfp_med = exp1_atac.df_list_to_calc(exp1_atac.cond1)
-    gfp_mean = exp1_atac.df_list_to_calc(exp1_atac.cond1, 'mean')
-    oma1_med = exp1_atac.df_list_to_calc(exp1_atac.cond2)
-    oma1_mean = exp1_atac.df_list_to_calc(exp1_atac.cond2, 'mean')
+    fc_gfp_to_oma1 = exp1.generate_FC_median_df()
+    fc_gfp_to_oma1_no_log = exp1.generate_FC_median_df(log2=False)
+    fc_oma1_to_gfp = exp1.generate_FC_median_df(div_2_by_1=False)
 
-    log2_fc_rep1 = exp1_atac._fc_signal_of_rep(1)
+    gid = Gene_IDs()
+    oma1 = gid.to_wbid('oma-1')
 
 
