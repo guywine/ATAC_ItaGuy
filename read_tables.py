@@ -5,6 +5,21 @@ from typing import Union
 import pathlib
 import seaborn as sns
 
+def read_and_format_atac_table(f_name: Union[pathlib.Path, str]):
+    """
+    Reads table from file (if exists)
+    Removes un needed columns
+    Sets wbid as index
+
+    Return
+    ---------
+    - atac_table: pd.DataFrame
+    """
+    atac_table = read_atac_table(f_name)
+    drop_unneeded_columns(atac_table)
+    index_wbid(atac_table)
+    return atac_table
+
 
 def read_atac_table(f_name: Union[pathlib.Path, str]):
     """
@@ -36,22 +51,6 @@ def index_wbid(atac_df: pd.DataFrame):
     Sets the wbid column as the index, inplace
     """
     atac_df.set_index("wbid", inplace=True)
-
-
-def read_and_format_atac_table(f_name: Union[pathlib.Path, str]):
-    """
-    Reads table from file (if exists)
-    Removes un needed columns
-    Sets wbid as index
-
-    Return
-    ---------
-    - atac_table: pd.DataFrame
-    """
-    atac_table = read_atac_table(f_name)
-    drop_unneeded_columns(atac_table)
-    index_wbid(atac_table)
-    return atac_table
 
 
 def read_experiment(exp_name: str = "exp1"):
