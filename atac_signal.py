@@ -1,5 +1,6 @@
 import pandas as pd 
 import numpy as np
+import matplotlib.pyplot as plt
 import read_tables as rt
 import calc_signals as cas
 from gene_id import Gene_IDs
@@ -114,16 +115,57 @@ class ATAC_signal():
         ---------
         - df_FC
         '''
+        add_to_avoid_zero = 1 # define by user
+
         if div_2_by_1:
             mone = 1
         else:
             mone = 0
         
-        df_a = self.exp_df.iloc[rep_num, 1-mone]
-        df_b = self.exp_df.iloc[rep_num, mone]
+        df_a = self.exp_df.iloc[rep_num, 1-mone] + add_to_avoid_zero
+        df_b = self.exp_df.iloc[rep_num, mone] + add_to_avoid_zero
 
         df_FC_along_gene = df_b.div(df_a)
         return df_FC_along_gene
+
+def plot_reps_hist_mark_gene(df_reps: pd.DataFrame, genes_to_mark):
+    '''
+    Plots histogram for every columns, marking the asked genes.
+
+    Parameters
+    ----------
+    - df_reps: pd.DataFrame. Row:Gene. Column: Replicate. Values can be any calculated value for gene.
+    - genes_to_mark: [string / list of strings]. Either gene names / Wbid. (e.g "oma-1" / ["WBGene00003864"])
+    '''
+    genes_list = [genes_to_mark] ### later: make_strings_a_list 'oma-1' -> ['oma-1']
+    gid = Gene_IDs() ### later
+    list_of_wbids = [gid.to_wbid(gene) for gene in genes_list] ### later 
+    num_of_reps = df_reps.shape[1]
+    fig, axes = plt.subplots(1, num_of_reps, figsize = (19,5))
+    for rep_i in range(num_of_reps):
+        # list_of_points = plot_values_for_genes(ax = axes[rep_i], value_series = df_reps.iloc[:,rep_i], list_of_indices =list_of_wbids)
+        axes[rep_i].set_title(f'rep {rep_i}')
+        axes[rep_i].hist(df_reps.iloc[:,rep_i], bins=20, zorder=0)
+        genes_x = df_reps.loc[list_of_wbids[0]][rep_i] ### later
+        genes_y = 10 ### later
+        hand = axes[rep_i].scatter(genes_x, genes_y, c='red', marker=7, zorder=5)
+
+    ## legend
+
+# def plot_values_for_genes(ax: plt.axis, value_series: pd.Series, list_of_indices: list):
+#     '''
+#     Gets a list of indices and plots them on the axis. also adds legend.
+#     '''
+#     value_list = [value_series[ind] for ind in list_of_indices]
+#     y_values = [0]*len(value_list)
+
+#     dic_points = {'oma-1':value_list[0], 'oma-2':value_list[1]}
+#     df_dict = pd.DataFrame([dic_points])
+
+def normalize_all_cols(df: pd.DataFrame):
+    '''
+    '''
+
 
 
 
@@ -136,11 +178,14 @@ if __name__=='__main__':
     a1 = exp1.exp_df.loc[1,'anti gfp']
     b1 = exp1.exp_df.loc[1,'anti OMA-1']
 
-    fc_gfp_to_oma1 = exp1.generate_FC_median_df()
-    fc_gfp_to_oma1_no_log = exp1.generate_FC_median_df(log2=False)
-    fc_oma1_to_gfp = exp1.generate_FC_median_df(div_2_by_1=False)
+    fc_oma1_by_gfp = exp1.generate_FC_median_df()
+    fc_oma1_by_gfp_no_log = exp1.generate_FC_median_df(log2=False)
+    fc_gfp_by_oma1 = exp1.generate_FC_median_df(div_2_by_1=False)
 
     gid = Gene_IDs()
     oma1 = gid.to_wbid('oma-1')
+    oma2 = gid.to_wbid('oma-2')
+
+    plot_reps_hist_mark_gene(df_reps=fc_oma1_by_gfp, genes_to_mark='oma-1')
 
 
