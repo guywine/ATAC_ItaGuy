@@ -2,6 +2,7 @@ import pandas as pd
 import gene_sets as gsets 
 import regex as re
 import utilities as ut 
+import matplotlib.pyplot as plt
 
 class Ahringer():  
     def __init__(self):
@@ -57,7 +58,7 @@ class Ahringer():
                 # get lower percentage
                 quantile = col_orig.quantile((prcnt / 100))
                 print(f"quantile lower of {col_name} = {quantile}")
-                new_col = col_orig[col_orig < quantile]
+                new_col = col_orig[col_orig <= quantile]
         else:
             new_col = col_orig
         
@@ -78,6 +79,7 @@ class Ahringer():
 if __name__=='__main__':
     ar = Ahringer()
 
+    ### high rna and low atac: ###
     rna_above_1000 = ar.get_list('rna','Germline',thresh=1000) # len 116
     rna_top_5p = ar.get_list('rna','Germline',prcnt=5) # len 1012
 
@@ -86,5 +88,20 @@ if __name__=='__main__':
 
     # no intersection --- high_ex_low_atac = ut.intersect_lists(rna_above_1000, atac_below_5)
     high_ex_low_atac = ut.intersect_lists(rna_top_5p, atac_below_5)
+
+    ### High RNA in soma (Muscles, Neurons), low RNA in germline ###
+    # only zeros: rna_germline_bottom_5p = ar.get_list('rna','Germline',prcnt=5,bottom=True)
+    # only zeros: rna_germline_bottom_10p = ar.get_list('rna','Germline',prcnt=10,bottom=True)
+    rna_germline_below_10 = ar.get_list('rna', 'Germline', thresh=10, under_thresh=True) # len 11,376
+
+
+    rna_muscles_top_5p = ar.get_list('rna','Muscle',prcnt=5) # len 1012
+    rna_neurons_top_5p = ar.get_list('rna','Neurons',prcnt=5) # len 1012
+    top_muscle_neurons = ut.intersect_lists(rna_muscles_top_5p, rna_neurons_top_5p) # len 789
+
+    only_somatic = ut.plot_ven([rna_germline_below_10, top_muscle_neurons],['germline low','somatic high'])
+    only_somatic_names = ut.intersect_lists(rna_germline_below_10, top_muscle_neurons)
+
+
 
 
