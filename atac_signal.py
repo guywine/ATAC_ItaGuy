@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import read_tables as rt
 import calc_signals as cas
 from gene_id import Gene_IDs
+from sklearn import preprocessing
+
 
 class ATAC_signal():
 
@@ -141,16 +143,24 @@ def plot_reps_hist_mark_gene(df_reps: pd.DataFrame, genes_to_mark):
     gid = Gene_IDs() ### later
     list_of_wbids = [gid.to_wbid(gene) for gene in genes_list] ### later 
     num_of_reps = df_reps.shape[1]
-    fig, axes = plt.subplots(1, num_of_reps, figsize = (19,5))
-    for rep_i in range(num_of_reps):
-        # list_of_points = plot_values_for_genes(ax = axes[rep_i], value_series = df_reps.iloc[:,rep_i], list_of_indices =list_of_wbids)
-        axes[rep_i].set_title(f'rep {rep_i}')
-        axes[rep_i].hist(df_reps.iloc[:,rep_i], bins=20, zorder=0)
-        genes_x = df_reps.loc[list_of_wbids[0]][rep_i] ### later
+    fig, axes = plt.subplots(1, num_of_reps, figsize = (num_of_reps*5,5))
+    if num_of_reps==1:
+        axes.set_title(f'{df_reps.columns[0]}')
+        axes.hist(df_reps.iloc[:,0], bins=20, zorder=0)
+        genes_x = df_reps.loc[list_of_wbids[0]][0] ### later
         genes_y = 10 ### later
-        hand = axes[rep_i].scatter(genes_x, genes_y, c='red', marker=7, zorder=5)
+        hand = axes.scatter(genes_x, genes_y, c='red', marker=7, zorder=5)
+    else:
+        for rep_i in range(num_of_reps):
+            # list_of_points = plot_values_for_genes(ax = axes[rep_i], value_series = df_reps.iloc[:,rep_i], list_of_indices =list_of_wbids)
+            axes[rep_i].set_title(f'{df_reps.columns[rep_i]}')
+            axes[rep_i].hist(df_reps.iloc[:,rep_i], bins=20, zorder=0)
+            genes_x = df_reps.loc[list_of_wbids[0]][rep_i] ### later
+            genes_y = 10 ### later
+            hand = axes[rep_i].scatter(genes_x, genes_y, c='red', marker=7, zorder=5)
 
     ## legend
+    plt.show()
 
 # def plot_values_for_genes(ax: plt.axis, value_series: pd.Series, list_of_indices: list):
 #     '''
@@ -162,9 +172,16 @@ def plot_reps_hist_mark_gene(df_reps: pd.DataFrame, genes_to_mark):
 #     dic_points = {'oma-1':value_list[0], 'oma-2':value_list[1]}
 #     df_dict = pd.DataFrame([dic_points])
 
-def normalize_all_cols(df: pd.DataFrame):
+def normalize_all_cols(df: pd.DataFrame, min_max: tuple=(-1,1)):
     '''
     '''
+    x = df.values #returns a numpy array
+    min_max_scaler = preprocessing.MinMaxScaler(feature_range=min_max)
+    x_scaled = min_max_scaler.fit_transform(x)
+    new_df=df.copy()
+    new_df.loc[:,:] = x_scaled
+    return new_df
+
 
 
 
@@ -186,6 +203,26 @@ if __name__=='__main__':
     oma1 = gid.to_wbid('oma-1')
     oma2 = gid.to_wbid('oma-2')
 
-    plot_reps_hist_mark_gene(df_reps=fc_oma1_by_gfp, genes_to_mark='oma-1')
+    plot_reps_hist_mark_gene(df_reps=fc_gfp_by_oma1, genes_to_mark='oma-1')
+
+    gfp_by_oma1_norm = normalize_all_cols(fc_gfp_by_oma1)
+
+    plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_norm, genes_to_mark='oma-1')
+
+    gfp_by_oma1_mean = pd.DataFrame({'mean_FC_normalized':gfp_by_oma1_norm.mean(axis=1)})
+
+    print('oma-1, FC normalized from 4 replicates')
+    plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_mean, genes_to_mark='oma-1')
+    print('oma-2, FC normalized from 4 replicates')
+    plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_mean, genes_to_mark='oma-2')
+
+    gfp_by_oma1_ranked = gfp_by_oma1_mean.rank()
+
+
+
+
+
+
+
 
 
