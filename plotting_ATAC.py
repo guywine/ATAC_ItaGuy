@@ -214,15 +214,16 @@ if __name__ == "__main__":
         exp_dic = rdt.read_experiment_to_dic(exp_name="exp1")
 
         ## generate lists of genes to be plotted
-        gs = Gene_sets()
-        dic_names = {
-            "hrde-1": ["hrde-1-Kennedy"],
-            "pol-2": ["isPol2"],
-            "highly 10%": ["expression_mean", 10],
-        }
-        dic_groups = gs.get_multiple_lists(dic_names)
+        # gs = Gene_sets()
+        # dic_names = {
+        #     "hrde-1": ["hrde-1-Kennedy"],
+        #     "pol-2": ["isPol2"],
+        #     "highly 10%": ["expression_mean", 10],
+        # }
+        # dic_groups = gs.get_multiple_lists(dic_names)
 
         # dic_groups = {'oma-1':['WBGene00003864']}
+        dic_groups = {'oma-2':['WBGene00003865']}
 
     # create means of these groups, one for each condition:
     df_means_list_a = cas.get_group_means_df_list(exp_dic, dic_groups, cond_num=0)

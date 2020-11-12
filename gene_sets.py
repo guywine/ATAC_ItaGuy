@@ -283,6 +283,12 @@ if __name__ == "__main__":
     print('Genes that are mRNA-up and hrde-1 targets:')
     hrde_regulated_names = wbid_list_to_names(hrde_regulated)
 
+    print('get values of hrde-1 score and mRNA-FC score:')
+    df_mRNA_and_hrde1 = gs.big_table.loc[hrde_regulated,['mRNA_log2_FC','hrde-1-Kennedy']]
+
+    hrde1_strongest=df_mRNA_and_hrde1[df_mRNA_and_hrde1['hrde-1-Kennedy']>2000]
+    hrde1_strongest = hrde1_strongest[hrde1_strongest['mRNA_log2_FC']>4]
+    hrde1_strongest_names = wbid_list_to_names(hrde1_strongest.index)
 
     
 
