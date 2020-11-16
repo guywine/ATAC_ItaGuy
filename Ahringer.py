@@ -1,7 +1,7 @@
 import pandas as pd
 import gene_sets as gsets
 import regex as re
-import utilities as ut
+# import utilities as ut
 import matplotlib.pyplot as plt
 
 
@@ -18,6 +18,7 @@ class Ahringer:
             "DATA/Ahringer/tissue-specific.RNA-seq.dataset.txt", delimiter="\t"
         )
         rna.rename(columns={"WormBaseID": "Wbid"}, inplace=True)
+        rna.index = rna['Wbid']
         return rna
 
     @staticmethod
@@ -97,6 +98,8 @@ class Ahringer:
 
 
 if __name__ == "__main__":
+    import utilities as ut
+    
     ar = Ahringer()
 
     ### high rna and low atac: ###
