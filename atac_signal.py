@@ -34,7 +34,7 @@ class ATAC_signal():
         num_of_reps = len(df_list)
         df_calc = pd.DataFrame([])
         for df_i in range(num_of_reps):
-            rep_series = self.calc_hotspot_of_sample(df_list[df_i], calc_type)
+            rep_series = self.calc_node_hotspot_of_sample(df_list[df_i], calc_type)
             df_calc[f'rep {df_i}']=rep_series
         return df_calc
     
