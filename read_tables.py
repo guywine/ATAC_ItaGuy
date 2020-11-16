@@ -16,7 +16,9 @@ def read_and_format_atac_table(f_name: Union[pathlib.Path, str]):
     - atac_table: pd.DataFrame
     """
     atac_table = read_atac_table(f_name)
+    add_GFP_wbid(atac_table)
     drop_unneeded_columns(atac_table)
+    atac_table.dropna(subset=['wbid'], inplace=True)
     index_wbid(atac_table)
     return atac_table
 
@@ -38,13 +40,16 @@ def read_atac_table(f_name: Union[pathlib.Path, str]):
     atac_table = pd.read_csv(f_path, header=None, index_col=False, names=col_names)
     return atac_table
 
+def add_GFP_wbid(atac_df: pd.DataFrame):
+    GFP_ind = atac_df[atac_df['symbol']=='GFP'].index
+    atac_df.loc[GFP_ind,'wbid']='GFP'
+
 
 def drop_unneeded_columns(atac_df: pd.DataFrame):
     """
     Drops 'feature_type' and 'symbol' columns, inplace
     """
     atac_df.drop(columns=["feature_type", "symbol"], inplace=True)
-
 
 def index_wbid(atac_df: pd.DataFrame):
     """
@@ -142,6 +147,7 @@ def read_experiment_to_df(exp_name: str = "exp1"):
 
 
 if __name__ == "__main__":
+    pass
     # exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name="exp1")
 
     # exp1_dic = read_experiment_to_dic(exp_name="exp1")
