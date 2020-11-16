@@ -41,19 +41,24 @@ class Gene_sets:
         return big_table_with_exp
 
     def _add_expression_levels(self, big_table):
+        exp_df = self.get_expression_df()
+        big_table_with_exp = big_table.join(exp_df, how="outer")
+        return big_table_with_exp
+    
+    @staticmethod
+    def get_expression_df():
         f_name = "geneExprTable_YA.csv"
-        exp_table = pd.read_csv(f_name)
-        exp_table.set_index("geneID", inplace=True)
-        exp_table.rename(
+        exp_df = pd.read_csv(f_name)
+        exp_df.set_index("geneID", inplace=True)
+        exp_df.rename(
             columns={
                 "median_adult Ce": "expression_median",
                 "mean_adult Ce": "expression_mean",
             },
             inplace=True,
         )
+        return exp_df
 
-        big_table_with_exp = big_table.join(exp_table, how="outer")
-        return big_table_with_exp
 
     def get_list(self, col_name: str, prcnt: float = 0, bottom: bool = False, thresh=None):
         """
