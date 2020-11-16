@@ -1,6 +1,13 @@
 import pandas as pd 
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2, venn3
+from sklearn import preprocessing
+
+from gene_id import Gene_IDs
+from gene_sets import Gene_sets
+from mRNA_gonads import Table_mRNA
+from Ahringer import Ahringer
+
 
 
 def plot_ven(list_of_sets: list, list_of_names: list):
@@ -86,3 +93,105 @@ def gene_is_in_list(wbid_list:list , gene_name:str, print_flag: bool=False):
         if print_flag:
             print('gene {gene_name} not found.')
         return False
+
+def print_gene_ranks_in_df(gene_df: pd.DataFrame, gene:str, print_res: bool=False):
+    '''
+    '''
+    gene_name = Gene_IDs().to_name(gene)
+    print(f'gene - {gene_name}')
+    for column in gene_df.columns:
+        if print_res:
+            print(f'{column}')
+        perc = get_gene_rank(gene_df[column], gene, print_res, print_gene=False)
+        if not print_res:
+            print(f'{column}:\t{perc:.2f}%')
+    print('\n')
+
+
+def get_gene_rank(gene_series: pd.Series, gene:str, print_res: bool=True, print_gene: bool=True):
+    '''
+    Series where index is gene_name.
+
+    Return
+    --------
+    - percentile: float. 
+    '''
+    # get gene name and wbid:
+    if gene.lower()=='gfp':
+        wbid='GFP'
+        name = wbid
+    else:
+        gid = Gene_IDs()
+        wbid = gid.to_wbid(gene)
+        name = gid.to_name(gene)
+        if str(name)=='nan':
+            name = wbid
+    
+    gene_rank_df = pd.DataFrame({'value':gene_series, 'rank':gene_series.rank()})
+
+    value = gene_rank_df.loc[wbid,'value']
+    if value == 0:
+        print(f'Value for gene {name} is 0')
+        return 0
+    else:
+        rank = gene_rank_df.loc[wbid,'rank']
+        percentile = (rank/gene_rank_df.shape[0])*100
+        if print_gene:
+            print(f'Gene - {name}\n')
+        
+        if print_res:
+            print(f'Value:\t{value:.2f}\nRank: {rank} ({percentile:.2f}%)\n')
+
+        return percentile
+
+def print_gene_expression(gene:str, print_res: bool=False):
+    rna_all = load_gene_expression_df()
+    print_gene_ranks_in_df(rna_all, gene, print_res)
+
+
+def load_gene_expression_df():
+    '''
+    Reads the gene expression values of all protein coding genes from 3 sources:
+    1) 'ours': our mRNA in gonads
+    2) 'Ahringer'
+    3) 'expression_median': From Hila's table of YA
+    4) 'expression_mean': From Hila's table of YA
+    '''
+    our_col = Table_mRNA().mRNA['sx mean']
+    ar_col = Ahringer().rna['Germline']
+
+    our_df = pd.DataFrame({'ours':our_col})
+    ar_df = pd.DataFrame({'Ahringer':ar_col})
+    exp_df = Gene_sets.get_expression_df()
+
+    rna_all = pd.concat([our_df, ar_df, exp_df], axis=1)
+    rna_pc = protein_coding_only(rna_all)
+    return rna_pc
+
+
+def normalize_df_cols(df: pd.DataFrame, min_max: tuple=(-1,1)):
+    '''
+    '''
+    x = df.values #returns a numpy array
+    min_max_scaler = preprocessing.MinMaxScaler(feature_range=min_max)
+    x_scaled = min_max_scaler.fit_transform(x)
+    new_df=df.copy()
+    new_df.loc[:,:] = x_scaled
+    return new_df
+
+
+def protein_coding_only(df: pd.DataFrame):
+    '''
+    Returns df with only protein coding elements. (Assumes wbid indices)
+    '''
+    pc_wbids = pd.read_csv('protein_coding_wbids.csv')
+
+    ### add gfp
+    pc_list = list(pc_wbids['genes'])
+    pc_list.append('GFP')
+
+    pc_series = pd.Series(pc_list)
+
+    new_df = df[df.index.isin(pc_series)]
+    return new_df
+
