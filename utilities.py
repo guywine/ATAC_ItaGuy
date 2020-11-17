@@ -158,13 +158,14 @@ def load_gene_expression_df():
     4) 'expression_mean': From Hila's table of YA
     '''
     our_col = Table_mRNA().mRNA['sx mean']
-    ar_col = Ahringer().rna['Germline']
+    our_df = pd.DataFrame({'ours (Gonads)':our_col})
 
-    our_df = pd.DataFrame({'ours':our_col})
-    ar_df = pd.DataFrame({'Ahringer':ar_col})
+    ahri_df = Ahringer().rna.loc[:,'Germline':'Muscle']
+    ahri_df.columns = ['Ahringer (Germline)','Ahringer (Muscle)','Ahringer (Neurons)']
+
     exp_df = Gene_sets.get_expression_df()
 
-    rna_all = pd.concat([our_df, ar_df, exp_df], axis=1)
+    rna_all = pd.concat([our_df, ahri_df, exp_df], axis=1)
     rna_pc = protein_coding_only(rna_all)
     return rna_pc
 
@@ -194,4 +195,60 @@ def protein_coding_only(df: pd.DataFrame):
 
     new_df = df[df.index.isin(pc_series)]
     return new_df
+
+def get_top_somatic_rna_genes(prcnt: int):
+    '''
+    Uses Ahringer's data to find genes that are higly expressed in:
+    - Muscle
+    - Neurons
+
+    Intersects lists and returns list with wbids.
+    '''
+    ar = Ahringer()
+    top_neuro = get_list_of_column(ar.rna['Neurons'],prcnt)
+    top_musc = get_list_of_column(ar.rna['Muscle'],prcnt)
+    top_soma = intersect_lists(top_neuro, top_musc)
+    return top_soma
+
+
+def get_list_of_column(
+        gene_series: pd.Series,
+        prcnt: float = 0,
+        bottom: bool = False,
+        thresh=None,
+        under_thresh: bool = False,
+    ):
+        """
+        Parameters
+        ----------
+        - gene_series: pd.Series. Inds are wbis/gene_ids
+
+        Return
+        ----------
+        - gene_id_list: list.
+        """
+        col_orig = gene_series.dropna()
+        if prcnt:
+            if not bottom: # get upper percnage
+                quantile = col_orig.quantile(1 - (prcnt / 100))
+                new_col = col_orig[col_orig > quantile]
+            
+            else: # get lower percentage
+                quantile = col_orig.quantile((prcnt / 100))
+                new_col = col_orig[col_orig <= quantile]
+        else:
+            new_col = col_orig
+
+        if thresh is not None:
+            if under_thresh:
+                new_col = new_col[new_col < thresh]
+            else:
+                new_col = new_col[new_col > thresh]
+
+        index_list = list(new_col.index)
+
+        gid = Gene_IDs()
+        wbid_list = [gid.to_wbid(ind) for ind in index_list if gid.to_wbid(ind)]
+
+        return wbid_list
 
