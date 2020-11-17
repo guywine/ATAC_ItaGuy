@@ -129,12 +129,17 @@ def get_gene_rank(gene_series: pd.Series, gene:str, print_res: bool=True, print_
     
     gene_rank_df = pd.DataFrame({'value':gene_series, 'rank':gene_series.rank()})
 
-    value = gene_rank_df.loc[wbid,'value']
+    if ('GFP' in gene_series.index[0]) or ('WBG' in gene_series.index[0]):
+        gene_ind = wbid
+    else:
+        gene_ind = name
+
+    value = gene_rank_df.loc[gene_ind,'value']
     if value == 0:
         print(f'Value for gene {name} is 0')
         return 0
     else:
-        rank = gene_rank_df.loc[wbid,'rank']
+        rank = gene_rank_df.loc[gene_ind,'rank']
         percentile = (rank/gene_rank_df.shape[0])*100
         if print_gene:
             print(f'Gene - {name}\n')
@@ -157,7 +162,7 @@ def load_gene_expression_df():
     3) 'expression_median': From Hila's table of YA
     4) 'expression_mean': From Hila's table of YA
     '''
-    our_col = Table_mRNA().mRNA['sx mean']
+    our_col = Table_mRNA().mean_exp
     our_df = pd.DataFrame({'ours (Gonads)':our_col})
 
     ahri_df = Ahringer().rna.loc[:,'Germline':'Muscle']
@@ -218,37 +223,52 @@ def get_list_of_column(
         thresh=None,
         under_thresh: bool = False,
     ):
-        """
-        Parameters
-        ----------
-        - gene_series: pd.Series. Inds are wbis/gene_ids
+    """
+    Parameters
+    ----------
+    - gene_series: pd.Series. Inds are wbis/gene_ids
 
-        Return
-        ----------
-        - gene_id_list: list.
-        """
-        col_orig = gene_series.dropna()
-        if prcnt:
-            if not bottom: # get upper percnage
-                quantile = col_orig.quantile(1 - (prcnt / 100))
-                new_col = col_orig[col_orig > quantile]
-            
-            else: # get lower percentage
-                quantile = col_orig.quantile((prcnt / 100))
-                new_col = col_orig[col_orig <= quantile]
+    Return
+    ----------
+    - gene_id_list: list.
+    """
+    col_orig = gene_series.dropna()
+    if prcnt:
+        if not bottom: # get upper percnage
+            quantile = col_orig.quantile(1 - (prcnt / 100))
+            new_col = col_orig[col_orig > quantile]
+        
+        else: # get lower percentage
+            quantile = col_orig.quantile((prcnt / 100))
+            new_col = col_orig[col_orig <= quantile]
+    else:
+        new_col = col_orig
+
+    if thresh is not None:
+        if under_thresh:
+            new_col = new_col[new_col < thresh]
         else:
-            new_col = col_orig
+            new_col = new_col[new_col > thresh]
 
-        if thresh is not None:
-            if under_thresh:
-                new_col = new_col[new_col < thresh]
-            else:
-                new_col = new_col[new_col > thresh]
+    index_list = list(new_col.index)
 
-        index_list = list(new_col.index)
+    if ('GFP' in index_list[0]) or ('WBG' in index_list[0]):
+        wbid_list = index_list
+    else:
+        wbid_list = list_to_wbids(index_list)
 
-        gid = Gene_IDs()
-        wbid_list = [gid.to_wbid(ind) for ind in index_list if gid.to_wbid(ind)]
+    return wbid_list
 
-        return wbid_list
+
+def list_to_wbids(gene_list: list):
+    '''
+    Translate list of genes to wbid list
+    '''
+    gid = Gene_IDs()
+    wbid_list = [gid.to_wbid(gene) for gene in gene_list if gid.to_wbid(gene)]
+    return wbid_list
+        
+
+
+
 
