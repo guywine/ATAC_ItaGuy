@@ -6,10 +6,7 @@ import matplotlib.pyplot as plt
 from gene_sets import Gene_sets
 from atac_signal import ATAC_signal
 
-if __name__=='__main__':
-    # ut.print_gene_expression('oma-1')
-    # ut.print_gene_expression('oma-2')
-    # ut.print_gene_expression('WBGene00000001')
+def create_rna_and_atac_df():
 
     at = ATAC_signal('exp1')
     atac_sig_gfp_df = at.df_list_to_calc(at.cond1)
@@ -29,6 +26,15 @@ if __name__=='__main__':
     atac_means = atac_means[~atac_means.index.duplicated(keep='first')]
 
     rna_atac_table = pd.concat([rna_all, atac_means], axis=1)
+    
+    # still need to add ahringer atac
+    ar_atac = Ahringer().atac.loc[:,'Germline']
+
+if __name__=='__main__':
+    # ut.print_gene_expression('oma-1')
+    # ut.print_gene_expression('oma-2')
+    ut.print_gene_expression('WBGene00000001')
+
 
     
 
