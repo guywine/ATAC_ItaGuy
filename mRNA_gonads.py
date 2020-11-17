@@ -8,6 +8,7 @@ class Table_mRNA():
         self.table = self._read_table()
         self.mRNA = self._create_mean_ranks()
         self.mean_exp = self.mRNA.loc[:,'sx mean']
+        self.fc = self._create_FC()
     
     def _read_table(self):
         mRNA_table = '/Users/guyweintraub/Desktop/Google Drive/Rechavi Lab/Project ATAC/hrde-1/hrde1_mRNA/mRNA_rpm.csv'
@@ -32,6 +33,19 @@ class Table_mRNA():
 
         table = table[table.index.isin(pc_series)]
         return table
+
+    def _create_FC(self):
+        add_to_avoid_zero = 1
+
+        FC_table = pd.DataFrame([])
+        for rep_i in range(1,4):
+            hrde1_col = self.table[f'hrde1_r{rep_i}_rpm']+add_to_avoid_zero
+            sx_col = self.table[f'sx_r{rep_i}_rpm']+add_to_avoid_zero
+            FC_table[f'FC rep {rep_i}'] = hrde1_col / sx_col
+        
+        FC_table['mean fc']=FC_table.mean(axis=1)
+        
+        return FC_table
 
     def _create_mean_ranks(self):
         means = self._add_mean_cols()
