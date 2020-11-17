@@ -1,6 +1,9 @@
 import pandas as pd
 import gene_sets as gsets
 import regex as re
+from mRNA_gonads import Table_mRNA
+from gene_id import Gene_IDs
+
 # import utilities as ut
 import matplotlib.pyplot as plt
 
@@ -11,14 +14,13 @@ class Ahringer:
         self.atac_all = self._read_ATAC()
         self.atac = self._filter_atac_all()
 
-    
-    @staticmethod   # makes an instance method NOT set first arg as 'self'
+    @staticmethod  # makes an instance method NOT set first arg as 'self'
     def _read_RNA():
         rna = pd.read_csv(
             "DATA/Ahringer/tissue-specific.RNA-seq.dataset.txt", delimiter="\t"
         )
         rna.rename(columns={"WormBaseID": "Wbid"}, inplace=True)
-        rna.index = rna['Wbid']
+        rna.index = rna["Wbid"]
         return rna
 
     @staticmethod
@@ -35,7 +37,7 @@ class Ahringer:
             else:
                 new_cols.append(col)
         atac.columns = new_cols
-        atac.index = atac['geneID']
+        atac.index = atac["geneID"]
         return atac
 
     def _filter_atac_all(self):
@@ -98,44 +100,32 @@ class Ahringer:
         return gene_id_list
 
 
-
 if __name__ == "__main__":
     import utilities as ut
-    
+
     ar = Ahringer()
+    m = Table_mRNA()
+    gid = Gene_IDs()
 
+    rna_all = ut.load_gene_expression_df()
 
-    if False:
-        ### high rna and low atac: ###
-        rna_above_1000 = ar.get_list("rna", "Germline", thresh=1000)  # len 116
-        rna_top_5p = ar.get_list("rna", "Germline", prcnt=5)  # len 1012
+    germline_ahri_top5 = ut.get_list_of_column(ar.rna['Germline'],prcnt=5) # len 1012
+    germline_ours_top5 = ut.get_list_of_column(m.mean_exp, prcnt=5) # len 1015
 
-        atac_below_5 = ar.get_list(
-            "atac", "Germline", thresh=5, under_thresh=True
-        )  # len 314
-        atac_bottom_5p = ar.get_list("atac", "Germline", prcnt=5, bottom=True)  # len 740
-        atac_bottom_10p = ar.get_list("atac", "Germline", prcnt=10, bottom=True)  # len 1167
+    germline_top_5 = ut.intersect_lists(germline_ahri_top5, germline_ours_top5) # len 450
 
-        # no intersection --- high_ex_low_atac = ut.intersect_lists(rna_above_1000, atac_below_5)
-        high_ex_low_atac = ut.intersect_lists(rna_top_5p, atac_below_5)  # 2
-        high_ex_low_atac2 = ut.intersect_lists(rna_top_5p, atac_bottom_5p)  # 5
-        high_ex_low_atac3 = ut.intersect_lists(rna_top_5p, atac_bottom_10p)
+    germ_top_5_df = ar.rna.loc[germline_top_5,:]
+    germ_top5_1st = germ_top_5_df[germ_top_5_df['1st.max.tissue']=='Germline'] # 275
 
-        ### High RNA in soma (Muscles, Neurons), low RNA in germline ###
-        # only zeros: rna_germline_bottom_5p = ar.get_list('rna','Germline',prcnt=5,bottom=True)
-        # only zeros: rna_germline_bottom_10p = ar.get_list('rna','Germline',prcnt=10,bottom=True)
-        rna_germline_below_10 = ar.get_list(
-            "rna", "Germline", thresh=10, under_thresh=True
-        )  # len 11,376
+    germ_top5_over400_1st = germ_top5_1st[germ_top5_1st['Germline']>400] # 98
 
-        rna_muscles_top_5p = ar.get_list("rna", "Muscle", prcnt=5)  # len 1012
-        rna_neurons_top_5p = ar.get_list("rna", "Neurons", prcnt=5)  # len 1012
-        top_muscle_neurons = ut.intersect_lists(
-            rna_muscles_top_5p, rna_neurons_top_5p
-        )  # len 789
+    soma_under_150_mask = (germ_top5_over400_1st.loc[:,'Neurons':'Intest.']<150).all(axis=1)
 
-        only_somatic_names = ut.intersect_lists(rna_germline_below_10, top_muscle_neurons)
+    germ_top5_over400_1st_soma_under_150 = germ_top5_over400_1st[soma_under_150_mask]
 
+    strong_germline_rna = list(germ_top5_over400_1st_soma_under_150.index)
 
-    ### new:
-    soma_top_10p = ut.get_top_somatic_rna_genes(10)
+    atac_top_10 = ut.get_list_of_column(ar.atac['Germline'],prcnt=10)
+
+    germline_atac = ut.intersect_lists(strong_germline_rna, atac_top_10)
+
