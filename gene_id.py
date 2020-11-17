@@ -14,7 +14,7 @@ class Gene_IDs():
         id_table.set_index('wbid', drop=False, inplace=True)
         return id_table
 
-    def to_wbid(self, gene: str):
+    def to_wbid(self, gene: str, print_flag: bool=False):
         '''
         Returns wbid of gene.
         Excepts name, wbid, and sequence ID.
@@ -27,14 +27,15 @@ class Gene_IDs():
         '''
         row = self.table[self.table.isin([gene]).any(axis=1)]
         if row.shape[0]==0:
-            print(f'gene {gene} not found')
+            if print_flag:
+                print(f'gene {gene} not found')
             return False
         else:
             wbid = row.iloc[0]['wbid']
             return wbid
         
 
-    def to_name(self, gene):
+    def to_name(self, gene: str):
         '''
         Returns name, if no name, returns other ID, if no ID, returns 'nan'.
         Excepts name, wbid, and sequence ID.
