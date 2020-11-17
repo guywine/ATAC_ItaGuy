@@ -35,6 +35,12 @@ if __name__=='__main__':
     # ut.print_gene_expression('oma-2')
     ut.print_gene_expression('WBGene00000001')
 
+    # gs = Gene_sets()
+    # hrde1_kennedy = gs.big_table.loc[:,'hrde-1-Kennedy']
+
+    m = Table_mRNA()
+    fc_over4 = 
+
 
     
 
