@@ -7,6 +7,7 @@ class Table_mRNA():
     def __init__(self):
         self.table = self._read_table()
         self.mRNA = self._create_mean_ranks()
+        self.mean_exp = self.mRNA.loc[:,'sx mean']
     
     def _read_table(self):
         mRNA_table = '/Users/guyweintraub/Desktop/Google Drive/Rechavi Lab/Project ATAC/hrde-1/hrde1_mRNA/mRNA_rpm.csv'
@@ -83,14 +84,14 @@ if __name__=='__main__':
     m = Table_mRNA()
 
     t = m.mRNA
-    m.get_gene_rank('GFP')
-    m.get_gene_rank('WBGene00000002')
-    m.get_gene_rank('oma-1')
-    m.get_gene_rank('oma-2')
-    m.get_gene_rank('ppw-1')
-    m.get_gene_rank('sago-2')
-    m.get_gene_rank('pptr-1')
-    m.get_gene_rank('pptr-2')
-    m.get_gene_rank('lin-15a')
+    # m.get_gene_rank('GFP')
+    # m.get_gene_rank('WBGene00000002')
+    # m.get_gene_rank('oma-1')
+    # m.get_gene_rank('oma-2')
+    # m.get_gene_rank('ppw-1')
+    # m.get_gene_rank('sago-2')
+    # m.get_gene_rank('pptr-1')
+    # m.get_gene_rank('pptr-2')
+    # m.get_gene_rank('lin-15a')
 
 
