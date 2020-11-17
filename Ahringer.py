@@ -35,6 +35,7 @@ class Ahringer:
             else:
                 new_cols.append(col)
         atac.columns = new_cols
+        atac.index = atac['geneID']
         return atac
 
     def _filter_atac_all(self):
@@ -97,40 +98,44 @@ class Ahringer:
         return gene_id_list
 
 
+
 if __name__ == "__main__":
     import utilities as ut
     
     ar = Ahringer()
 
-    ### high rna and low atac: ###
-    rna_above_1000 = ar.get_list("rna", "Germline", thresh=1000)  # len 116
-    rna_top_5p = ar.get_list("rna", "Germline", prcnt=5)  # len 1012
 
-    atac_below_5 = ar.get_list(
-        "atac", "Germline", thresh=5, under_thresh=True
-    )  # len 314
-    atac_bottom_5p = ar.get_list("atac", "Germline", prcnt=5, bottom=True)  # len 740
-    atac_bottom_10p = ar.get_list("atac", "Germline", prcnt=10, bottom=True)  # len 1167
+    if False:
+        ### high rna and low atac: ###
+        rna_above_1000 = ar.get_list("rna", "Germline", thresh=1000)  # len 116
+        rna_top_5p = ar.get_list("rna", "Germline", prcnt=5)  # len 1012
 
-    # no intersection --- high_ex_low_atac = ut.intersect_lists(rna_above_1000, atac_below_5)
-    high_ex_low_atac = ut.intersect_lists(rna_top_5p, atac_below_5)  # 2
-    high_ex_low_atac2 = ut.intersect_lists(rna_top_5p, atac_bottom_5p)  # 5
-    high_ex_low_atac3 = ut.intersect_lists(rna_top_5p, atac_bottom_10p)
+        atac_below_5 = ar.get_list(
+            "atac", "Germline", thresh=5, under_thresh=True
+        )  # len 314
+        atac_bottom_5p = ar.get_list("atac", "Germline", prcnt=5, bottom=True)  # len 740
+        atac_bottom_10p = ar.get_list("atac", "Germline", prcnt=10, bottom=True)  # len 1167
 
-    ### High RNA in soma (Muscles, Neurons), low RNA in germline ###
-    # only zeros: rna_germline_bottom_5p = ar.get_list('rna','Germline',prcnt=5,bottom=True)
-    # only zeros: rna_germline_bottom_10p = ar.get_list('rna','Germline',prcnt=10,bottom=True)
-    rna_germline_below_10 = ar.get_list(
-        "rna", "Germline", thresh=10, under_thresh=True
-    )  # len 11,376
+        # no intersection --- high_ex_low_atac = ut.intersect_lists(rna_above_1000, atac_below_5)
+        high_ex_low_atac = ut.intersect_lists(rna_top_5p, atac_below_5)  # 2
+        high_ex_low_atac2 = ut.intersect_lists(rna_top_5p, atac_bottom_5p)  # 5
+        high_ex_low_atac3 = ut.intersect_lists(rna_top_5p, atac_bottom_10p)
 
-    rna_muscles_top_5p = ar.get_list("rna", "Muscle", prcnt=5)  # len 1012
-    rna_neurons_top_5p = ar.get_list("rna", "Neurons", prcnt=5)  # len 1012
-    top_muscle_neurons = ut.intersect_lists(
-        rna_muscles_top_5p, rna_neurons_top_5p
-    )  # len 789
+        ### High RNA in soma (Muscles, Neurons), low RNA in germline ###
+        # only zeros: rna_germline_bottom_5p = ar.get_list('rna','Germline',prcnt=5,bottom=True)
+        # only zeros: rna_germline_bottom_10p = ar.get_list('rna','Germline',prcnt=10,bottom=True)
+        rna_germline_below_10 = ar.get_list(
+            "rna", "Germline", thresh=10, under_thresh=True
+        )  # len 11,376
 
-    only_somatic = ut.plot_ven(
-        [rna_germline_below_10, top_muscle_neurons], ["germline low", "somatic high"]
-    )
-    only_somatic_names = ut.intersect_lists(rna_germline_below_10, top_muscle_neurons)
+        rna_muscles_top_5p = ar.get_list("rna", "Muscle", prcnt=5)  # len 1012
+        rna_neurons_top_5p = ar.get_list("rna", "Neurons", prcnt=5)  # len 1012
+        top_muscle_neurons = ut.intersect_lists(
+            rna_muscles_top_5p, rna_neurons_top_5p
+        )  # len 789
+
+        only_somatic_names = ut.intersect_lists(rna_germline_below_10, top_muscle_neurons)
+
+
+    ### new:
+    soma_top_10p = ut.get_top_somatic_rna_genes(10)
