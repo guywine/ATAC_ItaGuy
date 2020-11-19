@@ -268,6 +268,13 @@ def list_to_wbids(gene_list: list):
     wbid_list = [gid.to_wbid(gene) for gene in gene_list if gid.to_wbid(gene)]
     return wbid_list
 
+def list_to_name(gene_list: list):
+    '''
+    '''
+    gid = Gene_IDs()
+    name_list = [gid.to_name(gene) for gene in gene_list if gid.to_name(gene)]
+    return name_list
+
 
 
 
