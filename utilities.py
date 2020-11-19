@@ -267,7 +267,7 @@ def list_to_wbids(gene_list: list):
     gid = Gene_IDs()
     wbid_list = [gid.to_wbid(gene) for gene in gene_list if gid.to_wbid(gene)]
     return wbid_list
-        
+
 
 
 
