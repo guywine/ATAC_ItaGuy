@@ -3,6 +3,7 @@ import gene_sets as gsets
 import regex as re
 from mRNA_gonads import Table_mRNA
 from gene_id import Gene_IDs
+from atac_signal import ATAC_signal
 
 # import utilities as ut
 import matplotlib.pyplot as plt
@@ -106,26 +107,24 @@ if __name__ == "__main__":
     ar = Ahringer()
     m = Table_mRNA()
     gid = Gene_IDs()
+    ats = ATAC_signal()
 
-    rna_all = ut.load_gene_expression_df()
 
-    germline_ahri_top5 = ut.get_list_of_column(ar.rna['Germline'],prcnt=5) # len 1012
-    germline_ours_top5 = ut.get_list_of_column(m.mean_exp, prcnt=5) # len 1015
+    ### new
+    germline_ahri_top10 = ut.get_list_of_column(ar.rna['Germline'],prcnt=10) # 2023
+    germline_ours_top10 = ut.get_list_of_column(m.mean_exp, prcnt=10) # 2029
+    germline_top_10 = ut.intersect_lists(germline_ahri_top10, germline_ours_top10) # 1087
 
-    germline_top_5 = ut.intersect_lists(germline_ahri_top5, germline_ours_top5) # len 450
+    atac_ahri_low = ut.get_list_of_column(ar.atac['Germline'],thresh=10, under_thresh=True) # 4478
 
-    germ_top_5_df = ar.rna.loc[germline_top_5,:]
-    germ_top5_1st = germ_top_5_df[germ_top_5_df['1st.max.tissue']=='Germline'] # 275
+    igfp_mean_scores = ats.scores1.mean(axis=1)
+    ioma1_mean_scores = ats.scores2.mean(axis=1)
+    atac_ours_gfp_low = ut.get_list_of_column(igfp_mean_scores, prcnt=70, bottom=True) # 14184
+    atac_ours_oma1_low = ut.get_list_of_column(ioma1_mean_scores, prcnt=70, bottom=True) # 14221
 
-    germ_top5_over400_1st = germ_top5_1st[germ_top5_1st['Germline']>400] # 98
+    atac_ours_low = ut.intersect_lists(atac_ours_gfp_low, atac_ours_oma1_low) # 13883
+    atac_all_low = ut.intersect_lists(atac_ours_low, atac_ahri_low) # 2892
 
-    soma_under_150_mask = (germ_top5_over400_1st.loc[:,'Neurons':'Intest.']<150).all(axis=1)
+    high_rna_low_atac = ut.intersect_lists(germline_top_10, atac_all_low)
 
-    germ_top5_over400_1st_soma_under_150 = germ_top5_over400_1st[soma_under_150_mask]
-
-    strong_germline_rna = list(germ_top5_over400_1st_soma_under_150.index)
-
-    atac_top_10 = ut.get_list_of_column(ar.atac['Germline'],prcnt=10)
-
-    germline_atac = ut.intersect_lists(strong_germline_rna, atac_top_10)
 
