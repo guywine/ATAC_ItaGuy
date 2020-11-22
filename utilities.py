@@ -7,6 +7,7 @@ from gene_id import Gene_IDs
 from gene_sets import Gene_sets
 from mRNA_gonads import Table_mRNA
 from Ahringer import Ahringer
+from atac_signal import ATAC_signal
 
 
 
@@ -108,6 +109,32 @@ def print_gene_ranks_in_df(gene_df: pd.DataFrame, gene:str, print_res: bool=Fals
     print('\n')
 
 
+def print_gene_atac(atac_sig: ATAC_signal, gene: str):
+    '''
+    Gets an ATAC_signal object and a gene.
+    Prints its ranks in ours (GFP + oma-1) and ahringer.
+    '''
+    gene_name = Gene_IDs().to_name(gene)
+
+    gfp_medians = atac_sig.df_list_to_calc(atac_sig.cond1)
+    oma1_medians = atac_sig.df_list_to_calc(atac_sig.cond2)
+    
+    gfp_score = gfp_medians.mean(axis=1)
+    oma1_score = oma1_medians.mean(axis=1)
+
+    ahri_germline = Ahringer().atac['Germline']
+
+    print(f'ATAC for gene - {gene_name}')
+    print('Ours (anti-GFP)')
+    get_gene_rank(gfp_score, gene_name, print_gene=False)
+    
+    print('Ours (anti-OMA-1)')
+    get_gene_rank(oma1_score, gene_name, print_gene=False)
+
+    print('Ahringer Germline')
+    get_gene_rank(ahri_germline, gene_name, print_gene=False)
+
+
 def get_gene_rank(gene_series: pd.Series, gene:str, print_res: bool=True, print_gene: bool=True):
     '''
     Series where index is gene_name.
@@ -116,7 +143,7 @@ def get_gene_rank(gene_series: pd.Series, gene:str, print_res: bool=True, print_
     --------
     - percentile: float. 
     '''
-    # get gene name and wbid:
+    ### later remove:
     if gene.lower()=='gfp':
         wbid='GFP'
         name = wbid
@@ -126,6 +153,7 @@ def get_gene_rank(gene_series: pd.Series, gene:str, print_res: bool=True, print_
         name = gid.to_name(gene)
         if str(name)=='nan':
             name = wbid
+    ##### 
     
     gene_rank_df = pd.DataFrame({'value':gene_series, 'rank':gene_series.rank()})
 
@@ -148,6 +176,12 @@ def get_gene_rank(gene_series: pd.Series, gene:str, print_res: bool=True, print_
             print(f'Value:\t{value:.2f}\nRank: {rank} ({percentile:.2f}%)\n')
 
         return percentile
+
+
+
+
+
+
 
 def print_gene_expression(gene:str, print_res: bool=False):
     rna_all = load_gene_expression_df()
@@ -173,6 +207,7 @@ def load_gene_expression_df():
     rna_all = pd.concat([our_df, ahri_df, exp_df], axis=1)
     rna_pc = protein_coding_only(rna_all)
     return rna_pc
+
 
 
 def normalize_df_cols(df: pd.DataFrame, min_max: tuple=(-1,1)):
