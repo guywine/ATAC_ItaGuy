@@ -114,17 +114,13 @@ def print_gene_atac(atac_sig: ATAC_signal, gene: str):
     Gets an ATAC_signal object and a gene.
     Prints its ranks in ours (GFP + oma-1) and ahringer.
     '''
-    gene_name = Gene_IDs().to_name(gene)
-
-    gfp_medians = atac_sig.df_list_to_calc(atac_sig.cond1)
-    oma1_medians = atac_sig.df_list_to_calc(atac_sig.cond2)
-    
-    gfp_score = gfp_medians.mean(axis=1)
-    oma1_score = oma1_medians.mean(axis=1)
-
+    gfp_score = atac_sig.scores1.mean(axis=1)
+    oma1_score = atac_sig.scores2.mean(axis=1)
     ahri_germline = Ahringer().atac['Germline']
 
+    gene_name = Gene_IDs().to_name(gene)
     print(f'ATAC for gene - {gene_name}')
+
     print('Ours (anti-GFP)')
     get_gene_rank(gfp_score, gene_name, print_gene=False)
     
