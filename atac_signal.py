@@ -15,6 +15,8 @@ class ATAC_signal():
         self.exp_df = rt.create_exp_df(self.cond1, self.cond2, exp_name)
         self.mean1, _ = cas.get_mean_variance(self.cond1)
         self.mean2, _ = cas.get_mean_variance(self.cond2)
+        self.scores1 = self.df_list_to_calc(self.cond1)
+        self.scores2 = self.df_list_to_calc(self.cond2)
 
     
     def df_list_to_calc(self, df_list, calc_type: str='median'):
@@ -203,12 +205,13 @@ if __name__=='__main__':
     plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_mean, genes_to_mark='oma-2')
 
 
-
     ut.get_gene_rank(gfp_by_oma1_mean.iloc[:,0],'oma-2')
     ut.get_gene_rank(gfp_by_oma1_mean_123.iloc[:,0],'GFP')
 
+
+    #### atac scores (not FC)
     ut.print_gene_atac(exp1, 'oma-1')
-    #### atac scores:
+    
 
 
 
