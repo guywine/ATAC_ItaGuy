@@ -207,18 +207,9 @@ if __name__=='__main__':
     ut.get_gene_rank(gfp_by_oma1_mean.iloc[:,0],'oma-2')
     ut.get_gene_rank(gfp_by_oma1_mean_123.iloc[:,0],'GFP')
 
-
+    ut.print_gene_atac(exp1, 'oma-1')
     #### atac scores:
-    if False:
-        gfp_medians = exp1.df_list_to_calc(exp1.cond1)
-        oma1_medians = exp1.df_list_to_calc(exp1.cond2)
 
-        gfp_score = gfp_medians.mean(axis=1)
-        oma1_score = oma1_medians.mean(axis=1)
-
-        my_atac_scores = pd.DataFrame({'anti-OMA-1':oma1_score, 'anti-GFP':gfp_score})
-
-        ut.print_gene_ranks_in_df(my_atac_scores, 'oma-1', print_res=True)
 
 
 
