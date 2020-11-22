@@ -172,23 +172,12 @@ def plot_reps_hist_mark_gene(df_reps: pd.DataFrame, genes_to_mark):
 #     dic_points = {'oma-1':value_list[0], 'oma-2':value_list[1]}
 #     df_dict = pd.DataFrame([dic_points])
 
-def normalize_all_cols(df: pd.DataFrame, min_max: tuple=(-1,1)):
-    '''
-    '''
-    x = df.values #returns a numpy array
-    min_max_scaler = preprocessing.MinMaxScaler(feature_range=min_max)
-    x_scaled = min_max_scaler.fit_transform(x)
-    new_df=df.copy()
-    new_df.loc[:,:] = x_scaled
-    return new_df
-
-
-
-
 
 
 
 if __name__=='__main__':
+    import utilities as ut 
+
     if 'exp1' not in locals():
         exp1 = ATAC_signal('exp1')
 
@@ -205,18 +194,33 @@ if __name__=='__main__':
 
     plot_reps_hist_mark_gene(df_reps=fc_gfp_by_oma1, genes_to_mark='oma-1')
 
-    gfp_by_oma1_norm = normalize_all_cols(fc_gfp_by_oma1)
-
-    plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_norm, genes_to_mark='oma-1')
-
-    gfp_by_oma1_mean = pd.DataFrame({'mean_FC_normalized':gfp_by_oma1_norm.mean(axis=1)})
+    gfp_by_oma1_mean = pd.DataFrame({'mean_FC':fc_gfp_by_oma1.mean(axis=1)})
+    gfp_by_oma1_mean_123 = pd.DataFrame({'mean_FC':fc_gfp_by_oma1.iloc[:,1:4].mean(axis=1)})
 
     print('oma-1, FC normalized from 4 replicates')
     plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_mean, genes_to_mark='oma-1')
     print('oma-2, FC normalized from 4 replicates')
     plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_mean, genes_to_mark='oma-2')
 
-    gfp_by_oma1_ranked = gfp_by_oma1_mean.rank()
+
+
+    ut.get_gene_rank(gfp_by_oma1_mean.iloc[:,0],'oma-2')
+    ut.get_gene_rank(gfp_by_oma1_mean_123.iloc[:,0],'GFP')
+
+
+    #### atac scores:
+    if False:
+        gfp_medians = exp1.df_list_to_calc(exp1.cond1)
+        oma1_medians = exp1.df_list_to_calc(exp1.cond2)
+
+        gfp_score = gfp_medians.mean(axis=1)
+        oma1_score = oma1_medians.mean(axis=1)
+
+        my_atac_scores = pd.DataFrame({'anti-OMA-1':oma1_score, 'anti-GFP':gfp_score})
+
+        ut.print_gene_ranks_in_df(my_atac_scores, 'oma-1', print_res=True)
+
+
 
 
 
