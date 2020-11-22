@@ -12,6 +12,8 @@ class Gene_IDs():
         id_table.drop('Your Input', axis=1, inplace=True)
         id_table.columns = ['wbid','gene name', 'sequence ID','other name']
         id_table.set_index('wbid', drop=False, inplace=True)
+        # add GFP:
+        id_table.loc['GFP']=['GFP']*4
         return id_table
 
     def to_wbid(self, gene: str, print_flag: bool=False):
