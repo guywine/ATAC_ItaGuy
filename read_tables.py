@@ -151,6 +151,6 @@ if __name__ == "__main__":
     # exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name="exp1")
 
     # exp1_dic = read_experiment_to_dic(exp_name="exp1")
-    exp1_df = read_experiment_to_df()
+    # exp1_df = read_experiment_to_df()
 
     # plt.plot(gfp_0.iloc[0])
