@@ -1,7 +1,7 @@
 import pandas as pd
 from gene_id import Gene_IDs
 import utilities as ut 
-
+from gene_id import Gene_IDs
 
 class Paralogs:
     def __init__(self):
@@ -113,6 +113,8 @@ class Paralogs:
 
 
 if __name__ == "__main__":
+    gid = Gene_IDs()
+
     para = Paralogs()
     para_ppw1 = para.get_paralogs_of_gene("ppw-1")
     rna_all = ut.load_gene_expression_df()
@@ -133,7 +135,7 @@ if __name__ == "__main__":
     couples_high_low = para.different_trait(germline_high_10_both, germline_below_10_both, to_names=True) # 67
     ## all are his-x genes!
 
-    germline_below_80_ours = ut.get_list_of_column(rna_all['ours (Gonads)'], thresh=80, under_thresh=True)
+    germline_below_80_ours = ut.get_list_of_column(rna_all['ours (Gonads)'], thresh=80, under_thresh=True) 
     germline_below_80_ahri = ut.get_list_of_column(rna_all['Ahringer (Germline)'], thresh=80, under_thresh=True)
     germline_below_80_both = ut.intersect_lists(germline_below_80_ours, germline_below_80_ahri) # ???
 
@@ -141,6 +143,15 @@ if __name__ == "__main__":
     new_couples = ut.intersect_lists(couples_high_low, couples_high_low80, 'only second')
 
     couples_high_low80_cutoff_90 = para.different_trait(germline_high_10_both, germline_below_80_both, to_names=True, cutoff=90) # 77
+
+    germline_bottom_70_ours = ut.get_list_of_column(rna_all['ours (Gonads)'], prcnt=70, bottom=True) # 14199
+    germline_bottom_70_ahri = ut.get_list_of_column(rna_all['Ahringer (Germline)'], prcnt=70, bottom=True) # 14102
+    germline_bottom_70_both = ut.intersect_lists(germline_bottom_70_ours, germline_bottom_70_ahri) # 12899
+
+    couples_bottom_70_cutoff_90 = para.different_trait(germline_high_10_both, germline_bottom_70_both, to_names=True, cutoff=90) # 70 couples
+
+
+
 
     
 
