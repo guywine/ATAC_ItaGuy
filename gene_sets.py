@@ -277,25 +277,25 @@ if __name__ == "__main__":
     # plot_venn_from_dic(dic_groups, list_of_names=["highly 10%", "hrde-1"])
     # add_intersect(dic_groups, 'highly 10%', 'hrde-1', inter_type='only second')
 
-    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
-    hrde_FC_sig = gs.get_list('mRNA_isSig')
-    hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
+    # hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
+    # hrde_FC_sig = gs.get_list('mRNA_isSig')
+    # hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
 
-    hrde_up_sig = intersect_lists(hrde_FC_sig, hrde_up)
-    hrde_regulated = intersect_lists(hrde_up_sig, hrde1_kennedy)
+    # hrde_up_sig = intersect_lists(hrde_FC_sig, hrde_up)
+    # hrde_regulated = intersect_lists(hrde_up_sig, hrde1_kennedy)
 
-    print('Genes that are mRNA-up and hrde-1 targets:')
-    hrde_regulated_names = wbid_list_to_names(hrde_regulated)
+    # print('Genes that are mRNA-up and hrde-1 targets:')
+    # hrde_regulated_names = wbid_list_to_names(hrde_regulated)
 
-    print('get values of hrde-1 score and mRNA-FC score:')
-    df_mRNA_and_hrde1 = gs.big_table.loc[hrde_regulated,['mRNA_log2_FC','hrde-1-Kennedy']]
+    # print('get values of hrde-1 score and mRNA-FC score:')
+    # df_mRNA_and_hrde1 = gs.big_table.loc[hrde_regulated,['mRNA_log2_FC','hrde-1-Kennedy']]
 
-    # hrde1_strongest = df_mRNA_and_hrde1[df_mRNA_and_hrde1['hrde-1-Kennedy']>2000]
-    # hrde1_strongest = hrde1_strongest[hrde1_strongest['mRNA_log2_FC']>4]
-    # hrde1_strongest_names = wbid_list_to_names(hrde1_strongest.index)
+    # # hrde1_strongest = df_mRNA_and_hrde1[df_mRNA_and_hrde1['hrde-1-Kennedy']>2000]
+    # # hrde1_strongest = hrde1_strongest[hrde1_strongest['mRNA_log2_FC']>4]
+    # # hrde1_strongest_names = wbid_list_to_names(hrde1_strongest.index)
 
-    import utilities as ut 
-    ut.print_gene_ranks_in_df(df_mRNA_and_hrde1, 'oma-1', print_res=True)
+    # import utilities as ut 
+    # ut.print_gene_ranks_in_df(df_mRNA_and_hrde1, 'oma-1', print_res=True)
 
 
 

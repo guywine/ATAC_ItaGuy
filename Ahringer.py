@@ -111,20 +111,20 @@ if __name__ == "__main__":
 
 
     ### new
-    germline_ahri_top10 = ut.get_list_of_column(ar.rna['Germline'],prcnt=10) # 2023
-    germline_ours_top10 = ut.get_list_of_column(m.mean_exp, prcnt=10) # 2029
-    germline_top_10 = ut.intersect_lists(germline_ahri_top10, germline_ours_top10) # 1087
+    # germline_ahri_top10 = ut.get_list_of_column(ar.rna['Germline'],prcnt=10) # 2023
+    # germline_ours_top10 = ut.get_list_of_column(m.mean_exp, prcnt=10) # 2029
+    # germline_top_10 = ut.intersect_lists(germline_ahri_top10, germline_ours_top10) # 1087
 
-    atac_ahri_low = ut.get_list_of_column(ar.atac['Germline'],thresh=10, under_thresh=True) # 4478
+    # atac_ahri_low = ut.get_list_of_column(ar.atac['Germline'],thresh=10, under_thresh=True) # 4478
 
-    igfp_mean_scores = ats.scores1.mean(axis=1)
-    ioma1_mean_scores = ats.scores2.mean(axis=1)
-    atac_ours_gfp_low = ut.get_list_of_column(igfp_mean_scores, prcnt=70, bottom=True) # 14184
-    atac_ours_oma1_low = ut.get_list_of_column(ioma1_mean_scores, prcnt=70, bottom=True) # 14221
+    # igfp_mean_scores = ats.scores1.mean(axis=1)
+    # ioma1_mean_scores = ats.scores2.mean(axis=1)
+    # atac_ours_gfp_low = ut.get_list_of_column(igfp_mean_scores, prcnt=70, bottom=True) # 14184
+    # atac_ours_oma1_low = ut.get_list_of_column(ioma1_mean_scores, prcnt=70, bottom=True) # 14221
 
-    atac_ours_low = ut.intersect_lists(atac_ours_gfp_low, atac_ours_oma1_low) # 13883
-    atac_all_low = ut.intersect_lists(atac_ours_low, atac_ahri_low) # 2892
+    # atac_ours_low = ut.intersect_lists(atac_ours_gfp_low, atac_ours_oma1_low) # 13883
+    # atac_all_low = ut.intersect_lists(atac_ours_low, atac_ahri_low) # 2892
 
-    high_rna_low_atac = ut.intersect_lists(germline_top_10, atac_all_low)
+    # high_rna_low_atac = ut.intersect_lists(germline_top_10, atac_all_low)
 
 
