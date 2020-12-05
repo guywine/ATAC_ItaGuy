@@ -174,9 +174,19 @@ def get_gene_rank(gene_series: pd.Series, gene:str, print_res: bool=True, print_
         return percentile
 
 
+def find_rank_by_value(gene_series: pd.Series, val: float, print_flag:bool=True):
+    '''
+    Series where index is gene_name.
 
-
-
+    Return
+    --------
+    - percentile: float. 
+    '''
+    bigger = (gene_series>val).sum()
+    percentile = 100 * (bigger / gene_series.size)
+    if print_flag:
+        print(f'value: {val}\tpercentile : {percentile:.2f}%')
+    return percentile
 
 
 def print_gene_expression(gene:str, print_res: bool=False):
