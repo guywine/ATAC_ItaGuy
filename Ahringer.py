@@ -101,6 +101,31 @@ class Ahringer:
         return gene_id_list
 
 
+def screen_genes_for_all_peaks(
+    gene_list: list, ar: Ahringer, thresh: float, below_thresh: bool = False
+):
+    """
+    returns a list of gene names in which all atac peaks match threshold
+    """
+    gid = Gene_IDs()
+    name_list = [gid.to_name(gene) for gene in gene_list if gid.to_name(gene)]
+
+    new_list = []
+    for gene in name_list:
+        try: 
+            atac_values = ar.atac.loc[gene, "Germline"]
+            if below_thresh:
+                if (atac_values <= thresh).all():
+                    new_list.append(gene)
+            else:
+                if (atac_values >= thresh).all():
+                    new_list.append(gene)
+        except KeyError:
+            pass
+
+    return new_list
+
+
 if __name__ == "__main__":
     import utilities as ut
 
@@ -109,22 +134,39 @@ if __name__ == "__main__":
     gid = Gene_IDs()
     ats = ATAC_signal()
 
-
     ### new
-    # germline_ahri_top10 = ut.get_list_of_column(ar.rna['Germline'],prcnt=10) # 2023
-    # germline_ours_top10 = ut.get_list_of_column(m.mean_exp, prcnt=10) # 2029
-    # germline_top_10 = ut.intersect_lists(germline_ahri_top10, germline_ours_top10) # 1087
+    germline_ahri_under5 = ut.get_list_of_column(
+        ar.rna["Germline"], thresh=5, under_thresh=True
+    )  # 9762
+    germline_ours_under5 = ut.get_list_of_column(
+        m.mean_exp, thresh=5, under_thresh=True
+    )  # 13954
+    germline_under5 = ut.intersect_lists(
+        germline_ahri_under5, germline_ours_under5
+    )  # 9539
 
-    # atac_ahri_low = ut.get_list_of_column(ar.atac['Germline'],thresh=10, under_thresh=True) # 4478
+    atac_ahri_low = ut.get_list_of_column(
+        ar.atac["Germline"], prcnt=20, bottom=True
+    )  # 4478
 
-    # igfp_mean_scores = ats.scores1.mean(axis=1)
-    # ioma1_mean_scores = ats.scores2.mean(axis=1)
-    # atac_ours_gfp_low = ut.get_list_of_column(igfp_mean_scores, prcnt=70, bottom=True) # 14184
-    # atac_ours_oma1_low = ut.get_list_of_column(ioma1_mean_scores, prcnt=70, bottom=True) # 14221
+    igfp_mean_scores = ats.scores1.mean(axis=1)
+    ioma1_mean_scores = ats.scores2.mean(axis=1)
+    atac_ours_gfp_low = ut.get_list_of_column(
+        igfp_mean_scores, prcnt=20, bottom=True
+    )  #
+    atac_ours_oma1_low = ut.get_list_of_column(
+        ioma1_mean_scores, prcnt=20, bottom=True
+    )  #
 
-    # atac_ours_low = ut.intersect_lists(atac_ours_gfp_low, atac_ours_oma1_low) # 13883
-    # atac_all_low = ut.intersect_lists(atac_ours_low, atac_ahri_low) # 2892
+    atac_ours_low = ut.intersect_lists(atac_ours_gfp_low, atac_ours_oma1_low)  # 4008
 
-    # high_rna_low_atac = ut.intersect_lists(germline_top_10, atac_all_low)
+    atac_all_low = ut.intersect_lists(atac_ours_low, atac_ahri_low) # 411
+
+    low_rna_low_atac = ut.intersect_lists(germline_under5, atac_all_low) # 307
+
+    low_rna_low_atac_all_peaks = screen_genes_for_all_peaks(low_rna_low_atac, ar, 8.5, True) # 278
 
 
+    low_low_wbids = ut.list_to_wbids(low_rna_low_atac_all_peaks)
+
+    low_rna_low_atac_all_peaks_chrom_1 = [gene for gene in low_low_wbids if ar.rna.loc[gene,'chr']=='I']
