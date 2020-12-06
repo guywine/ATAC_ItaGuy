@@ -157,7 +157,6 @@ if __name__ == "__main__":
     atac_ours_oma1_low = ut.get_list_of_column(
         ioma1_mean_scores, prcnt=20, bottom=True
     )  #
-
     atac_ours_low = ut.intersect_lists(atac_ours_gfp_low, atac_ours_oma1_low)  # 4008
 
     atac_all_low = ut.intersect_lists(atac_ours_low, atac_ahri_low) # 411
