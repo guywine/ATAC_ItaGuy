@@ -1,4 +1,4 @@
-import pandas as pd 
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2, venn3
 from sklearn import preprocessing
@@ -8,7 +8,6 @@ from gene_sets import Gene_sets
 from mRNA_gonads import Table_mRNA
 from Ahringer import Ahringer
 from atac_signal import ATAC_signal
-
 
 
 def plot_ven(list_of_sets: list, list_of_names: list):
@@ -31,6 +30,7 @@ def plot_ven(list_of_sets: list, list_of_names: list):
         venn2(subsets=(list_of_sets), set_labels=(list_of_names))
     if len(list_of_names) == 3:
         venn3(subsets=(list_of_sets), set_labels=(list_of_names))
+
 
 def intersect_lists(lst1, lst2, inter_type: str = "intersection"):
     """
@@ -73,140 +73,142 @@ def intersect_lists(lst1, lst2, inter_type: str = "intersection"):
 
 
 def wbid_list_to_names(wbid_list: list):
-    '''
-    '''
+    """"""
     gid = Gene_IDs()
-    gene_names = [gid.to_name(wbid) for wbid in wbid_list if str(gid.to_name(wbid)) != 'nan']
+    gene_names = [
+        gid.to_name(wbid) for wbid in wbid_list if str(gid.to_name(wbid)) != "nan"
+    ]
     return gene_names
 
 
-def gene_is_in_list(wbid_list:list , gene_name:str, print_flag: bool=False):
-    '''
-    '''
+def gene_is_in_list(wbid_list: list, gene_name: str, print_flag: bool = False):
+    """"""
     gene_names = wbid_list_to_names(wbid_list)
     if gene_name in gene_names:
-        if print_flag:    
+        if print_flag:
             gid = Gene_IDs()
             wbid = gid.to_wbid(gene_name)
-            print(f'gene {wbid} found')
+            print(f"gene {wbid} found")
         return True
     else:
         if print_flag:
-            print('gene {gene_name} not found.')
+            print("gene {gene_name} not found.")
         return False
 
-def print_gene_ranks_in_df(gene_df: pd.DataFrame, gene:str, print_res: bool=False):
-    '''
-    '''
+
+def print_gene_ranks_in_df(gene_df: pd.DataFrame, gene: str, print_res: bool = False):
+    """"""
     gene_name = Gene_IDs().to_name(gene)
-    print(f'gene - {gene_name}')
+    print(f"gene - {gene_name}")
     for column in gene_df.columns:
         if print_res:
-            print(f'{column}')
+            print(f"{column}")
         perc = get_gene_rank(gene_df[column], gene, print_res, print_gene=False)
         if not print_res:
-            print(f'{column}:\t{perc:.2f}%')
-    print('\n')
+            print(f"{column}:\t{perc:.2f}%")
+    print("\n")
 
 
 def print_gene_atac(atac_sig: ATAC_signal, gene: str):
-    '''
+    """
     Gets an ATAC_signal object and a gene.
     Prints its ranks in ours (GFP + oma-1) and ahringer.
-    '''
+    """
     gfp_score = atac_sig.scores1.mean(axis=1)
     oma1_score = atac_sig.scores2.mean(axis=1)
-    ahri_germline = Ahringer().atac['Germline']
+    ahri_germline = Ahringer().atac["Germline"]
 
     gene_name = Gene_IDs().to_name(gene)
-    print(f'ATAC for gene - {gene_name}')
+    print(f"ATAC for gene - {gene_name}")
 
-    print('Ours (anti-GFP)')
+    print("Ours (anti-GFP)")
     get_gene_rank(gfp_score, gene_name, print_gene=False)
-    
-    print('Ours (anti-OMA-1)')
+
+    print("Ours (anti-OMA-1)")
     get_gene_rank(oma1_score, gene_name, print_gene=False)
 
-    print('Ahringer Germline')
+    print("Ahringer Germline")
     get_gene_rank(ahri_germline, gene_name, print_gene=False)
 
 
-def get_gene_rank(gene_series: pd.Series, gene:str, print_res: bool=True, print_gene: bool=True):
-    '''
+def get_gene_rank(
+    gene_series: pd.Series, gene: str, print_res: bool = True, print_gene: bool = True
+):
+    """
     Series where index is gene_name.
 
     Return
     --------
-    - percentile: float. 
-    '''
+    - percentile: float.
+    """
     ### later remove:
-    if gene.lower()=='gfp':
-        wbid='GFP'
+    if gene.lower() == "gfp":
+        wbid = "GFP"
         name = wbid
     else:
         gid = Gene_IDs()
         wbid = gid.to_wbid(gene)
         name = gid.to_name(gene)
-        if str(name)=='nan':
+        if str(name) == "nan":
             name = wbid
-    ##### 
-    
-    gene_rank_df = pd.DataFrame({'value':gene_series, 'rank':gene_series.rank()})
+    #####
 
-    if ('GFP' in gene_series.index[0]) or ('WBG' in gene_series.index[0]):
+    gene_rank_df = pd.DataFrame({"value": gene_series, "rank": gene_series.rank()})
+
+    if ("GFP" in gene_series.index[0]) or ("WBG" in gene_series.index[0]):
         gene_ind = wbid
     else:
         gene_ind = name
 
-    value = gene_rank_df.loc[gene_ind,'value']
+    value = gene_rank_df.loc[gene_ind, "value"]
     if value == 0:
-        print(f'Value for gene {name} is 0')
+        print(f"Value for gene {name} is 0")
         return 0
     else:
-        rank = gene_rank_df.loc[gene_ind,'rank']
-        percentile = (rank/gene_rank_df.shape[0])*100
+        rank = gene_rank_df.loc[gene_ind, "rank"]
+        percentile = (rank / gene_rank_df.shape[0]) * 100
         if print_gene:
-            print(f'Gene - {name}\n')
-        
+            print(f"Gene - {name}\n")
+
         if print_res:
-            print(f'Value:\t{value:.2f}\nRank: {rank} ({percentile:.2f}%)\n')
+            print(f"Value:\t{value:.2f}\nRank: {rank} ({percentile:.2f}%)\n")
 
         return percentile
 
 
-def find_rank_by_value(gene_series: pd.Series, val: float, print_flag:bool=True):
-    '''
+def find_rank_by_value(gene_series: pd.Series, val: float, print_flag: bool = True):
+    """
     Series where index is gene_name.
 
     Return
     --------
-    - percentile: float. 
-    '''
-    smaller = (gene_series<=val).sum()
+    - percentile: float.
+    """
+    smaller = (gene_series <= val).sum()
     percentile = 100 * (smaller / gene_series.size)
     if print_flag:
-        print(f'value: {val}\tpercentile : {percentile:.2f}%')
+        print(f"value: {val}\tpercentile : {percentile:.2f}%")
     return percentile
 
 
-def print_gene_expression(gene:str, print_res: bool=False):
+def print_gene_expression(gene: str, print_res: bool = False):
     rna_all = load_gene_expression_df()
     print_gene_ranks_in_df(rna_all, gene, print_res)
 
 
 def load_gene_expression_df():
-    '''
+    """
     Reads the gene expression values of all protein coding genes from 3 sources:
     1) 'ours': our mRNA in gonads
     2) 'Ahringer'
     3) 'expression_median': From Hila's table of YA
     4) 'expression_mean': From Hila's table of YA
-    '''
+    """
     our_col = Table_mRNA().mean_exp
-    our_df = pd.DataFrame({'ours (Gonads)':our_col})
+    our_df = pd.DataFrame({"ours (Gonads)": our_col})
 
-    ahri_df = Ahringer().rna.loc[:,'Germline':'Muscle']
-    ahri_df.columns = ['Ahringer (Germline)','Ahringer (Muscle)','Ahringer (Neurons)']
+    ahri_df = Ahringer().rna.loc[:, "Germline":"Muscle"]
+    ahri_df.columns = ["Ahringer (Germline)", "Ahringer (Muscle)", "Ahringer (Neurons)"]
 
     exp_df = Gene_sets.get_expression_df()
 
@@ -215,55 +217,54 @@ def load_gene_expression_df():
     return rna_pc
 
 
-
-def normalize_df_cols(df: pd.DataFrame, min_max: tuple=(-1,1)):
-    '''
-    '''
-    x = df.values #returns a numpy array
+def normalize_df_cols(df: pd.DataFrame, min_max: tuple = (-1, 1)):
+    """"""
+    x = df.values  # returns a numpy array
     min_max_scaler = preprocessing.MinMaxScaler(feature_range=min_max)
     x_scaled = min_max_scaler.fit_transform(x)
-    new_df=df.copy()
-    new_df.loc[:,:] = x_scaled
+    new_df = df.copy()
+    new_df.loc[:, :] = x_scaled
     return new_df
 
 
 def protein_coding_only(df: pd.DataFrame):
-    '''
+    """
     Returns df with only protein coding elements. (Assumes wbid indices)
-    '''
-    pc_wbids = pd.read_csv('protein_coding_wbids.csv')
+    """
+    pc_wbids = pd.read_csv("protein_coding_wbids.csv")
 
     ### add gfp
-    pc_list = list(pc_wbids['genes'])
-    pc_list.append('GFP')
+    pc_list = list(pc_wbids["genes"])
+    pc_list.append("GFP")
 
     pc_series = pd.Series(pc_list)
 
     new_df = df[df.index.isin(pc_series)]
     return new_df
 
+
 def get_top_somatic_rna_genes(prcnt: int):
-    '''
+    """
     Uses Ahringer's data to find genes that are higly expressed in:
     - Muscle
     - Neurons
 
     Intersects lists and returns list with wbids.
-    '''
+    """
     ar = Ahringer()
-    top_neuro = get_list_of_column(ar.rna['Neurons'],prcnt)
-    top_musc = get_list_of_column(ar.rna['Muscle'],prcnt)
+    top_neuro = get_list_of_column(ar.rna["Neurons"], prcnt)
+    top_musc = get_list_of_column(ar.rna["Muscle"], prcnt)
     top_soma = intersect_lists(top_neuro, top_musc)
     return top_soma
 
 
 def get_list_of_column(
-        gene_series: pd.Series,
-        prcnt: float = 0,
-        bottom: bool = False,
-        thresh=None,
-        under_thresh: bool = False,
-    ):
+    gene_series: pd.Series,
+    prcnt: float = 0,
+    bottom: bool = False,
+    thresh=None,
+    under_thresh: bool = False,
+):
     """
     Parameters
     ----------
@@ -275,11 +276,11 @@ def get_list_of_column(
     """
     col_orig = gene_series.dropna()
     if prcnt:
-        if not bottom: # get upper percnage
+        if not bottom:  # get upper percnage
             quantile = col_orig.quantile(1 - (prcnt / 100))
             new_col = col_orig[col_orig > quantile]
-        
-        else: # get lower percentage
+
+        else:  # get lower percentage
             quantile = col_orig.quantile((prcnt / 100))
             new_col = col_orig[col_orig <= quantile]
     else:
@@ -293,7 +294,7 @@ def get_list_of_column(
 
     index_list = list(new_col.index)
 
-    if ('GFP' in index_list[0]) or ('WBG' in index_list[0]):
+    if ("GFP" in index_list[0]) or ("WBG" in index_list[0]):
         wbid_list = index_list
     else:
         wbid_list = list_to_wbids(index_list)
@@ -302,32 +303,66 @@ def get_list_of_column(
 
 
 def list_to_wbids(gene_list: list):
-    '''
+    """
     Translate list of genes to wbid list
-    '''
+    """
     gid = Gene_IDs()
     wbid_list = [gid.to_wbid(gene) for gene in gene_list if gid.to_wbid(gene)]
     return wbid_list
 
+
 def list_to_name(gene_list: list):
-    '''
-    '''
+    """"""
     gid = Gene_IDs()
     name_list = [gid.to_name(gene) for gene in gene_list if gid.to_name(gene)]
     return name_list
 
-def screen_chromosome(gene_list: list, chr_str: str, to_names:bool=False):
-    ar = Ahringer()
+
+def screen_chromosome(gene_list: list, chr_str: str, to_names: bool = False):
+
+    chrom_df = pd.read_csv("tables/gene_locs.csv", index_col="Wbid")
+
     wbid_list = list_to_wbids(gene_list)
 
-    chr_list = [gene for gene in wbid_list if ar.rna.loc[gene,'chr']==chr_str]
+    chr_list = [gene for gene in wbid_list if chrom_df.loc[gene, "chr"] == chr_str]
 
     if to_names:
         chr_list = list_to_name(chr_list)
-    
+
     return chr_list
 
 
+def screen_gene_location(gene_list: list, to_names: bool = False):
+    chrom_df = pd.read_csv("tables/gene_locs.csv", index_col="Wbid")
+
+    wbid_list = list_to_wbids(gene_list)
+
+    arms_dict = {
+        "I": (3858000, 11040000),
+        "II": (4879000, 12020000),
+        "III": (3722000, 10340000),
+        "IV": (3896000, 12970000),
+        "V": (5897000, 16550000),
+        "X": (6137000, 12480000),
+    }
+
+    new_list = []
+    for wbid in wbid_list:
+        chrom = chrom_df.loc[wbid, "chr"]
+        range_tuple = arms_dict[chrom]
+        if gene_within_range(chrom_df, wbid, range_tuple):
+            new_list.append(wbid)
+
+    if to_names:
+        new_list = list_to_name(new_list)
+
+    return new_list
 
 
-
+def gene_within_range(chrom_df: pd.DataFrame, wbid: str, range_tuple: tuple):
+    start = chrom_df.loc[wbid, "start"]
+    stop = chrom_df.loc[wbid, "stop"]
+    if start >= range_tuple[0] and stop <= range_tuple[1]:
+        return True
+    else:
+        return False
