@@ -182,8 +182,8 @@ def find_rank_by_value(gene_series: pd.Series, val: float, print_flag:bool=True)
     --------
     - percentile: float. 
     '''
-    bigger = (gene_series>val).sum()
-    percentile = 100 * (bigger / gene_series.size)
+    smaller = (gene_series<=val).sum()
+    percentile = 100 * (smaller / gene_series.size)
     if print_flag:
         print(f'value: {val}\tpercentile : {percentile:.2f}%')
     return percentile
@@ -315,6 +315,17 @@ def list_to_name(gene_list: list):
     gid = Gene_IDs()
     name_list = [gid.to_name(gene) for gene in gene_list if gid.to_name(gene)]
     return name_list
+
+def screen_chromosome(gene_list: list, chr_str: str, to_names:bool=False):
+    ar = Ahringer()
+    wbid_list = list_to_wbids(gene_list)
+
+    chr_list = [gene for gene in wbid_list if ar.rna.loc[gene,'chr']==chr_str]
+
+    if to_names:
+        chr_list = list_to_name(chr_list)
+    
+    return chr_list
 
 
 
