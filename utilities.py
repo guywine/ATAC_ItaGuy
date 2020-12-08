@@ -366,3 +366,41 @@ def gene_within_range(chrom_df: pd.DataFrame, wbid: str, range_tuple: tuple):
         return True
     else:
         return False
+
+def screen_ahringer_1_prom(gene_name_list: list):
+    ar = Ahringer()
+    # gene_counts = ar.atac.index.value_counts()
+    # genes_1_prom = gene_counts[gene_counts==1].index.tolist()
+    # genes_1_prom_sep = list_seperate_commas(genes_1_prom)
+
+    gene_inds = ar.atac.index.tolist()
+    gene_inds_sep = list_seperate_commas(gene_inds)
+    
+    all_genes_with_prom = list(set(gene_inds_sep))
+    genes_1_prom = screen_only_singles(gene_inds_sep)
+    genes_more_than_1_prom = ut.intersect_lists(all_genes_with_prom, genes_1_prom, 'only first')
+
+
+def list_seperate_commas(l:list):
+    new_list = []
+    for item in l:
+        seperated = item.split(',')
+        new_list.extend(seperated)
+    
+    return new_list
+
+
+def screen_only_singles(l:list):
+    '''
+    Returns list of only items appearing 1 time in list.
+    
+    '''
+    singles_list = []
+    item_counter = collections.Counter(l)
+    for item in item_counter:
+        if item_counter[item]==1:
+            singles_list.append(item)
+    
+    return singles_list
+
+
