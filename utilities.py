@@ -358,6 +358,21 @@ def screen_gene_location(gene_list: list, to_names: bool = False):
 
     return new_list
 
+def print_gene_loc(gene: str):
+    chrom_df = pd.read_csv("tables/gene_locs.csv", index_col="Wbid")
+    
+    gid = Gene_IDs()
+    wbid = gid.to_wbid(gene)
+    name = gid.to_name(gene)
+
+    chrom = chrom_df.loc[wbid,'chr']
+    start = chrom_df.loc[wbid,'start']
+    stop = chrom_df.loc[wbid,'stop']
+    strand = chrom_df.loc[wbid,'strand']
+
+    print(f'gene {name}\nchrom:\t{chrom} , {strand} , {start}-{stop}')
+
+
 
 def gene_within_range(chrom_df: pd.DataFrame, wbid: str, range_tuple: tuple):
     start = chrom_df.loc[wbid, "start"]
