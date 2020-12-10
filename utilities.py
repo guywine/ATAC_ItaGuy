@@ -373,6 +373,31 @@ def print_gene_loc(gene: str):
     print(f'gene {name}\nchrom:\t{chrom} , {strand} , {start}-{stop}')
 
 
+def get_gene_size(gene: str):
+    chrom_df = pd.read_csv("tables/gene_locs.csv", index_col="Wbid")
+    
+    gid = Gene_IDs()
+    wbid = gid.to_wbid(gene)
+    name = gid.to_name(gene)
+
+    start = chrom_df.loc[wbid,'start']
+    stop = chrom_df.loc[wbid,'stop']
+    
+    return abs(stop-start)
+
+def screen_by_size(gene_list: str, thresh, max: bool=True):
+    new_list = []
+    for gene in gene_list:
+        size = get_gene_size(gene)
+        if max:
+            if size<=thresh:
+                new_list.append(gene)
+        else:
+            if size>=thresh:
+                new_list.append(gene)
+    return new_list
+
+
 
 def gene_within_range(chrom_df: pd.DataFrame, wbid: str, range_tuple: tuple):
     start = chrom_df.loc[wbid, "start"]
@@ -439,6 +464,8 @@ def screen_genes_with_name(gene_list: list):
     gid = Gene_IDs()
     names_only = [gid.to_name(gene) for gene in gene_list if '-' in gid.to_name(gene)]
     return names_only
+
+
 
 
 # def thresh_df_by_col(df: pd.DataFrame, thresh: int=5):
