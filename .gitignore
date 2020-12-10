@@ -9,6 +9,8 @@ Data/
 .mypy_cache/
 # ATAC_bigtable_1.xlsx
 # extendedCelegansIDs_bigTable_39col_2019format_edit.csv
+tables/Variation_name.xml.gz
+tables/Variation.xml.gz
 
 
 # User-specific files
