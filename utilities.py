@@ -418,4 +418,37 @@ def screen_only_singles(l:list):
     
     return singles_list
 
+def print_gene_sRNAs(gene: str):
+    gid = Gene_IDs()
+    wbid = gid.to_wbid(gene)
+    sRNAs_df_full = pd.read_csv('tables/sRNAs_rpm_df.csv', index_col='wbid')
+    try:
+        print(f'gene {gid.to_name(gene)} sRNAs:')
+        print(sRNAs_df_full.loc[wbid,:])
+    except KeyError:
+        print(f'Gene {gene} is under the threshold')
+
+def get_sRNAs_list(mean_above_thresh: bool=False):
+    sRNAs_df = pd.read_csv('tables/sRNA_over_5_rpm.csv', index_col='wbid')
+    if mean_above_thresh:
+        sRNAs_df = sRNAs_df[sRNAs_df['mean']>=5]
+    return sRNAs_df.index.tolist()
+
+
+def screen_genes_with_name(gene_list: list):
+    gid = Gene_IDs()
+    names_only = [gid.to_name(gene) for gene in gene_list if '-' in gid.to_name(gene)]
+    return names_only
+
+
+# def thresh_df_by_col(df: pd.DataFrame, thresh: int=5):
+#     '''
+#     '''
+#     rows_to_drop_i = []
+#     for row_i in range(df.shape[0]):
+#         if (df.iloc[row_i,:]<thresh).all():
+#             rows_to_drop_i.append(row_i)
+    
+#     cutoff_df = df.drop(df.index[rows_to_drop_i])
+#     return cutoff_df
 
