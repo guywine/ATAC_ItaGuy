@@ -45,11 +45,13 @@ if __name__=='__main__':
             germline_ahri_low, germline_ours_low
         )  # 10,697
 
-    ## low atac:
+    ## general atac:
     if True:
         igfp_mean_scores = ats.scores1.mean(axis=1)
         ioma1_mean_scores = ats.scores2.mean(axis=1)
 
+    ## low atac
+    if True:
         atac_ours_gfp_low = ut.get_list_of_column(
             igfp_mean_scores, prcnt=40, bottom=True
         )  #
@@ -88,7 +90,7 @@ if __name__=='__main__':
         low_rna_low_atac_not_hrde1_cutoff_bottom = ut.intersect_lists(low_low_not_hrde1_middle, atac_ours_low20, 'only first')
     
     ##### high and open
-    if True:
+    if False:
         # rna high
         rna_ours_top10 = ut.get_list_of_column(m.mean_exp, prcnt=10) # 2029
         rna_ahri_top10 = ut.get_list_of_column(ar.rna['Germline'], prcnt=10) # 2023
@@ -112,6 +114,16 @@ if __name__=='__main__':
         high_high = ut.intersect_lists(atac_top20, rna_top10) # 275
         high_high_middle = ut.screen_gene_location(high_high) # 217
         high_high_middle_names = ut.list_to_name(high_high_middle)
+
+    # small RNAs
+    if True:
+        sRNAs_over_5 = ut.get_sRNAs_list() # 9008
+        sRNAs_over_5_mean = ut.get_sRNAs_list(True) # 7872
+
+        low_low_with_ahri = ut.intersect_lists(low_rna_low_atac_not_hrde1_cutoff_bottom, atac_low)
+        low_closed_no_sRNA = ut.intersect_lists(low_low_with_ahri, sRNAs_over_5, 'only first')
+        low_closed_no_sRNA_names = ut.screen_genes_with_name(low_closed_no_sRNA)
+
 
 
 
