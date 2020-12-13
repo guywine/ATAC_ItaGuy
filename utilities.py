@@ -333,6 +333,10 @@ def screen_chromosome(gene_list: list, chr_str: str, to_names: bool = False):
 
 
 def screen_gene_location(gene_list: list, to_names: bool = False):
+    '''
+    Screens only genes that are in the "middle" of the chromosome.
+    Borders defined by paper publishing mutation rate change.
+    '''
     chrom_df = pd.read_csv("tables/gene_locs.csv", index_col="Wbid")
 
     wbid_list = list_to_wbids(gene_list)
@@ -466,7 +470,14 @@ def screen_genes_with_name(gene_list: list):
     return names_only
 
 
-
+def intersect_all(*lists_args):
+    last_set = set(lists_args[0])
+    for lst_i in range(1, len(lists_args)):
+         st_new = set(lists_args[lst_i])
+         last_set = last_set.intersection(st_new)
+         print(last_set)
+    
+    return list(last_set)
 
 # def thresh_df_by_col(df: pd.DataFrame, thresh: int=5):
 #     '''
