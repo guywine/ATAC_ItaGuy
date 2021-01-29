@@ -10,6 +10,12 @@ import matplotlib.pyplot as plt
 
 
 class Ahringer:
+    '''
+    This class reads Ahringer two types of data:
+    1) RNA
+    2) ATAC - Some genes appear multiple times.
+    Both tables will be indexed by wbid.
+    '''
     def __init__(self):
         self.rna = self._read_RNA()
         self.atac_all = self._read_ATAC()
@@ -42,46 +48,46 @@ class Ahringer:
         return atac
 
     def _filter_atac_all(self):
-        '''
-        The Ahringer table consists of many peaks which are not assigned to any gene. 
+        """
+        The Ahringer table consists of many peaks which are not assigned to any gene.
         This function filters two things:
         a) Only peaks assigned to a gene
         b) only peaks that are marked as "coding promoter"
-        '''
+        """
         atac_new = self.atac_all[
             self.atac_all["geneID"] != "."
         ]  # only peaks related to genes
         atac_new = atac_new[atac_new["regulatory_class"] == "coding_promoter"]
         return atac_new
 
+    def screen_genes_for_all_peaks(
+        self, gene_list: list, thresh: float, below_thresh: bool = False
+    ):
+        """
+        Some genes in the table have multiple peaks assigned to them as promoters.
+        This function returns a list of gene names of which all of their atac peaks in the Germline match the desired threshold.
+        """
+        gid = Gene_IDs()
+        name_list = [gid.to_name(gene) for gene in gene_list if gid.to_name(gene)]
 
-def screen_genes_for_all_peaks(
-    gene_list: list, ar: Ahringer, thresh: float, below_thresh: bool = False
-):
-    """
-    Some genes in the table have multiple peaks assigned to them as promoters.
-    This function returns a list of gene names of which all of their atac peaks match the desired threshold.
-    """
-    gid = Gene_IDs()
-    name_list = [gid.to_name(gene) for gene in gene_list if gid.to_name(gene)]
+        new_list = []
+        for gene in name_list:
+            try:
+                atac_values = self.atac.loc[gene, "Germline"]
+                if below_thresh:
+                    if (atac_values <= thresh).all():
+                        new_list.append(gene)
+                else:
+                    if (atac_values >= thresh).all():
+                        new_list.append(gene)
+            except KeyError:
+                pass
 
-    new_list = []
-    for gene in name_list:
-        try: 
-            atac_values = ar.atac.loc[gene, "Germline"]
-            if below_thresh:
-                if (atac_values <= thresh).all():
-                    new_list.append(gene)
-            else:
-                if (atac_values >= thresh).all():
-                    new_list.append(gene)
-        except KeyError:
-            pass
-
-    return new_list
+        return new_list
 
 
 if __name__ == "__main__":
+
     import utilities as ut
 
     ar = Ahringer()
@@ -94,4 +100,3 @@ if __name__ == "__main__":
     # germline_ours_under5 = ut.get_list_of_column(
     #     m.mean_exp, thresh=5, under_thresh=True
     # )  # 13954
-
