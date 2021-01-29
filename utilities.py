@@ -7,7 +7,7 @@ from gene_id import Gene_IDs
 from gene_sets import Gene_sets
 from mRNA_gonads import Table_mRNA
 from Ahringer import Ahringer
-from atac_signal import ATAC_signal
+# from atac_signal import ATAC_signal
 
 
 def plot_ven(list_of_sets: list, list_of_names: list):
@@ -109,7 +109,29 @@ def print_gene_ranks_in_df(gene_df: pd.DataFrame, gene: str, print_res: bool = F
     print("\n")
 
 
-def print_gene_atac(atac_sig: ATAC_signal, gene: str):
+def calc_mean_variance_of_dfs(df_list: list, variance_type: str = "none"):
+    """
+    Gets a list of dfs with identicle structure, and calculates for each cell the mean and variance across all dfs in list.
+    Returns a df containing means, and a seperate df containing variance.
+
+    Parameters
+    ----------
+    - df_list: list of dfs to mean (each df a sample of rep)
+    - variance_type: str. ['std' / 'sem' / 'none']
+    """
+    ### create single df average across replicates:
+    df_mean_all_reps = pd.concat(df_list).groupby(level=0).mean()
+    if variance_type.lower() == "std":
+        df_variance = pd.concat(df_list).groupby(level=0).std()
+    elif variance_type.lower() == "sem":
+        df_variance = pd.concat(df_list).groupby(level=0).sem()
+    elif variance_type.lower() == "none":
+        df_variance = 0
+
+    return df_mean_all_reps, df_variance
+
+
+def print_gene_atac(atac_sig, gene: str):
     """
     Gets an ATAC_signal object and a gene.
     Prints its ranks in ours (GFP + oma-1) and ahringer.
