@@ -1,9 +1,7 @@
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from typing import Union
 import pathlib
-import seaborn as sns
+
 
 def read_experiment_to_df(exp_name: str = "exp1"):
     exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name)
@@ -24,14 +22,18 @@ def read_experiment(exp_name: str = "exp1"):
     """
     #### file_names
     exp1_files = [
-        ["DATA/exp1/ATAC_R0-iGFP.csv",
-        "DATA/exp1/ATAC_R1-iGFP.csv",
-        "DATA/exp1/ATAC_R2-iGFP.csv",
-        "DATA/exp1/ATAC_R4-iGFP.csv"],
-        ["DATA/exp1/ATAC_R0-iOMA-1.csv",
-        "DATA/exp1/ATAC_R1-iOMA-1.csv",
-        "DATA/exp1/ATAC_R2-iOMA-1.csv",
-        "DATA/exp1/ATAC_R4-iOMA-1.csv"]
+        [
+            "DATA/exp1/ATAC_R0-iGFP.csv",
+            "DATA/exp1/ATAC_R1-iGFP.csv",
+            "DATA/exp1/ATAC_R2-iGFP.csv",
+            "DATA/exp1/ATAC_R4-iGFP.csv",
+        ],
+        [
+            "DATA/exp1/ATAC_R0-iOMA-1.csv",
+            "DATA/exp1/ATAC_R1-iOMA-1.csv",
+            "DATA/exp1/ATAC_R2-iOMA-1.csv",
+            "DATA/exp1/ATAC_R4-iOMA-1.csv",
+        ],
     ]
     exp_gonads_files = []  # to fill later
     exp_hrde_gonads_files = []  # to fill later
@@ -57,25 +59,25 @@ def read_experiment(exp_name: str = "exp1"):
 
 
 def create_exp_df(exp_dfs_cond1: list, exp_dfs_cond2: list, exp_name: str):
-    '''
+    """
     Gets two lists of dfs, each list is samples of a condition.
     Puts all df_samples in a single df of dfs:
         - Row: rep_number
-        - Col: condition name 
+        - Col: condition name
             * ['anti gfp' and 'anti OMA-1'] or [hrde-1;SX' and 'SX']
-    '''
-    columns_dic = {'cond1':exp_dfs_cond1, 'cond2':exp_dfs_cond2}
+    """
+    columns_dic = {"cond1": exp_dfs_cond1, "cond2": exp_dfs_cond2}
     exp_df = pd.DataFrame(columns_dic)
-    
-    if exp_name in ['exp1', 'exp_gonads', 'exp_metsetset']:
-        conds = {'cond1':'anti gfp','cond2':'anti OMA-1'}
-    elif exp_name in ['exp_hrde_gonads', 'exp_hrde_guy']:
-        conds = {'cond1':'hrde-1;SX','cond2':'SX'}
+
+    if exp_name in ["exp1", "exp_gonads", "exp_metsetset"]:
+        conds = {"cond1": "anti gfp", "cond2": "anti OMA-1"}
+    elif exp_name in ["exp_hrde_gonads", "exp_hrde_guy"]:
+        conds = {"cond1": "hrde-1;SX", "cond2": "SX"}
     else:
-        NameError, 'exp name not recognized'
-    
+        NameError, "exp name not recognized"
+
     exp_df.rename(columns=conds, inplace=True)
-    exp_df.index.name = 'rep'
+    exp_df.index.name = "rep"
 
     return exp_df
 
@@ -93,7 +95,7 @@ def read_and_format_atac_table(f_name: Union[pathlib.Path, str]):
     atac_table = read_atac_table(f_name)
     add_GFP_wbid(atac_table)
     drop_unneeded_columns(atac_table)
-    atac_table.dropna(subset=['wbid'], inplace=True)
+    atac_table.dropna(subset=["wbid"], inplace=True)
     index_wbid(atac_table)
     return atac_table
 
@@ -117,13 +119,13 @@ def read_atac_table(f_name: Union[pathlib.Path, str]):
 
 
 def add_GFP_wbid(atac_df: pd.DataFrame):
-    '''
+    """
     Adds to the GFP transgene a wbid "GFP".
 
     * inplace.
-    '''
-    GFP_ind = atac_df[atac_df['symbol']=='GFP'].index
-    atac_df.loc[GFP_ind,'wbid']='GFP'
+    """
+    GFP_ind = atac_df[atac_df["symbol"] == "GFP"].index
+    atac_df.loc[GFP_ind, "wbid"] = "GFP"
 
 
 def drop_unneeded_columns(atac_df: pd.DataFrame):
@@ -142,7 +144,6 @@ def index_wbid(atac_df: pd.DataFrame):
     * inplace
     """
     atac_df.set_index("wbid", inplace=True)
-
 
 
 # def create_exp_dic(exp_dfs_cond1: list, exp_dfs_cond2: list, exp_name: str):
@@ -166,10 +167,10 @@ def index_wbid(atac_df: pd.DataFrame):
 
 
 if __name__ == "__main__":
-    pass
+    exp1_df = read_experiment_to_df()
     # exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name="exp1")
 
     # exp1_dic = read_experiment_to_dic(exp_name="exp1")
-    # exp1_df = read_experiment_to_df()
+    
 
     # plt.plot(gfp_0.iloc[0])
