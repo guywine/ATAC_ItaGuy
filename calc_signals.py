@@ -1,14 +1,14 @@
-'''
-Gets df os samples and can calculate:
-- mean of each group
+"""
+Gets df of samples and can calculate:
+- mean of each gene-group
 - ATAC_FC for each gene between two replicates
-- Normalize to highly and lowly
-'''
+- Normalize to highly and lowly?
+"""
 
 import pandas as pd
 
 
-def get_group_means_df_list(reps_dic: dict, dic_groups: dict, cond_num:int):
+def get_group_means_df_list(reps_dic: dict, dic_groups: dict, cond_num: int):
     """
     Returns a list of all samples from this condition, means of groups.
     --------
@@ -46,23 +46,26 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
 
 
 def get_group_means_for_from_dict(exp_dic: dict, group_dic: dict):
-    '''
-    '''
+    """"""
 
 
-def get_mean_variance(df_list: list, variance_type: str='none'):
+def get_mean_variance(df_list: list, variance_type: str = "none"):
     """
+    Gets a list of dfs with identicle structure, and calculates for each cell the mean and variance across all dfs in list.
+    Returns a df containing means, and a seperate df containing variance.
+
     Parameters
     ----------
+    - df_list: list of dfs to mean (each df a sample of rep)
     - variance_type: str. ['std' / 'sem' / 'none']
     """
     ### create single df average across replicates:
     df_mean_all_reps = pd.concat(df_list).groupby(level=0).mean()
-    if variance_type.lower()=='std':
+    if variance_type.lower() == "std":
         df_variance = pd.concat(df_list).groupby(level=0).std()
-    elif variance_type.lower()=='sem':
+    elif variance_type.lower() == "sem":
         df_variance = pd.concat(df_list).groupby(level=0).sem()
-    elif variance_type.lower()=='none':
+    elif variance_type.lower() == "none":
         df_variance = 0
 
     return df_mean_all_reps, df_variance
