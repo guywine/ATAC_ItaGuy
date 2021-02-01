@@ -4,6 +4,12 @@ import pathlib
 
 
 def read_experiment_to_df(exp_name: str = "exp1"):
+    '''
+    Gets an experiment name ['exp1' / 'exp_gonads' / 'exp_hrde_gonads' / 'exp_hrde_guy' / 'exp_metsetset'].\n
+    Reads all its samples to df, and puts all of the dfs into a big df:
+    - rows: rep_num (starts from 0)
+    - cols: condition name [anti gfp / anti OMA-1] or [hrde-1;SX / SX]
+    '''
     exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name)
     exp_df = create_exp_df(exp_dfs_cond1, exp_dfs_cond2, exp_name)
     return exp_df
@@ -35,17 +41,41 @@ def read_experiment(exp_name: str = "exp1"):
             "DATA/exp1/ATAC_R4-iOMA-1.csv",
         ],
     ]
-    exp_gonads_files = []  # to fill later
-    exp_hrde_gonads_files = []  # to fill later
-    exp_hrde_guy_files = []  # to fill later
-    exp_metsetset_files = []  # to fill later
+
+    exp_hrde_guy_files = [
+        [
+            'DATA/exp_hrde_guy/hrde1-sx-R1.zip',
+            'DATA/exp_hrde_guy/hrde1-sx-R2.zip',
+            'DATA/exp_hrde_guy/hrde1-sx-R3.zip'
+        ],
+        [
+            'DATA/exp_hrde_guy/sx-R1.zip',
+            'DATA/exp_hrde_guy/sx-R2.zip',
+            'DATA/exp_hrde_guy/sx-R3.zip'
+        ]
+    ]
+    exp_metsetset_files = [
+        [
+            'DATA/exp_metsetset/mss-gfp-R1.zip',
+            'DATA/exp_metsetset/mss-gfp-R2.zip',
+            'DATA/exp_metsetset/mss-gfp-R3.zip'
+        ],
+        [
+            'DATA/exp_metsetset/mss-oma1-R1.zip',
+            'DATA/exp_metsetset/mss-oma1-R2.zip',
+            'DATA/exp_metsetset/mss-oma1-R3.zip'
+        ]
+    ]
+
+    # exp_gonads_files = []  # to fill later
+    # exp_hrde_gonads_files = []  # to fill later
 
     exps_dict = {
         "exp1": exp1_files,
-        "exp_gonads": exp_gonads_files,
-        "exp_hrde_gonads": exp_hrde_gonads_files,
         "exp_hrde_guy": exp_hrde_guy_files,
         "exp_metsetset": exp_metsetset_files,
+    #    "exp_gonads": exp_gonads_files,
+    #    "exp_hrde_gonads": exp_hrde_gonads_files,
     }
 
     exp_dfs_cond1 = []
@@ -146,31 +176,9 @@ def index_wbid(atac_df: pd.DataFrame):
     atac_df.set_index("wbid", inplace=True)
 
 
-# def create_exp_dic(exp_dfs_cond1: list, exp_dfs_cond2: list, exp_name: str):
-#     """"""
-#     exp_dic = {}
-#     if exp_name == "exp1": # first GFP, than OMA-1
-#         exp_dic[0] = [exp_dfs_cond1[0], exp_dfs_cond2[0]]
-#         exp_dic[1] = [exp_dfs_cond1[1], exp_dfs_cond2[1]]
-#         exp_dic[2] = [exp_dfs_cond1[2], exp_dfs_cond2[2]]
-#         exp_dic[4] = [exp_dfs_cond1[3], exp_dfs_cond2[3]]
-#     else:  # if other experiments than the order is the same:
-#         for rep_num in range(3):
-#             exp_dic[rep_num] = [exp_dfs_cond1[rep_num], exp_dfs_cond2[rep_num]]
-#     return exp_dic
-
-# def read_experiment_to_dic(exp_name: str = "exp1"):
-#     """"""
-#     exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name)
-#     exp_dic = create_exp_dic(exp_dfs_cond1, exp_dfs_cond2, exp_name)
-#     return exp_dic
-
 
 if __name__ == "__main__":
     exp1_df = read_experiment_to_df()
-    # exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name="exp1")
+    exp_hrde_df = read_experiment_to_df('exp_hrde_guy')
+    exp_mss_df = read_experiment_to_df('exp_metsetset')
 
-    # exp1_dic = read_experiment_to_dic(exp_name="exp1")
-    
-
-    # plt.plot(gfp_0.iloc[0])
