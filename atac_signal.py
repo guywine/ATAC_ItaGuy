@@ -170,32 +170,22 @@ if __name__ == "__main__":
 
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
+        exp_mss = ATAC_signal('exp_metsetset')
+    
+    my_plots.plot_reps_hist_mark_gene(df_reps=exp_mss.fc, genes_to_mark="GFP")
+    
 
-    a1 = exp1.exp_df.loc[1, "anti gfp"]
-    b1 = exp1.exp_df.loc[1, "anti OMA-1"]
 
-    fc_oma1_by_gfp = exp1.generate_FC_median_df()
-    fc_oma1_by_gfp_no_log = exp1.generate_FC_median_df(log2=False)
-    fc_gfp_by_oma1 = exp1.generate_FC_median_df(div_2_by_1=False)
+    exp1_oma1_by_gfp_mean = pd.DataFrame({"mean_FC": exp1.fc.mean(axis=1)})
+    exp_mss_oma1_by_gfp_mean = pd.DataFrame({"mean_FC": exp_mss.fc.mean(axis=1)})
 
-    gid = Gene_IDs()
-    oma1 = gid.to_wbid("oma-1")
-    oma2 = gid.to_wbid("oma-2")
+    gene_name = 'oma-1'
+    my_plots.plot_reps_hist_mark_gene(df_reps=exp_mss_oma1_by_gfp_mean, genes_to_mark=gene_name)
+    ut.get_gene_rank(exp_mss_oma1_by_gfp_mean.iloc[:, 0], gene_name)
 
-    my_plots.plot_reps_hist_mark_gene(df_reps=fc_gfp_by_oma1, genes_to_mark="oma-1")
 
-    gfp_by_oma1_mean = pd.DataFrame({"mean_FC": fc_gfp_by_oma1.mean(axis=1)})
-    gfp_by_oma1_mean_123 = pd.DataFrame(
-        {"mean_FC": fc_gfp_by_oma1.iloc[:, 1:4].mean(axis=1)}
-    )
-
-    print("oma-1, FC normalized from 4 replicates")
-    my_plots.plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_mean, genes_to_mark="oma-1")
-    print("oma-2, FC normalized from 4 replicates")
-    my_plots.plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_mean_123, genes_to_mark="oma-2")
-
-    ut.get_gene_rank(gfp_by_oma1_mean_123.iloc[:, 0], "oma-2")
-
-    #### more genes:
-    my_plots.plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_mean_123, genes_to_mark="unc-119")
-    ut.get_gene_rank(gfp_by_oma1_mean_123.iloc[:, 0], "unc-119")
+    # #### more genes:
+    # genes = ['F14E5.1', 'efl-3', 'unc-119', 'rad-26', 'C27B7.2', 'npax-4', 'C09G9.8']
+    # for gene_name in genes:
+    #     my_plots.plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_mean_123, genes_to_mark=gene_name)
+    #     ut.get_gene_rank(gfp_by_oma1_mean_123.iloc[:, 0], gene_name)
