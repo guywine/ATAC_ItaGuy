@@ -29,16 +29,16 @@ def read_experiment(exp_name: str = "exp1"):
     #### file_names
     exp1_files = [
         [
-            "DATA/exp1/ATAC_R0-iGFP.csv",
-            "DATA/exp1/ATAC_R1-iGFP.csv",
-            "DATA/exp1/ATAC_R2-iGFP.csv",
-            "DATA/exp1/ATAC_R4-iGFP.csv",
+            "DATA/exp1/ATAC_R0-iGFP.csv.gz",
+            "DATA/exp1/ATAC_R1-iGFP.csv.gz",
+            "DATA/exp1/ATAC_R2-iGFP.csv.gz",
+            "DATA/exp1/ATAC_R4-iGFP.csv.gz",
         ],
         [
-            "DATA/exp1/ATAC_R0-iOMA-1.csv",
-            "DATA/exp1/ATAC_R1-iOMA-1.csv",
-            "DATA/exp1/ATAC_R2-iOMA-1.csv",
-            "DATA/exp1/ATAC_R4-iOMA-1.csv",
+            "DATA/exp1/ATAC_R0-iOMA-1.csv.gz",
+            "DATA/exp1/ATAC_R1-iOMA-1.csv.gz",
+            "DATA/exp1/ATAC_R2-iOMA-1.csv.gz",
+            "DATA/exp1/ATAC_R4-iOMA-1.csv.gz",
         ],
     ]
 
