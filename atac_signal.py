@@ -163,6 +163,14 @@ class ATAC_signal:
         return df_FC_along_gene
 
 
+def plot_gene_atac_signal(exp: ATAC_signal, gene_to_mark: str, mean_flag: bool=True):
+    if mean_flag:
+        mean_df = pd.DataFrame({"mean_FC": exp.fc.mean(axis=1)})
+        my_plots.plot_reps_hist_mark_gene(df_reps=mean_df, genes_to_mark=gene_to_mark)
+        ut.get_gene_rank(mean_df.iloc[:, 0], gene_to_mark)
+    else:
+        print(f'gene {gene_to_mark}:')
+        my_plots.plot_reps_hist_mark_gene(df_reps=exp.fc, genes_to_mark=gene_to_mark)
 
 
 if __name__ == "__main__":
@@ -172,20 +180,18 @@ if __name__ == "__main__":
         exp1 = ATAC_signal("exp1")
         exp_mss = ATAC_signal('exp_metsetset')
     
-    my_plots.plot_reps_hist_mark_gene(df_reps=exp_mss.fc, genes_to_mark="GFP")
+
+
+    # plot_gene_atac_signal(exp1, 'oma-1', mean_flag=False)
+
+    genes_to_test = ['oma-1','oma-2', 'GFP','C09G9.5','spr-2','F14E5.8','F14E5.1','efl-3','unc-119','rad-26','C27B7.2','npax-4','C09G9.8']
+
+    
+    for gene in genes_to_test:
+        print('Regular:')
+        plot_gene_atac_signal(exp1, gene)
+        # print('met;set;set mutant:')
+        # plot_gene_atac_signal(exp_mss, gene)
+
     
 
-
-    exp1_oma1_by_gfp_mean = pd.DataFrame({"mean_FC": exp1.fc.mean(axis=1)})
-    exp_mss_oma1_by_gfp_mean = pd.DataFrame({"mean_FC": exp_mss.fc.mean(axis=1)})
-
-    gene_name = 'oma-1'
-    my_plots.plot_reps_hist_mark_gene(df_reps=exp_mss_oma1_by_gfp_mean, genes_to_mark=gene_name)
-    ut.get_gene_rank(exp_mss_oma1_by_gfp_mean.iloc[:, 0], gene_name)
-
-
-    # #### more genes:
-    # genes = ['F14E5.1', 'efl-3', 'unc-119', 'rad-26', 'C27B7.2', 'npax-4', 'C09G9.8']
-    # for gene_name in genes:
-    #     my_plots.plot_reps_hist_mark_gene(df_reps=gfp_by_oma1_mean_123, genes_to_mark=gene_name)
-    #     ut.get_gene_rank(gfp_by_oma1_mean_123.iloc[:, 0], gene_name)
