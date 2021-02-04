@@ -183,19 +183,19 @@ def get_gene_rank(
         gene_ind = name
 
     value = gene_rank_df.loc[gene_ind, "value"]
-    if value == 0:
-        print(f"Value for gene {name} is 0")
-        return 0
-    else:
-        rank = gene_rank_df.loc[gene_ind, "rank"]
-        percentile = (rank / gene_rank_df.shape[0]) * 100
-        if print_gene:
-            print(f"Gene - {name}\n")
+    # if value == 0:
+    #     print(f"Value for gene {name} is 0")
+    #     return 0
+    # else:
+    rank = gene_rank_df.loc[gene_ind, "rank"]
+    percentile = (rank / gene_rank_df.shape[0]) * 100
+    if print_gene:
+        print(f"Gene - {name}\n")
 
-        if print_res:
-            print(f"Value:\t{value:.2f}\nRank: {rank} ({percentile:.2f}%)\n")
+    if print_res:
+        print(f"Value:\t{value:.2f}\nRank: {rank} ({percentile:.2f}%)\n")
 
-        return percentile
+    return percentile
 
 
 def find_rank_by_value(gene_series: pd.Series, val: float, print_flag: bool = True):
