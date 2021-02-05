@@ -24,7 +24,7 @@ class Gene_sets:
         ---------
         - big_table: pd.DataFrame. index is wbid.
         """
-        big_table = pd.read_excel("ATAC_bigtable_1.xlsx", header=1)
+        big_table = pd.read_excel("tables/ATAC_bigtable_1.xlsx", header=1)
         big_table.set_index("gene", inplace=True)
 
         big_table_with_exp = self._add_expression_levels(big_table)
