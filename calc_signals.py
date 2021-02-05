@@ -45,9 +45,6 @@ def mean_gene_groups_of_sample(sample_df: pd.DataFrame, dic_groups: dict):
     return df_groups_means
 
 
-def get_group_means_for_from_dict(exp_dic: dict, group_dic: dict):
-    """"""
-
 
 def get_mean_variance(df_list: list, variance_type: str = "none"):
     """

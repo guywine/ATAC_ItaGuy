@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from gene_sets import Gene_sets
 import seaborn as sns
+import utilities as ut
 
 
 def plot_new(exp_dic: dict, dic_groups: dict, conditions: tuple = ("c1", "c2"), mean_all:bool=False, compare:bool=False, variance_type: str='std'):
@@ -23,8 +24,8 @@ def plot_new(exp_dic: dict, dic_groups: dict, conditions: tuple = ("c1", "c2"), 
 
     if mean_all:
         print('Mean of all replicates:')
-        df_mean_a, df_variance_a = get_mean_variance(df_means_list_a, variance_type=variance_type)
-        df_mean_b, df_variance_b = get_mean_variance(df_means_list_b, variance_type=variance_type)
+        df_mean_a, df_variance_a = ut.get_mean_variance(df_means_list_a, variance_type=variance_type)
+        df_mean_b, df_variance_b = ut.get_mean_variance(df_means_list_b, variance_type=variance_type)
 
         # if variance_type=='none':
 
@@ -64,19 +65,19 @@ def get_df_means_list(reps_dic: dict, dic_groups: dict, cond_num:int):
 ############# moved to calculation #################
 
 
-def get_mean_variance(df_means_list: list, variance_type: str):
-    """
-    """
-    ### create single df average across replicates:
-    df_mean_all_reps = pd.concat(df_means_list).groupby(level=0).mean()
-    if variance_type=='std':
-        df_variance = pd.concat(df_means_list).groupby(level=0).std()
-    elif variance_type=='sem':
-        df_variance = pd.concat(df_means_list).groupby(level=0).sem()
-    elif variance_type=='none':
-        df_variance = 0
+# def get_mean_variance(df_means_list: list, variance_type: str):
+#     """
+#     """
+#     ### create single df average across replicates:
+#     df_mean_all_reps = pd.concat(df_means_list).groupby(level=0).mean()
+#     if variance_type=='std':
+#         df_variance = pd.concat(df_means_list).groupby(level=0).std()
+#     elif variance_type=='sem':
+#         df_variance = pd.concat(df_means_list).groupby(level=0).sem()
+#     elif variance_type=='none':
+#         df_variance = 0
 
-    return df_mean_all_reps, df_variance
+#     return df_mean_all_reps, df_variance
 
 
 

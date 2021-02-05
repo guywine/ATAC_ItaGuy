@@ -1,10 +1,11 @@
 import utilities as ut
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt # later: remove
+import matplotlib.pyplot as plt  # later: remove
 import read_tables as rt
 from gene_id import Gene_IDs
 import plotting as my_plots
+
 # from sklearn import preprocessing
 
 
@@ -94,7 +95,6 @@ class ATAC_signal:
             df_FC_median[f"rep {rep_i}"] = median_FC_series
         return df_FC_median
 
-
     def calc_median_fc_hotspot_of_sample(
         self, rep_num: int, div_2_by_1: bool = True, log2: bool = True
     ):
@@ -113,18 +113,16 @@ class ATAC_signal:
         - median_FC_log2_series: pd.Series. For each gene calculated log2(FC-median).
         """
         FC_df = self._fc_signal_of_rep(rep_num, div_2_by_1, log2)
-        
+
         median_FC_series = self.calc_node_hotspot_of_sample(
             signal_df=FC_df, calc_type="median"
         )
-        
-        # if log2:
-        #     median_FC_log2_series = np.log2(median_FC_series)
-        #     return median_FC_log2_series
-        
+
         return median_FC_series
 
-    def _fc_signal_of_rep(self, rep_num: int, div_2_by_1: bool = True, log2: bool = True):
+    def _fc_signal_of_rep(
+        self, rep_num: int, div_2_by_1: bool = True, log2: bool = True
+    ):
         """
         For a given rep_num, calculates FC for every spot in every gene.
         (Divides B / A)
@@ -146,12 +144,8 @@ class ATAC_signal:
             mone = 0
 
         ## add to avoid zero:
-        df_a = (
-            self.exp_df.iloc[rep_num, 1 - mone] + self.add_to_avoid_zero_division
-        ) 
-        df_b = (
-            self.exp_df.iloc[rep_num, mone] + self.add_to_avoid_zero_division
-        ) 
+        df_a = self.exp_df.iloc[rep_num, 1 - mone] + self.add_to_avoid_zero_division
+        df_b = self.exp_df.iloc[rep_num, mone] + self.add_to_avoid_zero_division
 
         ## divide:
         df_FC_along_gene = df_b.div(df_a)
@@ -163,13 +157,13 @@ class ATAC_signal:
         return df_FC_along_gene
 
 
-def plot_gene_atac_signal(exp: ATAC_signal, gene_to_mark: str, mean_flag: bool=True):
+def plot_gene_atac_signal(exp: ATAC_signal, gene_to_mark: str, mean_flag: bool = True):
     if mean_flag:
         mean_df = pd.DataFrame({"mean_FC": exp.fc.mean(axis=1)})
         my_plots.plot_reps_hist_mark_gene(df_reps=mean_df, genes_to_mark=gene_to_mark)
         ut.get_gene_rank(mean_df.iloc[:, 0], gene_to_mark)
     else:
-        print(f'gene {gene_to_mark}:')
+        print(f"gene {gene_to_mark}:")
         my_plots.plot_reps_hist_mark_gene(df_reps=exp.fc, genes_to_mark=gene_to_mark)
 
 
@@ -178,20 +172,28 @@ if __name__ == "__main__":
 
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
-        exp_mss = ATAC_signal('exp_metsetset')
-    
-
+        exp_mss = ATAC_signal("exp_metsetset")
 
     # plot_gene_atac_signal(exp1, 'oma-1', mean_flag=False)
 
-    genes_to_test = ['oma-1','oma-2', 'GFP','C09G9.5','spr-2','F14E5.8','F14E5.1','efl-3','unc-119','rad-26','C27B7.2','npax-4','C09G9.8']
+    genes_to_test = [
+        "oma-1",
+        "oma-2",
+        "GFP",
+        "C09G9.5",
+        "spr-2",
+        "F14E5.8",
+        "F14E5.1",
+        "efl-3",
+        "unc-119",
+        "rad-26",
+        "C27B7.2",
+        "npax-4",
+        "C09G9.8",
+    ]
 
-    
     for gene in genes_to_test:
-        print('Regular:')
+        print("Regular:")
         plot_gene_atac_signal(exp1, gene)
         # print('met;set;set mutant:')
         # plot_gene_atac_signal(exp_mss, gene)
-
-    
-
