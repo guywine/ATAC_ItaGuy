@@ -6,7 +6,7 @@ from gene_id import Gene_IDs
 class Paralogs:
     def __init__(self):
         self.table = pd.read_csv(
-            "caenorhabditis_elegans.PRJNA13758.WBPS14.paralogs.tsv", delimiter="\t"
+            "tables/caenorhabditis_elegans.PRJNA13758.WBPS14.paralogs.tsv", delimiter="\t"
         )
         self.table_ids = self.table.set_index('gene_id')
         self.gid = Gene_IDs()
@@ -116,6 +116,7 @@ if __name__ == "__main__":
     gid = Gene_IDs()
 
     para = Paralogs()
+
     para_ppw1 = para.get_paralogs_of_gene("ppw-1")
     rna_all = ut.load_gene_expression_df()
 

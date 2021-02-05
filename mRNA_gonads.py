@@ -20,10 +20,10 @@ class Table_mRNA():
 
         return mRNA
     
-    def _protein_coding_only(self, table):
+    def _protein_coding_only(self, table): ## also in utilities
         '''
         '''
-        pc_wbids = pd.read_csv('protein_coding_wbids.csv')
+        pc_wbids = pd.read_csv('tables/protein_coding_wbids.csv')
 
         ### add gfp
         pc_list = list(pc_wbids['genes'])

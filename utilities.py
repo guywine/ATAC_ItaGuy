@@ -253,7 +253,7 @@ def protein_coding_only(df: pd.DataFrame):
     """
     Returns df with only protein coding elements. (Assumes wbid indices)
     """
-    pc_wbids = pd.read_csv("protein_coding_wbids.csv")
+    pc_wbids = pd.read_csv("tables/protein_coding_wbids.csv")
 
     ### add gfp
     pc_list = list(pc_wbids["genes"])

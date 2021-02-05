@@ -47,7 +47,7 @@ class Gene_sets:
     
     @staticmethod
     def get_expression_df():
-        f_name = "geneExprTable_YA.csv"
+        f_name = "tables/geneExprTable_YA.csv"
         exp_df = pd.read_csv(f_name)
         exp_df.set_index("geneID", inplace=True)
         exp_df.rename(

@@ -8,7 +8,7 @@ class Gene_IDs():
 
     @staticmethod
     def read_gene_IDs_table():
-        id_table = pd.read_csv('gene_IDs_table.txt',sep='\t')
+        id_table = pd.read_csv('tables/gene_IDs_table.txt',sep='\t')
         id_table.drop('Your Input', axis=1, inplace=True)
         id_table.columns = ['wbid','gene name', 'sequence ID','other name']
         id_table.set_index('wbid', drop=False, inplace=True)
