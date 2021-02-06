@@ -502,27 +502,6 @@ def intersect_all(*lists_args):
     return list(last_set)
 
 
-def get_mean_variance(df_list: list, variance_type: str = "none"):
-    """
-    Gets a list of dfs with identicle structure, and calculates for each cell the mean and variance across all dfs in list.
-    Returns a df containing means, and a seperate df containing variance.
-
-    Parameters
-    ----------
-    - df_list: list of dfs to mean (each df a sample of rep)
-    - variance_type: str. ['std' / 'sem' / 'none']
-    """
-    ### create single df average across replicates:
-    df_mean_all_reps = pd.concat(df_list).groupby(level=0).mean()
-    if variance_type.lower() == "std":
-        df_variance = pd.concat(df_list).groupby(level=0).std()
-    elif variance_type.lower() == "sem":
-        df_variance = pd.concat(df_list).groupby(level=0).sem()
-    elif variance_type.lower() == "none":
-        df_variance = 0
-
-    return df_mean_all_reps, df_variance
-
 # def thresh_df_by_col(df: pd.DataFrame, thresh: int=5):
 #     '''
 #     '''
