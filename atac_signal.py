@@ -10,7 +10,7 @@ import plotting as my_plots
 
 
 class ATAC_signal:
-    def __init__(self, exp_name: str = "exp1", var_type: str = 'std'):
+    def __init__(self, exp_name: str = "exp1", var_type: str = "std"):
         self.hotspot = (-500, -100)  # user to define
         self.add_to_avoid_zero_division = 1  # user to define
 
@@ -28,6 +28,8 @@ class ATAC_signal:
         )  # median signal of all genes, in all reps
 
         self.fc = self.generate_FC_median_df()
+
+        self.gid = Gene_IDs()
 
     def calc_hotspot_scores(self, df_list, calc_type: str = "median"):
         """
@@ -156,58 +158,71 @@ class ATAC_signal:
 
         return df_FC_along_gene
 
-
-    def _update_mean_and_var_of_exp(self, var_type: str = 'std'):
-        '''
+    def _update_mean_and_var_of_exp(self, var_type: str = "std"):
+        """
         Updates for this object the mean and var of all repeats.
-        '''
+        """
         self.mean1, self.var1 = ut.calc_mean_variance_of_dfs(self.cond1, var_type)
         self.mean2, self.var2 = ut.calc_mean_variance_of_dfs(self.cond2, var_type)
-    
 
     ###############################################################
     #### from here it is getting the data needed to plot lines ####
     ###############################################################
 
-    def get_gene_mean_and_var_both_conditions(self, gene_wbid: str, var_type: str = 'std'):
-        '''
-        '''
-        mean_1, var_1 = self.get_gene_mean_and_var(cond_num=1, var_type=var_type)
-        mean_2, var_2 = self.get_gene_mean_and_var(cond_num=1, var_type=var_type)
+    def get_gene_mean_and_var_both_conditions(
+        self, gene_name: str, var_type: str = "std"
+    ):
+        """"""
+        wbid = self.gid.to_wbid(gene="oma-1")
+        mean_1, var_1 = self.get_gene_mean_and_var_for_cond(
+            cond_num=1, wbid=wbid, var_type=var_type
+        )
+        mean_2, var_2 = self.get_gene_mean_and_var_for_cond(
+            cond_num=2, wbid=wbid, var_type=var_type
+        )
 
-        gene_df = pd.DataFrame([], columns=self.exp_df.columns, index=['mean','std'])
-        gene_df.iloc[0,0]=mean_1
-        gene_df.iloc[1,0]=var_1
-        gene_df.iloc[0,1]=mean_2
-        gene_df.iloc[1,1]=var_2
+        cond_names = self.exp_df.columns
 
-        return gene_df
+        gene_means = pd.DataFrame([])
+        gene_means[cond_names[0]] = mean_1
+        gene_means[cond_names[1]] = mean_2
 
+        gene_vars = pd.DataFrame([])
+        gene_vars[cond_names[0]] = var_1
+        gene_vars[cond_names[1]] = var_2
 
-    def get_gene_mean_and_var(self, cond_num: int, gene_wbid: str, var_type: str = 'std'):
-        '''
+        return gene_means, gene_vars
+
+    def get_gene_mean_and_var_for_cond(
+        self, cond_num: int, wbid: str, var_type: str = "std"
+    ):
+        """
         Get for a gene the mean and variance for this condition.
 
         Parameters
         --------
         - cond_num: int. [1 / 2]
-        - gene_wbid: str. 
+        - gene_wbid: str.
         - var_type: str ['std' / 'sem' / 'none']
 
         Return
         --------
         - mean_series: pd.Series.
         - var_series: pd.Series.
-        '''
-        if cond_num==1:
-            gene_reps = get_gene_replicates(self.cond1, gene_wbid) # later where is this function
-        elif cond_num==2:
-            gene_reps = get_gene_replicates(self.cond2, gene_wbid) # later where is this function
+        """
+        if cond_num == 1:
+            gene_reps = get_gene_replicates(
+                self.cond1, wbid
+            )  # later where is this function
+        elif cond_num == 2:
+            gene_reps = get_gene_replicates(
+                self.cond2, wbid
+            )  # later where is this function
 
         mean_series = gene_reps.mean()
         if var_type.lower() == "std":
             var_series = gene_reps.std()
-            
+
         elif var_type.lower() == "sem":
             var_series = gene_reps.sem()
 
@@ -217,24 +232,25 @@ class ATAC_signal:
         return mean_series, var_series
 
 
-
 def get_gene_replicates(list_of_dfs: list, gene_wbid: str):
-    '''
+    """
     Gets a df for: Rows: rep_num. Cols: location.
-    '''
+    """
     gene_reps_df = pd.DataFrame([])
     for rep_num in range(len(list_of_dfs)):
-        gene_reps_df = gene_reps_df.append(list_of_dfs[rep_num].loc[gene_wbid,:])
-    
+        gene_reps_df = gene_reps_df.append(list_of_dfs[rep_num].loc[gene_wbid, :])
+
     gene_reps_df.reset_index(inplace=True, drop=True)
 
     return gene_reps_df
 
 
-def mean_and_var_gene_list_for_signal_df(signal_df: pd.DataFrame, wbid_list: list, var_type: str = 'std'):
-    '''
+def mean_and_var_gene_list_for_signal_df(
+    signal_df: pd.DataFrame, wbid_list: list, var_type: str = "std"
+):
+    """
     Caclculates the mean and variance of ATAC-signal of a wbid_list for the desired sample,
-    along the gene. 
+    along the gene.
 
     Parameters
     ----------
@@ -246,7 +262,7 @@ def mean_and_var_gene_list_for_signal_df(signal_df: pd.DataFrame, wbid_list: lis
     ---------
     - mean_series: pd.Series (len 2001)
     - var_series: pd.Series (len 2001)
-    '''
+    """
     # only genes that appear in the sample:
     intersected_list = list(set(signal_df.index) & set(wbid_list))
 
@@ -260,21 +276,8 @@ def mean_and_var_gene_list_for_signal_df(signal_df: pd.DataFrame, wbid_list: lis
         var_series = our_genes_df.sem()
     elif var_type.lower() == "none":
         var_series = 0
-    
+
     return mean_series, var_series
-
-
-
-
-
-def plot_gene_atac_signal_histogram(exp: ATAC_signal, gene_to_mark: str, mean_flag: bool = True):
-    if mean_flag:
-        mean_df = pd.DataFrame({"mean_FC": exp.fc.mean(axis=1)})
-        my_plots.plot_reps_hist_mark_gene(df_reps=mean_df, genes_to_mark=gene_to_mark)
-        ut.get_gene_rank(mean_df.iloc[:, 0], gene_to_mark)
-    else:
-        print(f"gene {gene_to_mark}:")
-        my_plots.plot_reps_hist_mark_gene(df_reps=exp.fc, genes_to_mark=gene_to_mark)
 
 
 if __name__ == "__main__":
@@ -282,9 +285,9 @@ if __name__ == "__main__":
 
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
-        exp_mss = ATAC_signal("exp_metsetset")
 
-    # plot_gene_atac_signal_histogram(exp1, 'oma-1', mean_flag=False)
+    # if "exp_mss" not in locals():
+    #     exp_mss = ATAC_signal("exp_metsetset")
 
     genes_to_test = [
         "oma-1",
@@ -302,8 +305,10 @@ if __name__ == "__main__":
         "C09G9.8",
     ]
 
+    my_plots.plot_gene_atac_signal_histogram(exp1, "oma-1", False)
+
     for gene in genes_to_test:
         print("Regular:")
-        plot_gene_atac_signal_histogram(exp1, gene)
+        my_plots.plot_gene_atac_signal_histogram(exp1, gene)
         # print('met;set;set mutant:')
         # plot_gene_atac_signal(exp_mss, gene)
