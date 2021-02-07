@@ -1,12 +1,42 @@
 import matplotlib.pyplot as plt
 import pandas as pd 
 from gene_id import Gene_IDs
+import utilities as ut
 
 
+
+def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type: str = 'std'):
+    '''
+    '''
+    gene_means, gene_vars = ATAC_exp.get_gene_mean_and_var_both_conditions(gene_name, var_type)
+
+
+def plot_panel(vec_df, var_df=0, headline:str):
+    '''
+    Plots all lines in vec_df columns (with legend)
+    Adds fill_between of var_df
+    '''
+
+    
+
+
+
+
+
+####################################################################
 #### to change to a function that plots a gene on a histogram:
 
 # func1: from series, name, and gene list - return ax with histogram and markings.
 # func2: from df with multiple series, use func 1 to create multiple panels, and a legend.
+
+def plot_gene_atac_signal_histogram(ATAC_exp, gene_to_mark: str, mean_flag: bool = True):
+    if mean_flag:
+        mean_df = pd.DataFrame({"mean_FC": ATAC_exp.fc.mean(axis=1)})
+        plot_reps_hist_mark_gene(df_reps=mean_df, genes_to_mark=gene_to_mark)
+        ut.get_gene_rank(mean_df.iloc[:, 0], gene_to_mark)
+    else:
+        print(f"gene {gene_to_mark}:")
+        plot_reps_hist_mark_gene(df_reps=ATAC_exp.fc, genes_to_mark=gene_to_mark)
 
 
 def plot_reps_hist_mark_gene(df_reps: pd.DataFrame, genes_to_mark):
@@ -51,3 +81,6 @@ def plot_reps_hist_mark_gene(df_reps: pd.DataFrame, genes_to_mark):
 
 #     dic_points = {'oma-1':value_list[0], 'oma-2':value_list[1]}
 #     df_dict = pd.DataFrame([dic_points])
+
+
+######################################
