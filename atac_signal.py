@@ -27,7 +27,6 @@ class ATAC_signal:
             self.cond2
         )  # median signal of all genes, in all reps
         
-        
         self.num_of_reps = self.exp_df.shape[0]
         self.exp_name = exp_name
         self.condition_names = tuple(self.exp_df.columns)
@@ -290,8 +289,8 @@ if __name__ == "__main__":
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
 
-    # if "exp_mss" not in locals():
-    #     exp_mss = ATAC_signal("exp_metsetset")
+    if "exp_mss" not in locals():
+        exp_mss = ATAC_signal("exp_metsetset")
 
     genes_to_test = [
         "oma-1",
