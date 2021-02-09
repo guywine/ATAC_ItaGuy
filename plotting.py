@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 from gene_id import Gene_IDs
 import utilities as ut
-
+import seaborn as sns
 
 
 def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type: str = 'none'):
