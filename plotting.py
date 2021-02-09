@@ -22,7 +22,7 @@ def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type:
     if mean_flag:
         gene_means, gene_vars = ATAC_exp.get_gene_mean_and_var_both_conditions(gene_name, var_type)
         fig, ax0 = plt.subplots()
-        plt.title(f"Signal for gene: {gene_name}, exp: {ATAC_exp.exp_name}", fontsize=14)
+        plt.title(f"Signal for gene: {gene_name},\t{ATAC_exp.exp_name}", fontsize=14)
         plt.xlabel('Location relative to TSS')
         plt.ylabel('ATAC-seq signal (norm.)')
 
@@ -43,7 +43,7 @@ def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type:
 
         fig, axes = plt.subplots(1,num_reps, figsize=(num_reps*6,5), sharey=True)
         for rep_i in range(num_reps):
-            axes[rep_i].set_title(f'replicate {rep_i}')
+            axes[rep_i].set_title(f'replicate {rep_i+1}')
             ## later - add y title and x title
             legend_flag = False
             if rep_i==num_reps-1:
@@ -71,18 +71,29 @@ def plot_ax(ax, vec_df, var_df=0, legend_flag:bool = True):
 
     if isinstance(var_df, int): # if no varince df given
         for col_i in range(vec_df.shape[1]):
-            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i), style=style)
+            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i))
             lines.append(line)
     else:   # if svariance given
         for col_i in range(vec_df.shape[1]):
-            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i), style=style, var_vec=var_df.iloc[:,col_i])
+            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i), var_vec=var_df.iloc[:,col_i])
             lines.append(line)
     
     if legend_flag:
         first_leg = plt.legend(lines, vec_df.columns)
         ax = plt.gca().add_artist(first_leg)
     
-    
+
+def plot_vector(vec, ax, color, var_vec=0):
+    """
+    Plots a line on the graph, with variance as a band.
+    if variance_vec==0, doesn't plot variance.
+    """
+    ## print(f'variance_vec: {variance_vec}') ### later
+
+    line = ax.plot(vec, c=color)
+    if not isinstance(var_vec, int):
+        ax.fill_between(vec.index, vec-var_vec, vec+var_vec, fc=color, alpha=0.3)
+    return line[0]
 
 
 
