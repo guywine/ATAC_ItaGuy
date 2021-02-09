@@ -289,29 +289,29 @@ if __name__ == "__main__":
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
 
-    if "exp_mss" not in locals():
-        exp_mss = ATAC_signal("exp_metsetset")
+    # if "exp_mss" not in locals():
+    #     exp_mss = ATAC_signal("exp_metsetset")
 
-    genes_to_test = [
-        "oma-1",
-        "oma-2",
-        "GFP",
-        "C09G9.5",
-        "spr-2",
-        "F14E5.8",
-        "F14E5.1",
-        "efl-3",
-        "unc-119",
-        "rad-26",
-        "C27B7.2",
-        "npax-4",
-        "C09G9.8",
-    ]
+    # genes_to_test = [
+    #     "oma-1",
+    #     "oma-2",
+    #     "GFP",
+    #     "C09G9.5",
+    #     "spr-2",
+    #     "F14E5.8",
+    #     "F14E5.1",
+    #     "efl-3",
+    #     "unc-119",
+    #     "rad-26",
+    #     "C27B7.2",
+    #     "npax-4",
+    #     "C09G9.8",
+    # ]
 
-    my_plots.plot_gene_atac_signal_histogram(exp1, "oma-1", False)
+    # my_plots.plot_gene_atac_signal_histogram(exp1, "oma-1", False)
 
-    for gene in genes_to_test:
-        print("Regular:")
-        my_plots.plot_gene_atac_signal_histogram(exp1, gene)
+    # for gene in genes_to_test:
+    #     print("Regular:")
+    #     my_plots.plot_gene_atac_signal_histogram(exp1, gene)
         # print('met;set;set mutant:')
         # plot_gene_atac_signal(exp_mss, gene)
