@@ -5,18 +5,83 @@ import utilities as ut
 
 
 
-def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type: str = 'std'):
+def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type: str = 'none'):
     '''
+    Plots for a single gene one of two options:
+    - Single panel with mean and variance of this gene for all replicates (line per condition)
+    - Panel for each replicate, with the gene's signal (line per condition)
+
+    Parameters
+    --------
+    - ATAC_exp: ATAC_signal object. Contains ATAC-seq data of chosen experiment.
+    - gene_name: str. 
+    - mean_flag: bool. If True, plots all replicates meaned on the same panel.
+    - var_type: str. ['std'/'sem'/'none']. Which variance to plot. Only relevant if mean_flag True.
     '''
-    gene_means, gene_vars = ATAC_exp.get_gene_mean_and_var_both_conditions(gene_name, var_type)
+
+    if mean_flag:
+        gene_means, gene_vars = ATAC_exp.get_gene_mean_and_var_both_conditions(gene_name, var_type)
+        fig, ax0 = plt.subplots()
+        plt.title(f"Signal for gene: {gene_name}, exp: {ATAC_exp.exp_name}", fontsize=14)
+        plt.xlabel('Location relative to TSS')
+        plt.ylabel('ATAC-seq signal (norm.)')
+
+        plot_ax(ax0, gene_means, gene_vars)
+
+    else:
+        wbid = ATAC_exp.gid.to_wbid(gene_name)
+        num_reps = ATAC_exp.num_of_reps
+
+        list_of_rep_dfs = []
+
+        for rep_i in range(num_reps):
+            gene_rep_df = pd.DataFrame([])
+            gene_rep_df[ATAC_exp.condition_names[0]] = ATAC_exp.cond1[rep_i].loc[wbid,:]
+            gene_rep_df[ATAC_exp.condition_names[1]] = ATAC_exp.cond2[rep_i].loc[wbid,:]
+
+            list_of_rep_dfs.append(gene_rep_df)
+
+        fig, axes = plt.subplots(1,num_reps, figsize=(num_reps*6,5), sharey=True)
+        for rep_i in range(num_reps):
+            axes[rep_i].set_title(f'replicate {rep_i}')
+            ## later - add y title and x title
+            legend_flag = False
+            if rep_i==num_reps-1:
+                legend_flag=True
+            plot_ax(axes[rep_i], list_of_rep_dfs[rep_i], legend_flag)
 
 
-def plot_panel(vec_df, var_df=0, headline:str):
+def plot_ax(ax, vec_df, var_df=0, legend_flag:bool = True):
     '''
     Plots all lines in vec_df columns (with legend)
-    Adds fill_between of var_df
-    '''
+    Adds fill_between of var_df if not 0.
+    Adds legend if specified.
 
+    Parameters
+    ----------
+    - ax: ax to plot on.
+    - vec_df: pd.DataFrame. Comtains vectors. Col names - vectors names.
+    - var_df: pd.DataFrame. Equal in structure to "vec_df". Contains variance data.
+    - legend_flag: bool. If true, plot legend on this axis.
+
+    * No return - plots on ax.
+    '''
+    lines = []
+    colors = plt.get_cmap('Accent') # later (define outside?)
+
+    if isinstance(var_df, int): # if no varince df given
+        for col_i in range(vec_df.shape[1]):
+            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i), style=style)
+            lines.append(line)
+    else:   # if svariance given
+        for col_i in range(vec_df.shape[1]):
+            line = plot_vector(vec=vec_df.iloc[:,col_i], ax=ax, color=colors(col_i), style=style, var_vec=var_df.iloc[:,col_i])
+            lines.append(line)
+    
+    if legend_flag:
+        first_leg = plt.legend(lines, vec_df.columns)
+        ax = plt.gca().add_artist(first_leg)
+    
     
 
 
