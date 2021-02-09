@@ -26,6 +26,11 @@ class ATAC_signal:
         self.scores2 = self.calc_hotspot_scores(
             self.cond2
         )  # median signal of all genes, in all reps
+        
+        
+        self.num_of_reps = self.exp_df.shape[0]
+        self.exp_name = exp_name
+        self.condition_names = tuple(self.exp_df.columns)
 
         self.fc = self.generate_FC_median_df()
 
@@ -87,10 +92,8 @@ class ATAC_signal:
         ----------
         - df_FC_median: pd.DataFrame. Row: gene, Column: replicate. Value is the fc_median_parameter.
         """
-        num_of_reps = self.exp_df.shape[0]
-
         df_FC_median = pd.DataFrame([])
-        for rep_i in range(num_of_reps):
+        for rep_i in range(self.num_of_reps):
             median_FC_series = self.calc_median_fc_hotspot_of_sample(
                 rep_i, div_2_by_1, log2
             )
@@ -172,8 +175,9 @@ class ATAC_signal:
     def get_gene_mean_and_var_both_conditions(
         self, gene_name: str, var_type: str = "std"
     ):
-        """"""
-        wbid = self.gid.to_wbid(gene="oma-1")
+        """
+        """
+        wbid = self.gid.to_wbid(gene_name)
         mean_1, var_1 = self.get_gene_mean_and_var_for_cond(
             cond_num=1, wbid=wbid, var_type=var_type
         )
