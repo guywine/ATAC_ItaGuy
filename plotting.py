@@ -4,6 +4,40 @@ from gene_id import Gene_IDs
 import utilities as ut
 import seaborn as sns
 
+def plot_fc_gene(ATAC_exp1, ATAC_exp2, gene_name: str, std_flag: bool = True, log2_flag: bool = True):
+    '''
+    Plots for a single gene panels, each line is the FC across the gene in one experiment.
+    - Single panel with FC (then mean) of all reps. 
+    - Panel for each replicate.
+
+    Parameters
+    --------
+    - ATAC_exp1: ATAC_signal object. Contains ATAC-seq data of chosen experiment.
+    - ATAC_exp2: "     "       "
+    - gene_name: str. 
+    - var_type: str. ['std'/'sem'/'none']. Which variance to plot. Only relevant if mean_flag True.
+    '''
+    gene_fc_1 = ATAC_exp1.get_gean_fc_df(gene_name, log2=log2_flag)
+    gene_fc_2 = ATAC_exp2.get_gean_fc_df(gene_name, log2=log2_flag)
+
+    gene_fc_means = pd.DataFrame([])
+    gene_fc_means[ATAC_exp1.exp_name] = gene_fc_1.mean(axis=1)
+    gene_fc_means[ATAC_exp2.exp_name] = gene_fc_2.mean(axis=1)
+
+    if std_flag: # later - not working
+        gene_fc_std = pd.DataFrame([])
+        gene_fc_std[ATAC_exp1.exp_name] = gene_fc_1.std(axis=1)
+        gene_fc_std[ATAC_exp2.exp_name] = gene_fc_2.std(axis=1)
+    else:
+        gene_fc_std = 0
+    
+    fig, ax0 = plt.subplots()
+    plt.title(f"Fold-Change of signal for gene: {gene_name}", fontsize=14)
+    plt.xlabel('Location relative to TSS')
+    plt.ylabel('FC of ATAC-seq signal (norm.)')
+
+    plot_ax(ax0, gene_fc_means, gene_fc_std) 
+
 
 def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type: str = 'none'):
     '''
@@ -22,7 +56,7 @@ def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type:
     if mean_flag:
         gene_means, gene_vars = ATAC_exp.get_gene_mean_and_var_both_conditions(gene_name, var_type)
         fig, ax0 = plt.subplots()
-        plt.title(f"Signal for gene: {gene_name},\t{ATAC_exp.exp_name}", fontsize=14)
+        plt.title(f"Signal for gene: {gene_name}, {ATAC_exp.exp_name}", fontsize=14)
         plt.xlabel('Location relative to TSS')
         plt.ylabel('ATAC-seq signal (norm.)')
 
@@ -50,6 +84,11 @@ def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type:
                 legend_flag=True
             plot_ax(axes[rep_i], list_of_rep_dfs[rep_i], legend_flag)
 
+
+def plot_groups_signals():
+    '''
+    '''
+    pass
 
 def plot_ax(ax, vec_df, var_df=0, legend_flag:bool = True):
     '''
@@ -92,7 +131,7 @@ def plot_vector(vec, ax, color, var_vec=0):
 
     line = ax.plot(vec, c=color)
     if not isinstance(var_vec, int):
-        ax.fill_between(vec.index, vec-var_vec, vec+var_vec, fc=color, alpha=0.3)
+        ax.fill_between(vec.index.astype('int64'), vec-var_vec, vec+var_vec, fc=color, alpha=0.3)
     return line[0]
 
 
