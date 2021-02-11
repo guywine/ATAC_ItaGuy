@@ -50,3 +50,14 @@ Function plot ATAC-seq signal. Choose:
 
 Test models:
 - Can we predict "strange genes" from one of the features?
+
+
+
+
+
+## to do
+- Add possibility to plot only between range
+- test functions of fold-change and signal calculating (spr-2 fold change)
+- plot lines of groups of genes (default = highly + lowly)
+- bystanders function
+- scatter plot of fold-changes (with all genes, all replicates, our gene dotted in color with std whiskers) + dotted line of 95% [can also use to compare two experiments]
