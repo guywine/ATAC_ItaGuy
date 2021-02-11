@@ -311,12 +311,12 @@ if __name__ == "__main__":
     if "exp_mss" not in locals():
         exp_mss = ATAC_signal("exp_metsetset")
 
-    my_plots.plot_signal_gene(exp1, 'oma-1', var_type='std')
+    # my_plots.plot_signal_gene(exp1, 'oma-1', var_type='std')
 
-    gene_fc_df_log2 = exp1.get_gean_fc_df('GFP')
-    gene_fc_df = exp1.get_gean_fc_df('GFP', log2=False)
+    # gene_fc_df_log2 = exp1.get_gean_fc_df('GFP')
+    # gene_fc_df = exp1.get_gean_fc_df('GFP', log2=False)
 
-    my_plots.plot_fc_gene(exp1, exp_mss, 'oma-1')
+    # my_plots.plot_fc_gene(exp1, exp_mss, 'oma-1')
 
     # genes_to_test = [
     #     "oma-1",
