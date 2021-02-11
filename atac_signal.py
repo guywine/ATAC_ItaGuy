@@ -8,7 +8,6 @@ import plotting as my_plots
 
 # from sklearn import preprocessing
 
-
 class ATAC_signal:
     def __init__(self, exp_name: str = "exp1", var_type: str = "std"):
         self.hotspot = (-500, -100)  # user to define
@@ -233,6 +232,26 @@ class ATAC_signal:
             var_series = 0
 
         return mean_series, var_series
+    
+    def get_gean_fc_df(self, gene_name: str, div_2_by_1: bool = True, log2: bool = True):
+        '''
+        '''
+        wbid = self.gid.to_wbid(gene_name)
+
+        gene_fc_df = pd.DataFrame([])
+        for rep_i in range(self.num_of_reps):
+            cond1_sig = self.cond1[rep_i].loc[wbid,:]+self.add_to_avoid_zero_division
+            cond2_sig = self.cond2[rep_i].loc[wbid,:]+self.add_to_avoid_zero_division
+            if div_2_by_1:
+                gene_fc_df[rep_i] = cond2_sig / cond1_sig
+            else:
+                gene_fc_df[rep_i] = cond1_sig / cond2_sig
+        
+        if log2:
+            gene_fc_df = np.log2(gene_fc_df)
+        
+        return gene_fc_df
+
 
 
 def get_gene_replicates(list_of_dfs: list, gene_wbid: str):
@@ -289,8 +308,15 @@ if __name__ == "__main__":
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
 
-    # if "exp_mss" not in locals():
-    #     exp_mss = ATAC_signal("exp_metsetset")
+    if "exp_mss" not in locals():
+        exp_mss = ATAC_signal("exp_metsetset")
+
+    my_plots.plot_signal_gene(exp1, 'oma-1', var_type='std')
+
+    gene_fc_df_log2 = exp1.get_gean_fc_df('GFP')
+    gene_fc_df = exp1.get_gean_fc_df('GFP', log2=False)
+
+    my_plots.plot_fc_gene(exp1, exp_mss, 'oma-1')
 
     # genes_to_test = [
     #     "oma-1",
