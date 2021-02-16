@@ -39,7 +39,7 @@ def plot_fc_gene(ATAC_exp1, ATAC_exp2, gene_name: str, std_flag: bool = True, lo
     plot_ax(ax0, gene_fc_means, gene_fc_std) 
 
 
-def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type: str = 'none'):
+def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type: str = 'none', plot_range: tuple = (0,0)):
     '''
     Plots for a single gene one of two options:
     - Single panel with mean and variance of this gene for all replicates (line per condition)
@@ -60,6 +60,11 @@ def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type:
         plt.xlabel('Location relative to TSS')
         plt.ylabel('ATAC-seq signal (norm.)')
 
+        if plot_range.count(0)!=2: # if range was given:
+            gene_means = narrow_to_range(gene_means, plot_range[0], plot_range[1])
+            gene_vars = narrow_to_range(gene_vars, plot_range[0], plot_range[1])
+
+
         plot_ax(ax0, gene_means, gene_vars)
 
     else:
@@ -72,7 +77,10 @@ def plot_signal_gene(ATAC_exp, gene_name: str, mean_flag: bool = True, var_type:
             gene_rep_df = pd.DataFrame([])
             gene_rep_df[ATAC_exp.condition_names[0]] = ATAC_exp.cond1[rep_i].loc[wbid,:]
             gene_rep_df[ATAC_exp.condition_names[1]] = ATAC_exp.cond2[rep_i].loc[wbid,:]
-
+            
+            if plot_range.count(0)!=2: # if range was given:
+                gene_rep_df = narrow_to_range(gene_rep_df, plot_range[0], plot_range[1])
+                
             list_of_rep_dfs.append(gene_rep_df)
 
         fig, axes = plt.subplots(1,num_reps, figsize=(num_reps*6,5), sharey=True)
@@ -89,6 +97,15 @@ def plot_groups_signals():
     '''
     '''
     pass
+
+def narrow_to_range(df, first_row, last_row):
+    '''
+    Narrows df of signal by locations (relative to tss).
+    Inclusive.
+    '''
+    df.index = df.index.astype('int64')
+
+    return df.loc[first_row:last_row, :]
 
 def plot_ax(ax, vec_df, var_df=0, legend_flag:bool = True):
     '''
