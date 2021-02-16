@@ -78,7 +78,10 @@ class ATAC_signal:
 
     def generate_FC_median_df(self, div_2_by_1: bool = True, log2: bool = True):
         """
-        Generats a df. Row: gene, Column: replicate. Value is the fc_median_parameter.
+        Generats a df. Row: gene, Column: replicate. 
+        Value is the fc_median_parameter, calculated so:
+        * Fold change of signals
+        * median of all values in hotspot
         Values calculated for "hotspot" defined in the Class object.
 
         Parameters
