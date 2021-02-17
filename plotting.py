@@ -129,9 +129,14 @@ def plot_groups_signals(
     - one ax for each condition: each group is a line with std.
 
     If mean_flag: variance is between reps. if seperate: variance is between genes.
+
+    Parameters
+    --------
+    - ATAC_exp: ATAC_signal object.
+    - groups_dic: keys - group_name, values - list of wbids.
     """
     if add_highly_lowly:
-        groups_dic = add_highly_lowly_to_dic(groups_dic)
+        add_highly_lowly_to_dic(groups_dic)
 
     if not mean_flag:
         for rep_i in range(ATAC_exp.num_of_reps):
@@ -208,8 +213,11 @@ def group_mean_and_var_for_sample(df_sample, wbid_list, var_type="std"):
 def add_highly_lowly_to_dic(dic_groups: dict):
     '''
     Adds to the dic two groups: "highly expressed", "lowly expressed"
+    changes inplace?
     '''
-    pass
+    highly, lowly = ut.get_highly_lowly(prcnt=5)
+    dic_groups['highly expressed (top 5%}'] = highly
+    dic_groups['lowly expressed (bottom 5%}'] = lowly
 
 def narrow_to_range(df, first_row, last_row):
     """
@@ -237,7 +245,7 @@ def plot_ax(ax, vec_df, var_df=0, legend_flag: bool = True):
     * No return - plots on ax.
     """
     lines = []
-    colors = plt.get_cmap("Accent")  # later (define outside?)
+    colors = plt.get_cmap("Set1")  # later (define outside?)
 
     if isinstance(var_df, int):  # if no varince df given
         for col_i in range(vec_df.shape[1]):
