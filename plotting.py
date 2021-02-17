@@ -130,38 +130,58 @@ def plot_groups_signals(
 
     If mean_flag: variance is between reps. if seperate: variance is between genes.
     """
-    # if not mean_flag:
-        # create figure (1,2)
-        # for each condition (sample) (get for this sample a df of means, and df of vars):
-            # initiate means_df
-            # initiate vars_df
-            # for each group: *** add highly, lowly ****
-                # "group_mean_and_var_for_sample"
-                # add group_mean to means_df['group_name']
-                # add group_var to vars_df['group_name']
+    if add_highly_lowly:
+        groups_dic = add_highly_lowly_to_dic(groups_dic)
 
-            # plot
+    if not mean_flag:
+        for rep_i in range(ATAC_exp.num_of_reps):
+            fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+            fig.suptitle(f"{ATAC_exp.exp_name}, Replicate {rep_i+1}, (variance between genes)", fontsize=14)
+            for cond_i in [0,1]: # for each condition (sample) (get for this sample a df of means, and df of vars):
+                sample_df = ATAC_exp.exp_df.iloc[rep_i,cond_i]
+                means_df, vars_df = groups_df_mean_and_var_dfs_for_sample(sample_df, groups_dic, var_type)
 
-    # If mean_flag:
-        # create figure (1,2)
-        # for each condition:
-            # initiate means_df_list
+                axes[cond_i].set_title(f"{ATAC_exp.condition_names[cond_i]}")
+                legend_flag = cond_i # 0 / 1 [only legend on right ax]
+                plot_ax(axes[cond_i], means_df, vars_df, legend_flag)
 
-            # for each rep (sample):
-                # initiate means_df_rep
-                # for each group:
-                    # "group_mean_and_var_for_sample" [only means]
-                    # add group to means_df_rep['group_name']
-                # add means_df_rep to means_df_list
+    else:
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+        fig.suptitle(f"{ATAC_exp.exp_name}, Mean of All Replicates (variance between replicates)", fontsize=14)
 
-        # use "get_mean_variance" to get mean and var of groups from all reps
+        for cond_i in [0,1]:
+            means_df_list = []
+            for rep_i in range(ATAC_exp.num_of_reps):
+                sample_df = ATAC_exp.exp_df.iloc[rep_i, cond_i]
+                means_df, _ = groups_df_mean_and_var_dfs_for_sample(sample_df, groups_dic, var_type='none')
+                means_df_list.append(means_df)
+            
+            df_means_all_reps, df_vars = get_mean_variance_of_df_list(means_df_list, var_type)
 
-        # plot ax of condition
+            axes[cond_i].set_title(f"{ATAC_exp.condition_names[cond_i]}")
+            legend_flag = cond_i # 0 / 1 [only legend on right ax]
+            plot_ax(axes[cond_i], df_means_all_reps, df_vars, legend_flag)
 
-    pass
+
+def groups_df_mean_and_var_dfs_for_sample(df_sample, group_dic: dict, var_type="std"):
+    '''
+    Gets a dictionary of gene groups. Gets for this sample:
+    - means_df: col - group_name, row - location
+    - vars_df: col - group_name, row - location. If var_type='none', returns 0.
+    '''
+    means_df = pd.DataFrame([])
+    vars_df = pd.DataFrame([])
+    
+    for group_name in group_dic:
+        means_df[group_name], vars_df[group_name] = group_mean_and_var_for_sample(df_sample, group_dic[group_name], var_type)
+
+    if var_type=='none':
+        vars_df=0
+    
+    return means_df, vars_df
 
 
-def group_mean_and_var_for_sample(df_sample, gene_list, var_type="std"):
+def group_mean_and_var_for_sample(df_sample, wbid_list, var_type="std"):
     """
     Gets a list of genes, and a df sample, returns the means and vars.
 
@@ -170,8 +190,26 @@ def group_mean_and_var_for_sample(df_sample, gene_list, var_type="std"):
     - group_mean: pd.Series, mean along gene
     - group_var: pd.Series, var along gene. If var_type='none', returns 0.
     """
-    pass
+    # take only genes that appear in the sample df:
+    intersected_list = list(set(df_sample.index) & set(wbid_list))
 
+    df_of_genes = df_sample.loc[intersected_list,:]
+    group_mean = df_of_genes.mean()
+    if var_type.lower() == "std":
+        group_var = df_of_genes.std()
+    elif var_type.lower() == "sem":
+        group_var = df_of_genes.sem()
+    elif var_type.lower() == "none":
+        group_var = 0
+    
+    return group_mean, group_var
+
+
+def add_highly_lowly_to_dic(dic_groups: dict):
+    '''
+    Adds to the dic two groups: "highly expressed", "lowly expressed"
+    '''
+    pass
 
 def narrow_to_range(df, first_row, last_row):
     """
@@ -233,6 +271,28 @@ def plot_vector(vec, ax, color, var_vec=0):
             vec.index.astype("int64"), vec - var_vec, vec + var_vec, fc=color, alpha=0.3
         )
     return line[0]
+
+
+def get_mean_variance_of_df_list(df_list: list, var_type: str = "none"):
+    """
+    Gets a list of dfs with identicle structure, and calculates for each cell the mean and variance across all dfs in list.
+    Returns a df containing means, and a seperate df containing variance.
+
+    Parameters
+    ----------
+    - df_list: list of dfs to mean (each df a sample of rep)
+    - variance_type: str. ['std' / 'sem' / 'none']
+    """
+    ### create single df average across replicates:
+    df_mean_all_reps = pd.concat(df_list).groupby(level=0).mean()
+    if var_type.lower() == "std":
+        df_variance = pd.concat(df_list).groupby(level=0).std()
+    elif var_type.lower() == "sem":
+        df_variance = pd.concat(df_list).groupby(level=0).sem()
+    elif var_type.lower() == "none":
+        df_variance = 0
+
+    return df_mean_all_reps, df_variance
 
 
 ####################################################################
