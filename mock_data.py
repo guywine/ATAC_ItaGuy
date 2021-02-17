@@ -1,7 +1,7 @@
 
 
 def generate_mock_groups():
-    gene_list_1 = ["WBGene00007063", "WBGene00007064", "WBGene00007067"]
+    gene_list_1 = ["WBGene00007063", "WBGene00007064", "WBGene00017071"]
     gene_list_2 = [
         "WBGene00017071",
         "WBGene00019895",
