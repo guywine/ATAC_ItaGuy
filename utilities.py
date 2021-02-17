@@ -212,6 +212,18 @@ def find_rank_by_value(gene_series: pd.Series, val: float, print_flag: bool = Tr
         print(f"value: {val}\tpercentile : {percentile:.2f}%")
     return percentile
 
+def get_highly_lowly(prcnt: int = 5):
+    '''
+    Returns
+    - highly: list of wbids, top prcnt
+    - lowly: list of wbids, top prcnt
+    '''
+    exp_df = Gene_sets.get_expression_df()
+    exp_pc_df = protein_coding_only(exp_df)
+    highly = get_list_of_column(exp_pc_df['expression_mean'], prcnt)
+    lowly = get_list_of_column(exp_pc_df['expression_mean'], prcnt, bottom=True)
+    return highly, lowly
+
 
 def print_gene_expression(gene: str, print_res: bool = False):
     rna_all = load_gene_expression_df()
