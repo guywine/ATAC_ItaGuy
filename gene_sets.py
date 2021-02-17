@@ -278,29 +278,29 @@ if __name__ == "__main__":
     # add_intersect(dic_groups, 'highly 10%', 'hrde-1', inter_type='only second')
 
 
-    ### create hrde-1 regulated list:
-    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
-    hrde_FC_sig = gs.get_list('mRNA_isSig')
-    hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
-    hrde_up_sig = intersect_lists(hrde_FC_sig, hrde_up)
-    hrde_regulated = intersect_lists(hrde_up_sig, hrde1_kennedy)
-    df_mRNA_and_hrde1 = gs.big_table.loc[hrde_regulated,['mRNA_log2_FC','hrde-1-Kennedy']]
+    # ### create hrde-1 regulated list:
+    # hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
+    # hrde_FC_sig = gs.get_list('mRNA_isSig')
+    # hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
+    # hrde_up_sig = intersect_lists(hrde_FC_sig, hrde_up)
+    # hrde_regulated = intersect_lists(hrde_up_sig, hrde1_kennedy)
+    # df_mRNA_and_hrde1 = gs.big_table.loc[hrde_regulated,['mRNA_log2_FC','hrde-1-Kennedy']]
 
-    ### get strongest genes on both parameters
-    hrde1_strongest = df_mRNA_and_hrde1[df_mRNA_and_hrde1['hrde-1-Kennedy']>1200]
-    mRNA_FC_strongest = df_mRNA_and_hrde1[df_mRNA_and_hrde1['mRNA_log2_FC']>3]
-    hrde1_top = ut.intersect_lists(list(hrde1_strongest.index), list(mRNA_FC_strongest.index))
-    hrde1_top_names = ut.list_to_name(hrde1_top)
+    # ### get strongest genes on both parameters
+    # hrde1_strongest = df_mRNA_and_hrde1[df_mRNA_and_hrde1['hrde-1-Kennedy']>1200]
+    # mRNA_FC_strongest = df_mRNA_and_hrde1[df_mRNA_and_hrde1['mRNA_log2_FC']>3]
+    # hrde1_top = ut.intersect_lists(list(hrde1_strongest.index), list(mRNA_FC_strongest.index))
+    # hrde1_top_names = ut.list_to_name(hrde1_top)
 
-    ### 
+    # ### 
 
-    hrde1_top_germ_under5 = ut.intersect_lists(germline_under5, hrde1_top)
+    # hrde1_top_germ_under5 = ut.intersect_lists(germline_under5, hrde1_top)
 
 
 
     
 
-    import utilities as ut 
+    # import utilities as ut 
     # ut.print_gene_ranks_in_df(df_mRNA_and_hrde1, 'oma-1', print_res=True)
 
 
