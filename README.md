@@ -56,11 +56,21 @@ Test models:
 
 
 ## to do
-- plot lines of groups of genes (default = highly + lowly)
+- problem with rep 2/4 of exp1
+- as groups, add function "bootstrap_gene_list(df_sample, list_size, gene_pool: default[protein_coding], num_of_iters)"
+'''
+Each iteration, select random group, mean signal.
+Than returns the mean of all means, and variance of all means.
+'''
 - bystanders function
 - scatter plot of fold-changes (with all genes, all replicates, our gene dotted in color with std whiskers) + dotted line of 95% [can also use to compare two experiments]
-    - Maybe plot not the FC_param itself but its Z-score / rank instead.
+    - plot not the FC_param itself but its Z-score / rank instead.
+
+
+** Normalize Z-score. (x_value - mean_all)/std_all
+** Kolmogorov-Smirnoff: aqqumulative distribution
 
 ## done
 - test functions of fold-change and signal calculating (spr-2 fold change)
 - Add possibility to plot only between range
+- plot lines of groups of genes (default = highly + lowly)
