@@ -2,6 +2,7 @@ import pandas as pd
 from gene_id import Gene_IDs
 import utilities as ut 
 from gene_id import Gene_IDs
+import matplotlib.pyplot as plt
 
 class Paralogs:
     def __init__(self):
@@ -109,6 +110,23 @@ class Paralogs:
             name2 = self.gid.to_name(couple[1])
             couples_names.append((name1, name2))
         return couples_names
+    
+    def get_best_para(self, gene: str, print_flag: bool = False):
+        wbid = self.gid.to_wbid(gene)
+        name = self.gid.to_name(gene)
+        if wbid not in self.table_ids.index:
+            return False, False
+        paras_df = self.table_ids.loc[wbid,:]
+        row_i = paras_df['target_identity'].argmax()
+        best_para_score = paras_df.iat[row_i, 1]
+        best_para_wbid = paras_df.iat[row_i, 0]
+
+        best_para_name = self.gid.to_name(best_para_wbid)
+        if print_flag:
+            print(f'Best paralog for {name}:\t {best_para_name} ({best_para_score})\n')
+
+        return best_para_score, best_para_wbid
+
 
 
 
@@ -117,39 +135,71 @@ if __name__ == "__main__":
 
     para = Paralogs()
 
-    para_ppw1 = para.get_paralogs_of_gene("ppw-1")
-    rna_all = ut.load_gene_expression_df()
+    para.table_ids['target_identity'].hist()
 
-    paralog_wbids = para.get_cutoff_wbids()
-    paralog_names = ut.list_to_name(paralog_wbids)
+    # ut.find_rank_by_value(para.table_ids['target_identity'], 40)
 
-    germline_high_10_ours = ut.get_list_of_column(rna_all['ours (Gonads)'], prcnt=10)
-    germline_high_10_ahri = ut.get_list_of_column(rna_all['Ahringer (Germline)'], prcnt=10)
-    germline_high_10_both = ut.intersect_lists(germline_high_10_ours, germline_high_10_ahri) # 1085
 
-    para_high_10 = para.are_paralogs(germline_high_10_both)
+    panel_genes = ['WBGene00003864','WBGene00001595',
+                    'WBGene00000216','WBGene00003093','WBGene00000751',
+                    'WBGene00000468','WBGene00000714','WBGene00000905',
+                    'WBGene00009602', 'WBGene00008010', 'WBGene00016639']
 
-    germline_below_10_ours = ut.get_list_of_column(rna_all['ours (Gonads)'], thresh=10, under_thresh=True)
-    germline_below_10_ahri = ut.get_list_of_column(rna_all['Ahringer (Germline)'], thresh=10, under_thresh=True)
-    germline_below_10_both = ut.intersect_lists(germline_below_10_ours, germline_below_10_ahri) # 11129
+    for gene in panel_genes:
+        _,_ = para.get_best_para(gene, print_flag=True)
 
-    couples_high_low = para.different_trait(germline_high_10_both, germline_below_10_both, to_names=True) # 67
-    ## all are his-x genes!
+    '''
 
-    germline_below_80_ours = ut.get_list_of_column(rna_all['ours (Gonads)'], thresh=80, under_thresh=True) 
-    germline_below_80_ahri = ut.get_list_of_column(rna_all['Ahringer (Germline)'], thresh=80, under_thresh=True)
-    germline_below_80_both = ut.intersect_lists(germline_below_80_ours, germline_below_80_ahri) # ???
+for gene in panel_genes:...
+for gene WBGene00003864:
+score: 59.0331, gene: oma-2
+for gene WBGene00001595:
+score: 33.4646, gene: K07H8.9
+for gene WBGene00000216:
+score: 38.7387, gene: asp-4
+for gene WBGene00003093:
+score: 84.5794, gene: lys-6
+for gene WBGene00000751:
+score: 93.2862, gene: col-179
+for gene WBGene00000468:
+score: 38.342, gene: snai-1
+for gene WBGene00000714:
+score: 71.0769, gene: col-142
+for gene WBGene00000905:
+score: 26.3158, gene: cyp-33E1
+for gene WBGene00009602:
+score: 46.6321, gene: Y61A9LA.12
+for gene WBGene00008010:
+score: 60.6925, gene: F15D4.5
+    '''
 
-    couples_high_low80 = para.different_trait(germline_high_10_both, germline_below_80_both, to_names=True) # 77
-    new_couples = ut.intersect_lists(couples_high_low, couples_high_low80, 'only second')
+    # germline_high_10_ours = ut.get_list_of_column(rna_all['ours (Gonads)'], prcnt=10)
+    # germline_high_10_ahri = ut.get_list_of_column(rna_all['Ahringer (Germline)'], prcnt=10)
+    # germline_high_10_both = ut.intersect_lists(germline_high_10_ours, germline_high_10_ahri) # 1085
 
-    couples_high_low80_cutoff_90 = para.different_trait(germline_high_10_both, germline_below_80_both, to_names=True, cutoff=90) # 77
+    # para_high_10 = para.are_paralogs(germline_high_10_both)
 
-    germline_bottom_70_ours = ut.get_list_of_column(rna_all['ours (Gonads)'], prcnt=70, bottom=True) # 14199
-    germline_bottom_70_ahri = ut.get_list_of_column(rna_all['Ahringer (Germline)'], prcnt=70, bottom=True) # 14102
-    germline_bottom_70_both = ut.intersect_lists(germline_bottom_70_ours, germline_bottom_70_ahri) # 12899
+    # germline_below_10_ours = ut.get_list_of_column(rna_all['ours (Gonads)'], thresh=10, under_thresh=True)
+    # germline_below_10_ahri = ut.get_list_of_column(rna_all['Ahringer (Germline)'], thresh=10, under_thresh=True)
+    # germline_below_10_both = ut.intersect_lists(germline_below_10_ours, germline_below_10_ahri) # 11129
 
-    couples_bottom_70_cutoff_90 = para.different_trait(germline_high_10_both, germline_bottom_70_both, to_names=True, cutoff=90) # 70 couples
+    # couples_high_low = para.different_trait(germline_high_10_both, germline_below_10_both, to_names=True) # 67
+    # ## all are his-x genes!
+
+    # germline_below_80_ours = ut.get_list_of_column(rna_all['ours (Gonads)'], thresh=80, under_thresh=True) 
+    # germline_below_80_ahri = ut.get_list_of_column(rna_all['Ahringer (Germline)'], thresh=80, under_thresh=True)
+    # germline_below_80_both = ut.intersect_lists(germline_below_80_ours, germline_below_80_ahri) # ???
+
+    # couples_high_low80 = para.different_trait(germline_high_10_both, germline_below_80_both, to_names=True) # 77
+    # new_couples = ut.intersect_lists(couples_high_low, couples_high_low80, 'only second')
+
+    # couples_high_low80_cutoff_90 = para.different_trait(germline_high_10_both, germline_below_80_both, to_names=True, cutoff=90) # 77
+
+    # germline_bottom_70_ours = ut.get_list_of_column(rna_all['ours (Gonads)'], prcnt=70, bottom=True) # 14199
+    # germline_bottom_70_ahri = ut.get_list_of_column(rna_all['Ahringer (Germline)'], prcnt=70, bottom=True) # 14102
+    # germline_bottom_70_both = ut.intersect_lists(germline_bottom_70_ours, germline_bottom_70_ahri) # 12899
+
+    # couples_bottom_70_cutoff_90 = para.different_trait(germline_high_10_both, germline_bottom_70_both, to_names=True, cutoff=90) # 70 couples
 
 
 
