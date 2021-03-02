@@ -369,7 +369,9 @@ def screen_chromosome(gene_list: list, chr_str: str, to_names: bool = False):
 def screen_gene_location(gene_list: list, to_names: bool = False):
     '''
     Screens only genes that are in the "middle" of the chromosome.
-    Borders defined by paper publishing mutation rate change.
+    Borders defined by paper publishing mutation rate change:
+
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2652117/
     '''
     chrom_df = pd.read_csv("tables/gene_locs.csv", index_col="Wbid")
 
