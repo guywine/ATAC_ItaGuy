@@ -316,12 +316,6 @@ def get_mean_variance_of_df_list(df_list: list, var_type: str = "none"):
     return df_mean_all_reps, df_variance
 
 
-####################################################################
-#### to change to a function that plots a gene on a histogram:
-
-# func1: from series, name, and gene list - return ax with histogram and markings.
-# func2: from df with multiple series, use func 1 to create multiple panels, and a legend.
-
 
 
 def plot_gene_atac_signal_distribution(
@@ -362,7 +356,7 @@ def plot_df_cols_mark_gene(df_reps: pd.DataFrame, gene_to_mark, plot_type: str =
     ----------
     - df_reps: pd.DataFrame. Row:Gene. Column: Replicate. Values can be any calculated value for gene.
     - genes_to_mark: [string / list of strings]. Either gene names / Wbid. (e.g "oma-1" / ["WBGene00003864"])
-    - plot: str ['hist' / 'violin']
+    - plot: str ['hist' / 'violin' / 'box']
     """
     gid = Gene_IDs()  ### later
     wbid = gid.to_wbid(gene_to_mark)  ### later
@@ -380,8 +374,11 @@ def plot_df_cols_mark_gene(df_reps: pd.DataFrame, gene_to_mark, plot_type: str =
             genes_y = 10  ### later
             hand = ax_now.scatter(genes_x, genes_y, c="red", marker=7, zorder=5)
 
-        elif plot_type=='violin':
-            ax_now.violinplot(df_reps.iloc[:, rep_i], showextrema=False, quantiles=[0.05,0.5,0.95])
+        else:
+            if plot_type=='violin':
+                ax_now.violinplot(df_reps.iloc[:, rep_i], showextrema=False, quantiles=[0.05,0.5,0.95])
+            if plot_type=='box':
+                ax_now.boxplot(df_reps.iloc[:, rep_i], showfliers=False, whis=(5,95))
             genes_y = df_reps.loc[wbid][rep_i]  ### later
             genes_x = 1  ### later
             hand = ax_now.scatter(genes_x, genes_y, c="red", marker='.', zorder=5)
