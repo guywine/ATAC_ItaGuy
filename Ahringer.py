@@ -3,7 +3,6 @@ import gene_sets as gsets
 import regex as re
 from mRNA_gonads import Table_mRNA
 from gene_id import Gene_IDs
-from atac_signal import ATAC_signal
 
 # import utilities as ut
 import matplotlib.pyplot as plt

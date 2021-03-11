@@ -306,7 +306,7 @@ def mean_and_var_gene_list_for_signal_df(
 
 
 if __name__ == "__main__":
-    import utilities as ut
+    # import utilities as ut
 
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
@@ -337,10 +337,10 @@ if __name__ == "__main__":
     #     "C09G9.8",
     # ]
 
-    # my_plots.plot_gene_atac_signal_histogram(exp1, "oma-1", False)
+    # my_plots.plot_gene_atac_signal_distribution(exp1, "oma-1", False, plot_type='hist')
 
     # for gene in genes_to_test:
     #     print("Regular:")
-    #     my_plots.plot_gene_atac_signal_histogram(exp1, gene)
+    #     my_plots.plot_gene_atac_signal_distribution(exp1, gene)
         # print('met;set;set mutant:')
         # plot_gene_atac_signal(exp_mss, gene)

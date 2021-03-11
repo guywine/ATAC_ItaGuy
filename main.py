@@ -16,5 +16,8 @@ if __name__=='__main__':
         exp_mss = ATAC_signal("exp_metsetset")
 
     my_plots.plot_groups_signals(exp1, dic_david, mean_flag=True)
-    my_plots.plot_groups_signals(exp_mss, dic_david)
+    my_plots.plot_groups_signals(exp1, dic_david, mean_flag=True, bootstrap=True, boot_size=len(david_list), boot_iters=100)
+    # my_plots.plot_groups_signals(exp_mss, dic_david, bootstrap=True)
+
+    my_plots.plot_gene_atac_signal_distribution(exp1, 'oma-1', mean_flag=False)
 

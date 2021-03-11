@@ -6,6 +6,27 @@ Gets df of samples and can calculate:
 """
 
 import pandas as pd
+import random
+
+def bootstrap_atac_signal(df_sample: pd.DataFrame, group_size: int, num_of_iters: int=10_000):
+    '''
+    '''
+    gene_pool = pd.read_csv('tables/protein_coding_wbids.csv')
+
+    df_boot_means = pd.DataFrame([])
+
+    for i in range(num_of_iters):
+        boot_group = random.sample(list(gene_pool['genes']), group_size)
+        intersected_list = list(set(df_sample.index) & set(boot_group))
+
+        df_boot_means[i] = df_sample.loc[intersected_list, :].mean()
+    
+    boot_mean_series = df_boot_means.mean(axis=1)
+    boot_std_series = df_boot_means.std(axis=1)
+    
+    return boot_mean_series, boot_std_series
+
+
 
 
 def get_group_means_df_list(reps_dic: dict, dic_groups: dict, cond_num: int):

@@ -261,6 +261,19 @@ def normalize_df_cols(df: pd.DataFrame, min_max: tuple = (-1, 1)):
     return new_df
 
 
+def normalize_zscore_df(df: pd.DataFrame):
+    
+    cols = list(df.columns)
+    
+    df_zscore = pd.DataFrame([])
+    
+    for col in cols:
+        col_zscore = col + '_zscore'
+        df_zscore[col_zscore] = (df[col] - df[col].mean())/df[col].std(ddof=0)
+    
+    return df_zscore
+
+
 def protein_coding_only(df: pd.DataFrame):
     """
     Returns df with only protein coding elements. (Assumes wbid indices)
@@ -364,6 +377,7 @@ def screen_chromosome(gene_list: list, chr_str: str, to_names: bool = False):
         chr_list = list_to_name(chr_list)
 
     return chr_list
+
 
 
 def screen_gene_location(gene_list: list, to_names: bool = False):

@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 import pandas as pd
 from gene_id import Gene_IDs
 import utilities as ut
 import seaborn as sns
+import calc_signals as cas
 
 
 def plot_fc_gene(
@@ -123,6 +125,9 @@ def plot_groups_signals(
     mean_flag: bool = False,
     var_type: str = "std",
     add_highly_lowly: bool = True,
+    bootstrap: bool = False,
+    boot_size: int = 2315,
+    boot_iters: int = 1000
 ):
     """
     Takes an experiment, a dictionary with groups, plots panel with two axes.
@@ -138,6 +143,9 @@ def plot_groups_signals(
     if add_highly_lowly:
         add_highly_lowly_to_dic(groups_dic)
 
+    if bootstrap:
+        print(f'bootstrapping {boot_iters} iterations...')
+
     if not mean_flag:
         for rep_i in range(ATAC_exp.num_of_reps):
             fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
@@ -145,6 +153,9 @@ def plot_groups_signals(
             for cond_i in [0,1]: # for each condition (sample) (get for this sample a df of means, and df of vars):
                 sample_df = ATAC_exp.exp_df.iloc[rep_i,cond_i]
                 means_df, vars_df = groups_df_mean_and_var_dfs_for_sample(sample_df, groups_dic, var_type)
+
+                if bootstrap:
+                    means_df[f'bootstrap ({boot_size} genes)'], vars_df[f'bootstrap ({boot_size} genes)'] = cas.bootstrap_atac_signal(sample_df, group_size=boot_size, num_of_iters=boot_iters) # later
 
                 axes[cond_i].set_title(f"{ATAC_exp.condition_names[cond_i]}")
                 legend_flag = cond_i # 0 / 1 [only legend on right ax]
@@ -159,6 +170,8 @@ def plot_groups_signals(
             for rep_i in range(ATAC_exp.num_of_reps):
                 sample_df = ATAC_exp.exp_df.iloc[rep_i, cond_i]
                 means_df, _ = groups_df_mean_and_var_dfs_for_sample(sample_df, groups_dic, var_type='none')
+                if bootstrap:
+                    means_df[f'bootstrap ({boot_size} genes)'], _ = cas.bootstrap_atac_signal(sample_df, group_size=boot_size, num_of_iters=boot_iters) # later
                 means_df_list.append(means_df)
             
             df_means_all_reps, df_vars = get_mean_variance_of_df_list(means_df_list, var_type)
@@ -310,60 +323,71 @@ def get_mean_variance_of_df_list(df_list: list, var_type: str = "none"):
 # func2: from df with multiple series, use func 1 to create multiple panels, and a legend.
 
 
-def plot_gene_atac_signal_histogram(
-    ATAC_exp, gene_to_mark: str, mean_flag: bool = True
+
+def plot_gene_atac_signal_distribution(
+    ATAC_exp, gene_to_mark: str, mean_flag: bool = True, plot_type: str = 'violin', zscore: bool=False
 ):
+    '''
+    - plot_type: str ['violin' / 'hist']
+    '''
+    gid = Gene_IDs()
+    wbid = gid.to_wbid(gene_to_mark)
+
+    if zscore:
+        df_ready = normalize_zscore_df(ATAC_exp.fc)
+    else:
+        df_ready = ATAC_exp.fc
+
+    # df_ready = ATAC_exp.fc
+
     if mean_flag:
-        mean_df = pd.DataFrame({"mean_FC": ATAC_exp.fc.mean(axis=1)})
-        plot_reps_hist_mark_gene(df_reps=mean_df, genes_to_mark=gene_to_mark)
+        mean_df = pd.DataFrame({"mean_FC": df_ready.mean(axis=1)})
+        
+        gene_mean = mean_df.loc[wbid]
+        gene_std = ATAC_exp.fc.loc[wbid].std()
+
+        plot_df_cols_mark_gene(df_reps=mean_df, gene_to_mark=gene_to_mark, plot_type=plot_type, std_whiskers=gene_std)
         ut.get_gene_rank(mean_df.iloc[:, 0], gene_to_mark)
+    
     else:
         print(f"gene {gene_to_mark}:")
-        plot_reps_hist_mark_gene(df_reps=ATAC_exp.fc, genes_to_mark=gene_to_mark)
+        plot_df_cols_mark_gene(df_reps=df_ready, gene_to_mark=gene_to_mark, plot_type=plot_type)
 
 
-def plot_reps_hist_mark_gene(df_reps: pd.DataFrame, genes_to_mark):
+def plot_df_cols_mark_gene(df_reps: pd.DataFrame, gene_to_mark, plot_type: str = 'violin', std_whiskers:float=0):
     """
-    Plots histogram for every column, marking the desired genes.
+    Plots histogram / violinplot for every column, marking the desired genes.
 
     Parameters
     ----------
     - df_reps: pd.DataFrame. Row:Gene. Column: Replicate. Values can be any calculated value for gene.
     - genes_to_mark: [string / list of strings]. Either gene names / Wbid. (e.g "oma-1" / ["WBGene00003864"])
+    - plot: str ['hist' / 'violin']
     """
-    genes_list = [genes_to_mark]  ### later: make_strings_a_list 'oma-1' -> ['oma-1']
     gid = Gene_IDs()  ### later
-    list_of_wbids = [gid.to_wbid(gene) for gene in genes_list]  ### later
+    wbid = gid.to_wbid(gene_to_mark)  ### later
     num_of_reps = df_reps.shape[1]
     fig, axes = plt.subplots(1, num_of_reps, figsize=(num_of_reps * 5, 5))
-    if num_of_reps == 1:
-        axes.set_title(f"{df_reps.columns[0]}")
-        axes.hist(df_reps.iloc[:, 0], bins=20, zorder=0)
-        genes_x = df_reps.loc[list_of_wbids[0]][0]  ### later
-        genes_y = 10  ### later
-        hand = axes.scatter(genes_x, genes_y, c="red", marker=7, zorder=5)
-    else:
-        for rep_i in range(num_of_reps):
-            # list_of_points = plot_values_for_genes(ax = axes[rep_i], value_series = df_reps.iloc[:,rep_i], list_of_indices =list_of_wbids)
-            axes[rep_i].set_title(f"{df_reps.columns[rep_i]}")
-            axes[rep_i].hist(df_reps.iloc[:, rep_i], bins=20, zorder=0)
-            genes_x = df_reps.loc[list_of_wbids[0]][rep_i]  ### later
+    ax_now = axes
+    for rep_i in range(num_of_reps):
+        if num_of_reps>1:
+            ax_now = axes[rep_i]
+        ax_now.set_title(f"{df_reps.columns[rep_i]}")
+
+        if plot_type=='hist':
+            ax_now.hist(df_reps.iloc[:, rep_i], bins=20, zorder=0)
+            genes_x = df_reps.loc[wbid][rep_i]  ### later
             genes_y = 10  ### later
-            hand = axes[rep_i].scatter(genes_x, genes_y, c="red", marker=7, zorder=5)
+            hand = ax_now.scatter(genes_x, genes_y, c="red", marker=7, zorder=5)
 
-    ## legend
+        elif plot_type=='violin':
+            ax_now.violinplot(df_reps.iloc[:, rep_i], showextrema=False, quantiles=[0.05,0.5,0.95])
+            genes_y = df_reps.loc[wbid][rep_i]  ### later
+            genes_x = 1  ### later
+            hand = ax_now.scatter(genes_x, genes_y, c="red", marker='.', zorder=5)
+
+            if std_whiskers:
+                ax_now.add_patch(Rectangle((0.95, genes_y-std_whiskers),0.1, std_whiskers*2, alpha=0.3, facecolor='purple'))
+
     plt.show()
-
-
-# def plot_values_for_genes(ax: plt.axis, value_series: pd.Series, list_of_indices: list):
-#     '''
-#     Gets a list of indices and plots them on the axis. also adds legend.
-#     '''
-#     value_list = [value_series[ind] for ind in list_of_indices]
-#     y_values = [0]*len(value_list)
-
-#     dic_points = {'oma-1':value_list[0], 'oma-2':value_list[1]}
-#     df_dict = pd.DataFrame([dic_points])
-
-
-######################################
+        
