@@ -12,12 +12,17 @@ if __name__=='__main__':
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
 
-    if "exp_mss" not in locals():
-        exp_mss = ATAC_signal("exp_metsetset")
+    # if "exp_mss" not in locals():
+    #     exp_mss = ATAC_signal("exp_metsetset")
 
-    my_plots.plot_groups_signals(exp1, dic_david, mean_flag=True)
-    my_plots.plot_groups_signals(exp1, dic_david, mean_flag=True, bootstrap=True, boot_size=len(david_list), boot_iters=100)
-    # my_plots.plot_groups_signals(exp_mss, dic_david, bootstrap=True)
+    # my_plots.plot_groups_signals(exp1, dic_david, mean_flag=True, bootstrap=True, boot_size=len(david_list), boot_iters=2000)
 
     my_plots.plot_gene_atac_signal_distribution(exp1, 'oma-1', mean_flag=False)
+
+    my_plots.plot_signal_gene(exp1, 'oma-1', drop_rep=0)
+
+    my_plots.plot_groups_signals(exp1, mean_flag=True)
+
+    my_plots.plot_gene_atac_signal_distribution(exp1, 'oma-1')
+    
 
