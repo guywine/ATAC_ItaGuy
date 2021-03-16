@@ -60,6 +60,7 @@ def plot_signal_gene(
     mean_flag: bool = True,
     var_type: str = "none",
     plot_range: tuple = (0, 0),
+    drop_rep: int = 10
 ):
     """
     Plots for a single gene one of two options:
@@ -76,8 +77,12 @@ def plot_signal_gene(
 
     if mean_flag:
         gene_means, gene_vars = ATAC_exp.get_gene_mean_and_var_both_conditions(
-            gene_name, var_type
+            gene_name, var_type, drop_rep=drop_rep
         )
+
+        # if rep_i == drop_rep: ### drop rep_i
+        #     print(f'dropped rep {drop_rep}')
+
         fig, ax0 = plt.subplots()
         plt.title(f"Signal for gene: {gene_name}, {ATAC_exp.exp_name}", fontsize=14)
         plt.xlabel("Location relative to TSS")
@@ -93,9 +98,12 @@ def plot_signal_gene(
         wbid = ATAC_exp.gid.to_wbid(gene_name)
         num_reps = ATAC_exp.num_of_reps
 
-        list_of_rep_dfs = []
+        dic_of_rep_dfs = {}
 
         for rep_i in range(num_reps):
+            if rep_i == drop_rep:
+                print(f'dropped rep {drop_rep}')
+                continue
             gene_rep_df = pd.DataFrame([])
             gene_rep_df[ATAC_exp.condition_names[0]] = ATAC_exp.cond1[rep_i].loc[
                 wbid, :
@@ -107,27 +115,30 @@ def plot_signal_gene(
             if plot_range.count(0) != 2:  # if range was given:
                 gene_rep_df = narrow_to_range(gene_rep_df, plot_range[0], plot_range[1])
 
-            list_of_rep_dfs.append(gene_rep_df)
+            dic_of_rep_dfs[rep_i]=gene_rep_df
 
-        fig, axes = plt.subplots(1, num_reps, figsize=(num_reps * 6, 5), sharey=True)
-        for rep_i in range(num_reps):
-            axes[rep_i].set_title(f"replicate {rep_i+1}")
+        fig, axes = plt.subplots(1, len(dic_of_rep_dfs), figsize=(num_reps * 6, 5), sharey=True)
+        ax_i = 0
+        for rep_i in dic_of_rep_dfs.keys():
+            axes[ax_i].set_title(f"replicate {rep_i+1}")
             ## later - add y title and x title
             legend_flag = False
-            if rep_i == num_reps - 1:
+            if ax_i == len(dic_of_rep_dfs) - 1:
                 legend_flag = True
-            plot_ax(axes[rep_i], list_of_rep_dfs[rep_i], legend_flag)
+            plot_ax(axes[ax_i], dic_of_rep_dfs[rep_i], legend_flag)
+            ax_i+=1
 
 
 def plot_groups_signals(
     ATAC_exp,
-    groups_dic: dict,
+    groups_dic: dict = {},
     mean_flag: bool = False,
     var_type: str = "std",
     add_highly_lowly: bool = True,
     bootstrap: bool = False,
     boot_size: int = 2315,
-    boot_iters: int = 1000
+    boot_iters: int = 1000,
+    drop_rep: int = 10
 ):
     """
     Takes an experiment, a dictionary with groups, plots panel with two axes.
@@ -168,6 +179,9 @@ def plot_groups_signals(
         for cond_i in [0,1]:
             means_df_list = []
             for rep_i in range(ATAC_exp.num_of_reps):
+                if rep_i == drop_rep:
+                    print(f'dropped rep {rep_i}')
+                    continue
                 sample_df = ATAC_exp.exp_df.iloc[rep_i, cond_i]
                 means_df, _ = groups_df_mean_and_var_dfs_for_sample(sample_df, groups_dic, var_type='none')
                 if bootstrap:
@@ -319,7 +333,7 @@ def get_mean_variance_of_df_list(df_list: list, var_type: str = "none"):
 
 
 def plot_gene_atac_signal_distribution(
-    ATAC_exp, gene_to_mark: str, mean_flag: bool = True, plot_type: str = 'violin', zscore: bool=False
+    ATAC_exp, gene_to_mark: str, mean_flag: bool = True, plot_type: str = 'violin', zscore: bool=False, drop_rep: int = 10
 ):
     '''
     - plot_type: str ['violin' / 'hist']
@@ -327,10 +341,15 @@ def plot_gene_atac_signal_distribution(
     gid = Gene_IDs()
     wbid = gid.to_wbid(gene_to_mark)
 
-    if zscore:
-        df_ready = normalize_zscore_df(ATAC_exp.fc)
+    if drop_rep<10:
+        fc_df = ATAC_exp.fc.drop(f'rep {drop_rep}', axis=1)
     else:
-        df_ready = ATAC_exp.fc
+        fc_df = ATAC_exp.fc
+
+    if zscore:
+        df_ready = ut.normalize_zscore_df(fc_df)
+    else:
+        df_ready = fc_df
 
     # df_ready = ATAC_exp.fc
 
