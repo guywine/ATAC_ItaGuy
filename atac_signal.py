@@ -174,16 +174,16 @@ class ATAC_signal:
     ###############################################################
 
     def get_gene_mean_and_var_both_conditions(
-        self, gene_name: str, var_type: str = "std"
+        self, gene_name: str, var_type: str = "std", drop_rep:int=10
     ):
         """
         """
         wbid = self.gid.to_wbid(gene_name)
         mean_1, var_1 = self.get_gene_mean_and_var_for_cond(
-            cond_num=1, wbid=wbid, var_type=var_type
+            cond_num=1, wbid=wbid, var_type=var_type, drop_rep=drop_rep
         )
         mean_2, var_2 = self.get_gene_mean_and_var_for_cond(
-            cond_num=2, wbid=wbid, var_type=var_type
+            cond_num=2, wbid=wbid, var_type=var_type, drop_rep=drop_rep
         )
 
         cond_names = self.exp_df.columns
@@ -199,7 +199,7 @@ class ATAC_signal:
         return gene_means, gene_vars
 
     def get_gene_mean_and_var_for_cond(
-        self, cond_num: int, wbid: str, var_type: str = "std"
+        self, cond_num: int, wbid: str, var_type: str = "std", drop_rep: int=10
     ):
         """
         Get for a gene the mean and variance for this condition.
@@ -223,6 +223,9 @@ class ATAC_signal:
             gene_reps = get_gene_replicates(
                 self.cond2, wbid
             )  # later where is this function
+
+        if drop_rep in gene_reps.index:
+            gene_reps.drop(drop_rep, inplace=True)
 
         mean_series = gene_reps.mean()
         if var_type.lower() == "std":
