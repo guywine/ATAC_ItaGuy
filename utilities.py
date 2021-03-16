@@ -529,15 +529,34 @@ def intersect_all(*lists_args):
     
     return list(last_set)
 
-
-# def thresh_df_by_col(df: pd.DataFrame, thresh: int=5):
-#     '''
-#     '''
-#     rows_to_drop_i = []
-#     for row_i in range(df.shape[0]):
-#         if (df.iloc[row_i,:]<thresh).all():
-#             rows_to_drop_i.append(row_i)
+def get_nearby_genes_list(wbid_list: list, nearby_d): ### later undone
+    '''
+    Gets a list of all genes within the desired distance from the given genes.
     
-#     cutoff_df = df.drop(df.index[rows_to_drop_i])
-#     return cutoff_df
+    - d bp up
+    - d bp down
+    - no overlap
+    '''
+    nearby_list = []
+    gene_locs_df = pd.read_csv('tables/gene_locs.csv', index_col='Wbid')
+    
+    for wbid in wbid_list:
+        #### find tss and end_site ####
+        start = gene_locs_df.loc[wbid, 'start']
+        stop = gene_locs_df.loc[wbid, 'stop']
+
+        if gene_locs_df.loc[wbid, 'strand']=='+':
+            tss = gene_locs_df.loc[wbid, 'start']
+            end_site = gene_locs_df.loc[wbid, 'stop']
+        else:
+            tss = gene_locs_df.loc[wbid, 'stop']
+            end_site = gene_locs_df.loc[wbid, 'start']
+        
+
+        neraby_start_range = (stop, tss+nearby_d) # from downstream point to tss + 1000
+
+    pass
+
+        
+
 
