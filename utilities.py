@@ -556,8 +556,8 @@ def get_nearby_genes_list(wbid_list: list, nearby_d): ### later undone
             # end_site = gene_locs_df.loc[wbid, 'start']
         
 
-        if stop < tss + nearby_d: # if possible downstream nearby
-            neraby_down_range = (stop, tss + nearby_d)
+        if stop < (tss + nearby_d): # if possible downstream nearby
+            neraby_down_range = range(stop, tss + nearby_d)
 
             range_flag = True
             
@@ -577,7 +577,7 @@ def get_nearby_genes_list(wbid_list: list, nearby_d): ### later undone
         
         
         if (tss - nearby_d) < start: # if possible upstream nearby
-            neraby_up_range = (tss - nearby_d, start)
+            neraby_up_range = range(tss - nearby_d, start)
 
             range_flag = True
             if (wbid_row_i-1) >= 0:
