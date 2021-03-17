@@ -537,25 +537,64 @@ def get_nearby_genes_list(wbid_list: list, nearby_d): ### later undone
     - d bp down
     - no overlap
     '''
-    nearby_list = []
+    nearby_down_list = []
+    nearby_up_list = []
     gene_locs_df = pd.read_csv('tables/gene_locs.csv', index_col='Wbid')
     
     for wbid in wbid_list:
+        wbid_row_i = gene_locs_df.index.get_loc(wbid)
+
         #### find tss and end_site ####
         start = gene_locs_df.loc[wbid, 'start']
         stop = gene_locs_df.loc[wbid, 'stop']
 
         if gene_locs_df.loc[wbid, 'strand']=='+':
             tss = gene_locs_df.loc[wbid, 'start']
-            end_site = gene_locs_df.loc[wbid, 'stop']
+            # end_site = gene_locs_df.loc[wbid, 'stop']
         else:
             tss = gene_locs_df.loc[wbid, 'stop']
-            end_site = gene_locs_df.loc[wbid, 'start']
+            # end_site = gene_locs_df.loc[wbid, 'start']
         
 
-        neraby_start_range = (stop, tss+nearby_d) # from downstream point to tss + 1000
+        if stop < tss + nearby_d: # if possible downstream nearby
+            neraby_down_range = (stop, tss + nearby_d)
 
-    pass
+            range_flag = True
+            
+            if (wbid_row_i+1) < gene_locs_df.shape[0]:
+                row_i = wbid_row_i+1
+            while range_flag:
+                start_current = gene_locs_df.iloc[row_i, 1]
+                if start_current in neraby_down_range:
+                    nearby_down_list.append(gene_locs_df.index[row_i])
+                else:
+                    range_flag = False
+                
+                if (row_i+1) < gene_locs_df.shape[0]:
+                    row_i+=1
+                else:
+                    range_flag = False
+        
+        
+        if (tss - nearby_d) < start: # if possible upstream nearby
+            neraby_up_range = (tss - nearby_d, start)
+
+            range_flag = True
+            if (wbid_row_i-1) >= 0:
+                row_i = wbid_row_i-1
+            while range_flag:
+                stop_current = gene_locs_df.iloc[row_i, 2]
+                if stop_current in neraby_up_range:
+                    nearby_up_list.append(gene_locs_df.index[row_i])
+                else:
+                    range_flag = False
+                
+                if (row_i-1) >= 0:
+                    row_i-=1
+                else:
+                    range_flag = False          
+
+    return nearby_down_list, nearby_up_list
 
         
 
