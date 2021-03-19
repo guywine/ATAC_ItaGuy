@@ -56,17 +56,30 @@ Test models:
 
 
 ## to do
-- bystanders function
-
 
 - ATAC_Signal : add attribute "exp_Zscores" to each sample, not the fc!!!
-    * First FC than median
-    * maybe even zscore all before columns
+    * zscore all columns? Or does the negative screws it up?
+        * plot groups to see if normalized (highly, lowly, ...)
+
+
+    * First FC than median?
+    * why median and not sum of hot_spot?
+
+- Nearbys: What is counted as "close"?
+    * What is the score of difference?
+    * Maybe we need to score the closest 2000, then after 2000, then after... and see what is the radius of "nearby" 
+
+- Hrde-1 Nearbys: Are hrde-1 targets isolated? Because genes will escape from the "bystander zone".
 
 ** Kolmogorov-Smirnoff: aqqumulative distribution
 
 
+- change highly and lowly in hrde-1 plotting to hrde-1 highly and lowly
+
+
 ## done
+- fix bootstrap bug and look at "hrde-1 nearbys upstream"
+
 - Make it possible to remove a replicate (for all plots)
     * plot gene signal
     * plot group signal (mean_flag)
