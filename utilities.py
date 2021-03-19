@@ -268,8 +268,7 @@ def normalize_zscore_df(df: pd.DataFrame):
     df_zscore = pd.DataFrame([])
     
     for col in cols:
-        col_zscore = col + '_zscore'
-        df_zscore[col_zscore] = (df[col] - df[col].mean())/df[col].std(ddof=0)
+        df_zscore[col] = (df[col] - df[col].mean())/df[col].std(ddof=0)
     
     return df_zscore
 
@@ -542,6 +541,9 @@ def get_nearby_genes_list(wbid_list: list, nearby_d): ### later undone
     gene_locs_df = pd.read_csv('tables/gene_locs.csv', index_col='Wbid')
 
     for wbid in wbid_list:
+        if wbid not in gene_locs_df.index:
+            print(f'missing gene: {wbid}')
+            continue
         wbid_row_i = gene_locs_df.index.get_loc(wbid)
 
         if gene_locs_df.loc[wbid, 'strand']=='+':
@@ -604,7 +606,10 @@ def get_nearby_genes_list(wbid_list: list, nearby_d): ### later undone
                     range_flag = False
 
 
-    return nearby_up_list, nearby_down_list
+    nearby_up_new = intersect_lists(nearby_up_list, wbid_list, 'only first')
+    nearby_down_new = intersect_lists(nearby_down_list, wbid_list, 'only first')
+
+    return nearby_up_new, nearby_down_new
 
         
 
