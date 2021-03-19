@@ -278,12 +278,12 @@ if __name__ == "__main__":
     # add_intersect(dic_groups, 'highly 10%', 'hrde-1', inter_type='only second')
 
 
-    # ### create hrde-1 regulated list:
-    # hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
-    # hrde_FC_sig = gs.get_list('mRNA_isSig')
-    # hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
-    # hrde_up_sig = intersect_lists(hrde_FC_sig, hrde_up)
-    # hrde_regulated = intersect_lists(hrde_up_sig, hrde1_kennedy)
+    ### create hrde-1 regulated list:
+    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
+    hrde_FC_sig = gs.get_list('mRNA_isSig')
+    hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
+    hrde_up_sig = intersect_lists(hrde_FC_sig, hrde_up)
+    hrde_regulated = intersect_lists(hrde_up_sig, hrde1_kennedy)
     # df_mRNA_and_hrde1 = gs.big_table.loc[hrde_regulated,['mRNA_log2_FC','hrde-1-Kennedy']]
 
     # ### get strongest genes on both parameters
