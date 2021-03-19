@@ -138,7 +138,8 @@ def plot_groups_signals(
     bootstrap: bool = False,
     boot_size: int = 2315,
     boot_iters: int = 1000,
-    drop_rep: int = 10
+    drop_rep: int = 10,
+    zscore_signal: bool = False
 ):
     """
     Takes an experiment, a dictionary with groups, plots panel with two axes.
@@ -163,10 +164,14 @@ def plot_groups_signals(
             fig.suptitle(f"{ATAC_exp.exp_name}, Replicate {rep_i+1}, (variance between genes)", fontsize=14)
             for cond_i in [0,1]: # for each condition (sample) (get for this sample a df of means, and df of vars):
                 sample_df = ATAC_exp.exp_df.iloc[rep_i,cond_i]
+                if zscore_signal: # later
+                    sample_df = ut.normalize_zscore_df(sample_df)
                 means_df, vars_df = groups_df_mean_and_var_dfs_for_sample(sample_df, groups_dic, var_type)
 
                 if bootstrap:
-                    means_df[f'bootstrap ({boot_size} genes)'], vars_df[f'bootstrap ({boot_size} genes)'] = cas.bootstrap_atac_signal(sample_df, group_size=boot_size, num_of_iters=boot_iters) # later
+                    means_df[f'bootstrap ({boot_size} genes)'], bootstrap_var = cas.bootstrap_atac_signal(sample_df, group_size=boot_size, num_of_iters=boot_iters) # later
+                    if not isinstance(vars_df, int):
+                        vars_df[f'bootstrap ({boot_size} genes)'] = bootstrap_var
 
                 axes[cond_i].set_title(f"{ATAC_exp.condition_names[cond_i]}")
                 legend_flag = cond_i # 0 / 1 [only legend on right ax]
@@ -183,6 +188,8 @@ def plot_groups_signals(
                     print(f'dropped rep {rep_i}')
                     continue
                 sample_df = ATAC_exp.exp_df.iloc[rep_i, cond_i]
+                if zscore_signal: # later
+                    sample_df = ut.normalize_zscore_df(sample_df)
                 means_df, _ = groups_df_mean_and_var_dfs_for_sample(sample_df, groups_dic, var_type='none')
                 if bootstrap:
                     means_df[f'bootstrap ({boot_size} genes)'], _ = cas.bootstrap_atac_signal(sample_df, group_size=boot_size, num_of_iters=boot_iters) # later
@@ -199,7 +206,9 @@ def groups_df_mean_and_var_dfs_for_sample(df_sample, group_dic: dict, var_type="
     '''
     Gets a dictionary of gene groups. Gets for this sample:
     - means_df: col - group_name, row - location
-    - vars_df: col - group_name, row - location. If var_type='none', returns 0.
+    - vars_df: col - group_name, row - location. 
+    
+    If var_type 'none', returns 0.
     '''
     means_df = pd.DataFrame([])
     vars_df = pd.DataFrame([])
