@@ -30,25 +30,29 @@ if __name__=='__main__':
     # my_plots.plot_gene_atac_signal_distribution(exp1, 'oma-1')
 
     ################ hrde-1 nearbys and bootstrap
-    # hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
-    # hrde_FC_sig = gs.get_list('mRNA_isSig')
-    # hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
-    # hrde_up_sig = ut.intersect_lists(hrde_FC_sig, hrde_up)
-    # hrde_regulated = ut.intersect_lists(hrde_up_sig, hrde1_kennedy)
+    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
+    hrde_FC_sig = gs.get_list('mRNA_isSig')
+    hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
+    hrde_up_sig = ut.intersect_lists(hrde_FC_sig, hrde_up)
+    hrde_regulated = ut.intersect_lists(hrde_up_sig, hrde1_kennedy)
 
-    # hrde1_nearby_up, hrde1_nearby_down = ut.get_nearby_genes_list(hrde_regulated, 2000) # len 82, len 33
+    hrde1_nearby_up, hrde1_nearby_down = ut.get_nearby_genes_list(hrde_regulated, 2000) # len 75, len 28
 
     # dic_hrde = {'hrde-1 regulated':hrde_regulated, 'hrde-1 upstream':hrde1_nearby_up, 'hrde-1 downstream':hrde1_nearby_down}
 
     # my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde-1 upstream':hrde1_nearby_up}, mean_flag=True)
     # my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde-1 upstream':hrde1_nearby_up}, mean_flag=False, var_type='none')
 
-    # my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde-1 upstream':hrde1_nearby_up}, mean_flag=False, bootstrap=True, boot_size=75, var_type='none')
+    my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde-1 upstream':hrde1_nearby_up}, mean_flag=False, bootstrap=True, boot_size=75, var_type='none')
 
     ###### testing z-score
     my_plots.plot_groups_signals(exp1, mean_flag=False, var_type='none')
     my_plots.plot_groups_signals(exp1, mean_flag=False, var_type='none', zscore_signal=True)
 
+
+    my_plots.plot_groups_signals(exp1, groups_dic={'hrde-1 upstream':hrde1_nearby_up}, mean_flag=False, var_type='none', zscore_signal=True)
+
+    my_plots.plot_groups_signals(exp1, groups_dic={'hrde-1 upstream':hrde1_nearby_up}, mean_flag=True, var_type='std', zscore_signal=True)
 
     
 

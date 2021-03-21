@@ -57,13 +57,14 @@ Test models:
 
 ## to do
 
-- ATAC_Signal : add attribute "exp_Zscores" to each sample, not the fc!!!
-    * zscore all columns? Or does the negative screws it up?
-        * plot groups to see if normalized (highly, lowly, ...)
+- ATAC_Signal : 
+
+    * change "score" to integral of hotspot
+    * change "fold_change" to difference in integral
+    * see how it affects our known genes
 
 
     * First FC than median?
-    * why median and not sum of hot_spot?
 
 - Nearbys: What is counted as "close"?
     * What is the score of difference?
@@ -78,6 +79,9 @@ Test models:
 
 
 ## done
+* zscore all columns? Or does the negative screws it up?
+    * plot groups to see if normalized (highly, lowly, ...)
+
 - fix bootstrap bug and look at "hrde-1 nearbys upstream"
 
 - Make it possible to remove a replicate (for all plots)

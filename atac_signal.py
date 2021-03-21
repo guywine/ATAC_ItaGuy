@@ -314,8 +314,8 @@ if __name__ == "__main__":
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
 
-    if "exp_mss" not in locals():
-        exp_mss = ATAC_signal("exp_metsetset")
+    # if "exp_mss" not in locals():
+    #     exp_mss = ATAC_signal("exp_metsetset")
 
     # my_plots.plot_signal_gene(exp1, 'oma-1', var_type='std')
 
