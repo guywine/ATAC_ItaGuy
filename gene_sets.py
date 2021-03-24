@@ -89,7 +89,10 @@ class Gene_sets:
             new_col = col_orig
         
         if thresh is not None:
-            new_col = new_col[new_col > thresh]
+            if not bottom:
+                new_col = new_col[new_col > thresh]
+            else:
+                new_col = new_col[new_col < thresh]
 
         wbid_list = list(new_col.index)
 
