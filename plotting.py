@@ -58,7 +58,7 @@ def plot_fc_gene(
 def plot_fc_groups_dots(
     ATAC_exp, 
     groups_dic: dict = {},
-    mean_flag: bool = False
+    mean_flag: bool = False,
 ):
     '''
     Takes a few groups, plots a violin plot for each of them of the fc_scores.
@@ -68,7 +68,7 @@ def plot_fc_groups_dots(
     group_names = [group for group in groups_dic]
     groups_df_dic = {}
     for group in groups_dic:
-        groups_df_dic[group] = get_wbid_group_df(ATAC_exp.fc, groups_dic[group])
+        groups_df_dic[group] = ut.get_wbid_group_df(ATAC_exp.fc, groups_dic[group])
     
     if mean_flag:
         fig, ax = plt.subplots()
@@ -86,7 +86,7 @@ def plot_fc_groups_dots(
         fig.suptitle(f'FC scores of groups : exp {ATAC_exp.exp_name}', fontsize=14)
 
         for rep_i in range(reps_num):
-            axes[rep_i].set_title(f'replicate {rep_i}', fontsize=12)
+            axes[rep_i].set_title(f'replicate {rep_i+1}', fontsize=12)
 
             list_of_rep_arrays = [groups_df_dic[group][f'rep {rep_i}'] for group in groups_df_dic]
 
@@ -297,7 +297,7 @@ def group_mean_and_var_for_sample(df_sample, wbid_list, var_type="std"):
     - group_var: pd.Series, var along gene. If var_type='none', returns 0.
     """
     # take only genes that appear in the sample df:
-    df_of_genes = get_wbid_group_df(df_sample, wbid_list)
+    df_of_genes = ut.get_wbid_group_df(df_sample, wbid_list)
     group_mean = df_of_genes.mean()
     if var_type.lower() == "std":
         group_var = df_of_genes.std()
@@ -307,14 +307,6 @@ def group_mean_and_var_for_sample(df_sample, wbid_list, var_type="std"):
         group_var = 0
     
     return group_mean, group_var
-
-
-def get_wbid_group_df(df: pd.DataFrame, wbid_list: list):
-    '''
-    Creates a df of genes that appear in the data frame.
-    '''
-    intersected_list = list(set(df.index) & set(wbid_list))
-    return df.loc[intersected_list, :]
 
 
 def add_highly_lowly_to_dic(dic_groups: dict):

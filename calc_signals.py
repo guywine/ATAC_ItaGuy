@@ -7,6 +7,48 @@ Gets df of samples and can calculate:
 
 import pandas as pd
 import random
+import matplotlib.pyplot as plt
+
+def bootstrap_group_score_fc_histogram(gene_table, wbid_list, num_of_iters: int=1_000):
+    '''
+    '''
+    i_bootstrap_means, group_mean = bootstrap_group_score(gene_table, wbid_list, num_of_iters)
+
+    fig, ax = plt.subplots(1, 1)
+    ax.hist(i_bootstrap_means.iloc[:,0], bins=20, zorder=0)
+    mark_x = group_mean  ### later
+    mark_y = 5  ### later
+    hand = ax.scatter(mark_x, mark_y, c="red", marker=7, zorder=5)
+
+    plt.show()
+
+
+def bootstrap_group_score(gene_table, wbid_list, num_of_iters: int=1_000):
+    '''
+    gene_table is a one_column df - each gene has only a single value.
+    Takes a group of genes, means them - mean.
+    Takes i_iterations of groups of the same size and creates i_bootstrap_means.
+    Than returns the perectage of the original in mean within the n_bootstrap_means.
+    '''
+    intersected_list = list(set(gene_table.index) & set(wbid_list))
+    group_mean = float(gene_table.loc[intersected_list].mean(axis=0))
+
+    group_size = len(wbid_list)
+
+    i_bootstrap_means = pd.DataFrame(columns=['means'], index = [i for i in range(num_of_iters)])
+    for i in range(num_of_iters):
+        boot_group = random.sample(list(gene_table.index), group_size)
+        i_bootstrap_means.iloc[i,0] = float(gene_table.loc[boot_group].mean(axis=0))
+    
+    bigger_than = int(((i_bootstrap_means < group_mean).sum()))
+
+    perc = (bigger_than/num_of_iters)*100
+
+    print(f'bigger than {bigger_than} out of {num_of_iters} bootstrap iterations')
+
+    return i_bootstrap_means, group_mean
+
+
 
 def bootstrap_atac_signal(df_sample: pd.DataFrame, group_size: int, num_of_iters: int=1_000):
     '''
@@ -19,12 +61,13 @@ def bootstrap_atac_signal(df_sample: pd.DataFrame, group_size: int, num_of_iters
         boot_group = random.sample(list(gene_pool['genes']), group_size)
         intersected_list = list(set(df_sample.index) & set(boot_group))
 
-        df_boot_means[i] = df_sample.loc[intersected_list, :].mean(axis=axis_mean)
+        df_boot_means[i] = df_sample.loc[intersected_list, :].mean(axis=0)
     
-    boot_mean_series = df_boot_means.mean()
-    boot_std_series = df_boot_means.std()
+    boot_mean_series = df_boot_means.mean(axis=1)
+    boot_std_series = df_boot_means.std(axis=1)
     
     return boot_mean_series, boot_std_series
+
 
 
 

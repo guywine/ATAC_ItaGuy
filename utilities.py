@@ -95,6 +95,12 @@ def gene_is_in_list(wbid_list: list, gene_name: str, print_flag: bool = False):
             print("gene {gene_name} not found.")
         return False
 
+def get_wbid_group_df(df: pd.DataFrame, wbid_list: list):
+    '''
+    Creates a df of genes that appear in the data frame.
+    '''
+    intersected_list = list(set(df.index) & set(wbid_list))
+    return df.loc[intersected_list, :]
 
 def save_list_to_csv(lst: list, name: str):
     '''

@@ -56,13 +56,16 @@ Test models:
 
 
 ## to do
-- ATAC-signal + violin FC for:
-* WBGene00015351
-* WBGene00016177
-* WBGene00000224
-* WBGene00013100
-
 - median instead of means
+
+- Hrde-1 Nearbys: Are hrde-1 targets isolated? Because genes will escape from the "bystander zone".
+
+** Kolmogorov-Smirnoff: aqqumulative distribution
+
+- change highly and lowly in hrde-1 plotting to hrde-1 highly and lowly
+
+
+## done
 - for every group for which we want to show an ATAC-fold change as a group:
     - add bootstrap dotplot:
         * each iteration takes n genes and mean/median of the fc_score of all of them
@@ -70,24 +73,18 @@ Test models:
         * test - how many of these bootstrap values in this vector are more extreme than our median.
 
 
-- ATAC_Signal z-score? no
-
-Talk to hila:
-    * change "fold_change" to difference in integral
-
 - Nearbys: What is counted as "close"?
     * What is the score of difference?
     * Maybe we need to score the closest 2000, then after 2000, then after... and see what is the radius of "nearby" 
 
-- Hrde-1 Nearbys: Are hrde-1 targets isolated? Because genes will escape from the "bystander zone".
 
-** Kolmogorov-Smirnoff: aqqumulative distribution
+- ATAC-signal + violin FC for:
+* WBGene00015351
+* WBGene00016177
+* WBGene00000224
+* WBGene00013100
 
 
-- change highly and lowly in hrde-1 plotting to hrde-1 highly and lowly
-
-
-## done
 - hrde-1 nearbys:
     - get all "fc_scores" of :
         * hrde-1 regulated 
