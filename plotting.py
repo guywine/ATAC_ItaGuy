@@ -76,7 +76,7 @@ def plot_fc_groups_dots(
 
         list_of_arrays = [groups_df_dic[group].mean(axis=1) for group in groups_df_dic]
         
-        ax.violinplot(list_of_arrays)
+        ax.violinplot(list_of_arrays, showmedians=True)
 
         set_violin_axis_style(ax, group_names)
     

@@ -96,6 +96,14 @@ def gene_is_in_list(wbid_list: list, gene_name: str, print_flag: bool = False):
         return False
 
 
+def save_list_to_csv(lst: list, name: str):
+    '''
+    '''
+    list_df = pd.DataFrame({name:lst})
+    list_df.to_csv(f'tables/{name}', index=False)
+
+
+
 def print_gene_ranks_in_df(gene_df: pd.DataFrame, gene: str, print_res: bool = False):
     """"""
     gene_name = Gene_IDs().to_name(gene)

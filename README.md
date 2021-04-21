@@ -56,15 +56,24 @@ Test models:
 
 
 ## to do
+- ATAC-signal + violin FC for:
+* WBGene00015351
+* WBGene00016177
+* WBGene00000224
+* WBGene00013100
 
-- ATAC_Signal : 
+- median instead of means
+- for every group for which we want to show an ATAC-fold change as a group:
+    - add bootstrap dotplot:
+        * each iteration takes n genes and mean/median of the fc_score of all of them
+        * we plot the vector which is the size of i_iteration, each dot is a mean/median
+        * test - how many of these bootstrap values in this vector are more extreme than our median.
 
-    * change "score" to integral of hotspot
+
+- ATAC_Signal z-score? no
+
+Talk to hila:
     * change "fold_change" to difference in integral
-    * see how it affects our known genes
-
-
-    * First FC than median?
 
 - Nearbys: What is counted as "close"?
     * What is the score of difference?
@@ -79,6 +88,14 @@ Test models:
 
 
 ## done
+- hrde-1 nearbys:
+    - get all "fc_scores" of :
+        * hrde-1 regulated 
+        * hrde-1 targeted
+        * hrde-1 upstream
+        * hrde-1 downstream
+    - plot violin plot / dotplot
+
 * zscore all columns? Or does the negative screws it up?
     * plot groups to see if normalized (highly, lowly, ...)
 

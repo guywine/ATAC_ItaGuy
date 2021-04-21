@@ -26,38 +26,39 @@ if __name__=='__main__':
     if "gs" not in locals():
         gs = Gene_sets()
 
-    # if "exp1" not in locals():
-    #     exp1 = ATAC_signal("exp1")
+    if "exp1" not in locals():
+        exp1 = ATAC_signal("exp1")
 
-    # if "exp_mss" not in locals():
-    #     exp_mss = ATAC_signal("exp_metsetset")
+    if "exp_mss" not in locals():
+        exp_mss = ATAC_signal("exp_metsetset")
     
     if "exp_hrde1" not in locals():
         exp_hrde1 = ATAC_signal("exp_hrde_guy")
     
+    hrde_regulated = get_hrde_regulated()
 
     ################ hrde-1 nearbys and bootstrap
-    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
-    hrde_FC_sig = gs.get_list('mRNA_isSig')
-    hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
-    hrde_up_sig = ut.intersect_lists(hrde_FC_sig, hrde_up)
+    # hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
+    # hrde_FC_sig = gs.get_list('mRNA_isSig')
+    # hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
+    # hrde_up_sig = ut.intersect_lists(hrde_FC_sig, hrde_up)
 
-    hrde_down = gs.get_list('mRNA_log2_FC', thresh=0, bottom=True)
-    hrde_down_sig = ut.intersect_lists(hrde_FC_sig, hrde_down)
+    # hrde_down = gs.get_list('mRNA_log2_FC', thresh=0, bottom=True)
+    # hrde_down_sig = ut.intersect_lists(hrde_FC_sig, hrde_down)
 
-    hrde_regulated = ut.intersect_lists(hrde_up_sig, hrde1_kennedy)
+    # hrde_regulated = ut.intersect_lists(hrde_up_sig, hrde1_kennedy)
 
-    hrde1_nearby_up, hrde1_nearby_down = ut.get_nearby_genes_list(hrde_regulated, 2000) # len 75, len 28
+    # hrde1_nearby_up, hrde1_nearby_down = ut.get_nearby_genes_list(hrde_regulated, 2000) # len 75, len 28
 
-    hrde1_nearby_up_1200, hrde1_nearby_down_1200 = ut.get_nearby_genes_list(hrde_regulated, 1200) # len 49, len 7
+    # hrde1_nearby_up_1200, hrde1_nearby_down_1200 = ut.get_nearby_genes_list(hrde_regulated, 1200) # len 49, len 7
 
-    my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde-1 upstream':hrde1_nearby_up}, mean_flag=True)
+    # my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde-1 upstream':hrde1_nearby_up}, mean_flag=True)
 
-    hrde_dic = {'hrde1_kennedy':hrde1_kennedy, 'hrde_reg':hrde_regulated, 'hrde-1 upstream':hrde1_nearby_up, 'hrde down sig':hrde_down_sig}
+    # hrde_dic = {'hrde1_kennedy':hrde1_kennedy, 'hrde_reg':hrde_regulated, 'hrde-1 upstream':hrde1_nearby_up, 'hrde down sig':hrde_down_sig}
 
 
-    my_plots.plot_fc_groups_dots(exp_hrde1, hrde_dic, mean_flag=True)
-    my_plots.plot_fc_groups_dots(exp_hrde1, hrde_dic, mean_flag=False)
+    # my_plots.plot_fc_groups_dots(exp_hrde1, hrde_dic, mean_flag=True)
+    # my_plots.plot_fc_groups_dots(exp_hrde1, hrde_dic, mean_flag=False)
 
     # my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde-1 upstream':hrde1_nearby_up}, mean_flag=False, var_type='none')
 
