@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-import numpy as np 
+import numpy as np
 import pandas as pd
 from gene_id import Gene_IDs
 import utilities as ut
@@ -56,56 +56,61 @@ def plot_fc_gene(
 
 
 def plot_fc_groups_dots(
-    ATAC_exp, 
+    ATAC_exp,
     groups_dic: dict = {},
     mean_flag: bool = False,
 ):
-    '''
+    """
     Takes a few groups, plots a violin plot for each of them of the fc_scores.
     If mean flag: a single panel (each gene is meaned for all reps)
     If not mean flag: each rep gets its panel
-    '''
+    """
     group_names = [group for group in groups_dic]
     groups_df_dic = {}
     for group in groups_dic:
         groups_df_dic[group] = ut.get_wbid_group_df(ATAC_exp.fc, groups_dic[group])
-    
+
     if mean_flag:
         fig, ax = plt.subplots()
-        fig.suptitle(f'FC scores of groups : exp {ATAC_exp.exp_name}', fontsize=14)
+        fig.suptitle(f"FC scores of groups : exp {ATAC_exp.exp_name}", fontsize=14)
 
         list_of_arrays = [groups_df_dic[group].mean(axis=1) for group in groups_df_dic]
-        
+
         ax.violinplot(list_of_arrays, showmedians=True)
 
         set_violin_axis_style(ax, group_names)
-    
+
     else:
         reps_num = ATAC_exp.num_of_reps
-        fig, axes = plt.subplots(nrows=1, ncols=reps_num, figsize=(6*reps_num, 6), sharey=True)
-        fig.suptitle(f'FC scores of groups : exp {ATAC_exp.exp_name}', fontsize=14)
+        fig, axes = plt.subplots(
+            nrows=1, ncols=reps_num, figsize=(6 * reps_num, 6), sharey=True
+        )
+        fig.suptitle(f"FC scores of groups : exp {ATAC_exp.exp_name}", fontsize=14)
 
         for rep_i in range(reps_num):
-            axes[rep_i].set_title(f'replicate {rep_i+1}', fontsize=12)
+            axes[rep_i].set_title(f"replicate {rep_i+1}", fontsize=12)
 
-            list_of_rep_arrays = [groups_df_dic[group][f'rep {rep_i}'] for group in groups_df_dic]
+            list_of_rep_arrays = [
+                groups_df_dic[group][f"rep {rep_i}"] for group in groups_df_dic
+            ]
 
-            axes[rep_i].violinplot(list_of_rep_arrays, points=100,
-                     showextrema=True, showmedians=True)
-            
+            axes[rep_i].violinplot(
+                list_of_rep_arrays, points=100, showextrema=True, showmedians=True
+            )
+
         for ax in axes:
             set_violin_axis_style(ax, group_names)
 
     plt.show()
-    
+
 
 def set_violin_axis_style(ax, labels):
-    ax.get_xaxis().set_tick_params(direction='out')
-    ax.xaxis.set_ticks_position('bottom')
+    ax.get_xaxis().set_tick_params(direction="out")
+    ax.xaxis.set_ticks_position("bottom")
     ax.set_xticks(np.arange(1, len(labels) + 1))
-    ax.set_xticklabels(labels, rotation = 45)
+    ax.set_xticklabels(labels, rotation=45)
     ax.set_xlim(0.25, len(labels) + 0.75)
-    ax.set_xlabel('Group', fontsize=14)
+    ax.set_xlabel("Group", fontsize=14)
 
 
 def plot_signal_gene(
@@ -114,7 +119,7 @@ def plot_signal_gene(
     mean_flag: bool = True,
     var_type: str = "none",
     plot_range: tuple = (0, 0),
-    drop_rep: int = 10
+    drop_rep: int = 10,
 ):
     """
     Plots for a single gene one of two options:
@@ -156,7 +161,7 @@ def plot_signal_gene(
 
         for rep_i in range(num_reps):
             if rep_i == drop_rep:
-                print(f'dropped rep {drop_rep}')
+                print(f"dropped rep {drop_rep}")
                 continue
             gene_rep_df = pd.DataFrame([])
             gene_rep_df[ATAC_exp.condition_names[0]] = ATAC_exp.cond1[rep_i].loc[
@@ -169,9 +174,11 @@ def plot_signal_gene(
             if plot_range.count(0) != 2:  # if range was given:
                 gene_rep_df = narrow_to_range(gene_rep_df, plot_range[0], plot_range[1])
 
-            dic_of_rep_dfs[rep_i]=gene_rep_df
+            dic_of_rep_dfs[rep_i] = gene_rep_df
 
-        fig, axes = plt.subplots(1, len(dic_of_rep_dfs), figsize=(num_reps * 6, 5), sharey=True)
+        fig, axes = plt.subplots(
+            1, len(dic_of_rep_dfs), figsize=(num_reps * 6, 5), sharey=True
+        )
         ax_i = 0
         for rep_i in dic_of_rep_dfs.keys():
             axes[ax_i].set_title(f"replicate {rep_i+1}")
@@ -180,7 +187,7 @@ def plot_signal_gene(
             if ax_i == len(dic_of_rep_dfs) - 1:
                 legend_flag = True
             plot_ax(axes[ax_i], dic_of_rep_dfs[rep_i], legend_flag)
-            ax_i+=1
+            ax_i += 1
 
 
 def plot_groups_signals(
@@ -211,79 +218,107 @@ def plot_groups_signals(
         add_highly_lowly_to_dic(groups_dic)
 
     if bootstrap:
-        print(f'bootstrapping {boot_iters} iterations...')
+        print(f"bootstrapping {boot_iters} iterations...")
 
     if not mean_flag:
         for rep_i in range(ATAC_exp.num_of_reps):
             fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
-            fig.suptitle(f"{ATAC_exp.exp_name}, Replicate {rep_i+1}, (variance between genes)", fontsize=14)
-            for cond_i in [0,1]: # for each condition (sample) (get for this sample a df of means, and df of vars):
-                sample_df = ATAC_exp.exp_df.iloc[rep_i,cond_i]
-                if zscore_signal: # later
+            fig.suptitle(
+                f"{ATAC_exp.exp_name}, Replicate {rep_i+1}, (variance between genes)",
+                fontsize=14,
+            )
+            for cond_i in [
+                0,
+                1,
+            ]:  # for each condition (sample) (get for this sample a df of means, and df of vars):
+                sample_df = ATAC_exp.exp_df.iloc[rep_i, cond_i]
+                if zscore_signal:  # later
                     sample_df = ut.normalize_zscore_df(sample_df)
-                means_df, vars_df = groups_df_mean_and_var_dfs_for_sample(sample_df, groups_dic, var_type)
+                means_df, vars_df = groups_df_mean_and_var_dfs_for_sample(
+                    sample_df, groups_dic, var_type
+                )
 
                 if bootstrap:
-                    means_df[f'bootstrap ({boot_size} genes)'], bootstrap_var = cas.bootstrap_atac_signal(sample_df, group_size=boot_size, num_of_iters=boot_iters) # later
+                    (
+                        means_df[f"bootstrap ({boot_size} genes)"],
+                        bootstrap_var,
+                    ) = cas.bootstrap_atac_signal(
+                        sample_df, group_size=boot_size, num_of_iters=boot_iters
+                    )  # later
                     if not isinstance(vars_df, int):
-                        vars_df[f'bootstrap ({boot_size} genes)'] = bootstrap_var
-                
+                        vars_df[f"bootstrap ({boot_size} genes)"] = bootstrap_var
+
                 if plot_range.count(0) != 2:  # if range was given:
                     means_df = narrow_to_range(means_df, plot_range[0], plot_range[1])
                     vars_df = narrow_to_range(vars_df, plot_range[0], plot_range[1])
 
                 axes[cond_i].set_title(f"{ATAC_exp.condition_names[cond_i]}")
-                legend_flag = cond_i # 0 / 1 [only legend on right ax]
+                legend_flag = cond_i  # 0 / 1 [only legend on right ax]
                 plot_ax(axes[cond_i], means_df, vars_df, legend_flag)
 
     else:
         fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
-        fig.suptitle(f"{ATAC_exp.exp_name}, Mean of All Replicates (variance between replicates)", fontsize=14)
+        fig.suptitle(
+            f"{ATAC_exp.exp_name}, Mean of All Replicates (variance between replicates)",
+            fontsize=14,
+        )
 
-        for cond_i in [0,1]:
+        for cond_i in [0, 1]:
             means_df_list = []
             for rep_i in range(ATAC_exp.num_of_reps):
                 if rep_i == drop_rep:
-                    print(f'dropped rep {rep_i}')
+                    print(f"dropped rep {rep_i}")
                     continue
                 sample_df = ATAC_exp.exp_df.iloc[rep_i, cond_i]
-                if zscore_signal: # later
+                if zscore_signal:  # later
                     sample_df = ut.normalize_zscore_df(sample_df)
-                means_df, _ = groups_df_mean_and_var_dfs_for_sample(sample_df, groups_dic, var_type='none')
+                means_df, _ = groups_df_mean_and_var_dfs_for_sample(
+                    sample_df, groups_dic, var_type="none"
+                )
 
                 if bootstrap:
-                    means_df[f'bootstrap ({boot_size} genes)'], _ = cas.bootstrap_atac_signal(sample_df, group_size=boot_size, num_of_iters=boot_iters) # later
+                    (
+                        means_df[f"bootstrap ({boot_size} genes)"],
+                        _,
+                    ) = cas.bootstrap_atac_signal(
+                        sample_df, group_size=boot_size, num_of_iters=boot_iters
+                    )  # later
                 means_df_list.append(means_df)
-            
-            df_means_all_reps, df_vars = get_mean_variance_of_df_list(means_df_list, var_type)
+
+            df_means_all_reps, df_vars = get_mean_variance_of_df_list(
+                means_df_list, var_type
+            )
 
             if plot_range.count(0) != 2:  # if range was given:
-                df_means_all_reps = narrow_to_range(df_means_all_reps, plot_range[0], plot_range[1])
+                df_means_all_reps = narrow_to_range(
+                    df_means_all_reps, plot_range[0], plot_range[1]
+                )
                 df_vars = narrow_to_range(df_vars, plot_range[0], plot_range[1])
 
-
             axes[cond_i].set_title(f"{ATAC_exp.condition_names[cond_i]}")
-            legend_flag = cond_i # 0 / 1 [only legend on right ax]
+            legend_flag = cond_i  # 0 / 1 [only legend on right ax]
             plot_ax(axes[cond_i], df_means_all_reps, df_vars, legend_flag)
 
 
 def groups_df_mean_and_var_dfs_for_sample(df_sample, group_dic: dict, var_type="std"):
-    '''
+    """
     Gets a dictionary of gene groups. Gets for this sample:
     - means_df: col - group_name, row - location
-    - vars_df: col - group_name, row - location. 
-    
+    - vars_df: col - group_name, row - location.
+
     If var_type 'none', returns 0.
-    '''
+    """
     means_df = pd.DataFrame([])
     vars_df = pd.DataFrame([])
-    
-    for group_name in group_dic:
-        means_df[group_name], vars_df[group_name] = group_mean_and_var_for_sample(df_sample, group_dic[group_name], var_type)
 
-    if var_type=='none':
-        vars_df=0
-    
+    for group_name in group_dic:
+        means_df[group_name], vars_df[group_name] = group_mean_and_var_for_sample(
+            df_sample, group_dic[group_name], var_type
+        )
+
+    if var_type == "none":
+        vars_df = 0
+
     return means_df, vars_df
 
 
@@ -305,18 +340,19 @@ def group_mean_and_var_for_sample(df_sample, wbid_list, var_type="std"):
         group_var = df_of_genes.sem()
     elif var_type.lower() == "none":
         group_var = 0
-    
+
     return group_mean, group_var
 
 
 def add_highly_lowly_to_dic(dic_groups: dict):
-    '''
+    """
     Adds to the dic two groups: "highly expressed", "lowly expressed"
     changes inplace?
-    '''
+    """
     highly, lowly = ut.get_highly_lowly(prcnt=5)
-    dic_groups['highly expressed (top 5%}'] = highly
-    dic_groups['lowly expressed (bottom 5%}'] = lowly
+    dic_groups["highly expressed (top 5%}"] = highly
+    dic_groups["lowly expressed (bottom 5%}"] = lowly
+
 
 def narrow_to_range(df, first_row, last_row):
     """
@@ -402,19 +438,22 @@ def get_mean_variance_of_df_list(df_list: list, var_type: str = "none"):
     return df_mean_all_reps, df_variance
 
 
-
-
 def plot_gene_atac_signal_distribution(
-    ATAC_exp, gene_to_mark: str, mean_flag: bool = True, plot_type: str = 'violin', zscore: bool=False, drop_rep: int = 10
+    ATAC_exp,
+    gene_to_mark: str,
+    mean_flag: bool = True,
+    plot_type: str = "violin",
+    zscore: bool = False,
+    drop_rep: int = 10,
 ):
-    '''
+    """
     - plot_type: str ['violin' / 'hist']
-    '''
+    """
     gid = Gene_IDs()
     wbid = gid.to_wbid(gene_to_mark)
 
-    if drop_rep<10:
-        fc_df = ATAC_exp.fc.drop(f'rep {drop_rep}', axis=1)
+    if drop_rep < 10:
+        fc_df = ATAC_exp.fc.drop(f"rep {drop_rep}", axis=1)
     else:
         fc_df = ATAC_exp.fc
 
@@ -427,19 +466,31 @@ def plot_gene_atac_signal_distribution(
 
     if mean_flag:
         mean_df = pd.DataFrame({"mean_FC": df_ready.mean(axis=1)})
-        
+
         gene_mean = mean_df.loc[wbid]
         gene_std = ATAC_exp.fc.loc[wbid].std()
 
-        plot_df_cols_mark_gene(df_reps=mean_df, gene_to_mark=gene_to_mark, plot_type=plot_type, std_whiskers=gene_std)
+        plot_df_cols_mark_gene(
+            df_reps=mean_df,
+            gene_to_mark=gene_to_mark,
+            plot_type=plot_type,
+            std_whiskers=gene_std,
+        )
         ut.get_gene_rank(mean_df.iloc[:, 0], gene_to_mark)
-    
+
     else:
         print(f"gene {gene_to_mark}:")
-        plot_df_cols_mark_gene(df_reps=df_ready, gene_to_mark=gene_to_mark, plot_type=plot_type)
+        plot_df_cols_mark_gene(
+            df_reps=df_ready, gene_to_mark=gene_to_mark, plot_type=plot_type
+        )
 
 
-def plot_df_cols_mark_gene(df_reps: pd.DataFrame, gene_to_mark, plot_type: str = 'violin', std_whiskers:float=0):
+def plot_df_cols_mark_gene(
+    df_reps: pd.DataFrame,
+    gene_to_mark,
+    plot_type: str = "violin",
+    std_whiskers: float = 0,
+):
     """
     Plots histogram / violinplot for every column, marking the desired genes.
 
@@ -455,27 +506,38 @@ def plot_df_cols_mark_gene(df_reps: pd.DataFrame, gene_to_mark, plot_type: str =
     fig, axes = plt.subplots(1, num_of_reps, figsize=(num_of_reps * 5, 5))
     ax_now = axes
     for rep_i in range(num_of_reps):
-        if num_of_reps>1:
+        if num_of_reps > 1:
             ax_now = axes[rep_i]
         ax_now.set_title(f"{df_reps.columns[rep_i]}")
 
-        if plot_type=='hist':
+        if plot_type == "hist":
             ax_now.hist(df_reps.iloc[:, rep_i], bins=20, zorder=0)
             genes_x = df_reps.loc[wbid][rep_i]  ### later
             genes_y = 10  ### later
             hand = ax_now.scatter(genes_x, genes_y, c="red", marker=7, zorder=5)
 
         else:
-            if plot_type=='violin':
-                ax_now.violinplot(df_reps.iloc[:, rep_i], showextrema=False, quantiles=[0.05,0.5,0.95])
-            if plot_type=='box':
-                ax_now.boxplot(df_reps.iloc[:, rep_i], showfliers=False, whis=(5,95))
+            if plot_type == "violin":
+                ax_now.violinplot(
+                    df_reps.iloc[:, rep_i],
+                    showextrema=False,
+                    quantiles=[0.05, 0.5, 0.95],
+                )
+            if plot_type == "box":
+                ax_now.boxplot(df_reps.iloc[:, rep_i], showfliers=False, whis=(5, 95))
             genes_y = df_reps.loc[wbid][rep_i]  ### later
             genes_x = 1  ### later
-            hand = ax_now.scatter(genes_x, genes_y, c="red", marker='.', zorder=5)
+            hand = ax_now.scatter(genes_x, genes_y, c="red", marker=".", zorder=5)
 
             if std_whiskers:
-                ax_now.add_patch(Rectangle((0.95, genes_y-std_whiskers),0.1, std_whiskers*2, alpha=0.3, facecolor='purple'))
+                ax_now.add_patch(
+                    Rectangle(
+                        (0.95, genes_y - std_whiskers),
+                        0.1,
+                        std_whiskers * 2,
+                        alpha=0.3,
+                        facecolor="purple",
+                    )
+                )
 
     plt.show()
-        
