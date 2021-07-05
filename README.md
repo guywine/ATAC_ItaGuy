@@ -56,16 +56,22 @@ Test models:
 
 
 ## to do
-3.A. 'define HRDE-1 regulated group'  - scatter plot - mRNA changes in hrde-1 + marking down HRDE-1 IP known targets, defining HRDE-1 regulated
+- Normalize all
 
-- Plot, scatter: each dot is a gene
+- Recreate all graphs
+
+- 3.A. 'define HRDE-1 regulated group'  - scatter plot - mRNA changes in hrde-1 + marking down HRDE-1 IP known targets, defining HRDE-1 regulated
+
+- Hila violin plot bins of hrde-1 nearbys: 0-2500, 2500-5000...
+
+- If normaization doesn't work: Plot, scatter: each dot is a gene
     - x axis: value of hotspot in WT (*mean and median)
     - y axis: value of hotspot in hrde-1 mutant (*mean and median)
 - Color hrde-regulated genes in red (the rest in grey).
 
 
 
-- median instead of means
+- median instead of means?
 - Hrde-1 Nearbys: Are hrde-1 targets isolated? Because genes will escape from the "bystander zone".
 
 ** Kolmogorov-Smirnoff: aqqumulative distribution
