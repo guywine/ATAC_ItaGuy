@@ -82,8 +82,16 @@ def read_experiment(exp_name: str = "exp1"):
     exp_dfs_cond2 = []
     num_of_reps = len(exps_dict[exp_name][0])
     for rep_i in range(num_of_reps):
-        exp_dfs_cond1.append(read_and_format_atac_table(exps_dict[exp_name][0][rep_i]))
-        exp_dfs_cond2.append(read_and_format_atac_table(exps_dict[exp_name][1][rep_i]))
+        # now:
+        sample_df_0 = read_and_format_atac_table(exps_dict[exp_name][0][rep_i])
+        sample_0_norm = normalize_sample(sample_df_0, exp_name, rep_i, 0)
+        exp_dfs_cond1.append(sample_0_norm)
+        ## before: exp_dfs_cond1.append(read_and_format_atac_table(exps_dict[exp_name][0][rep_i]))
+
+        sample_df_1 = read_and_format_atac_table(exps_dict[exp_name][1][rep_i])
+        sample_1_norm = normalize_sample(sample_df_1, exp_name, rep_i, 1)
+        exp_dfs_cond2.append(sample_1_norm)
+        ## exp_dfs_cond2.append(read_and_format_atac_table(exps_dict[exp_name][1][rep_i]))
 
     return exp_dfs_cond1, exp_dfs_cond2
 
@@ -175,10 +183,37 @@ def index_wbid(atac_df: pd.DataFrame):
     """
     atac_df.set_index("wbid", inplace=True)
 
+def read_sam_aize_dic():
+    '''
+    Reads "all_aligned" table
+    '''
+    sam_size_dic = {}
+    sam_size_dic['exp1'] = pd.read_excel('DATA/exp1.xlsx', index_col=0)
+    sam_size_dic['exp_hrde_guy'] = pd.read_excel('DATA/exp_hrde_guy.xlsx', index_col=0)
+    sam_size_dic['exp_metsetset'] = pd.read_excel('DATA/exp_metsetset.xlsx', index_col=0)
+    return sam_size_dic
+
+def normalize_sample(sample_df, exp_name, rep_i, cond_i):
+    '''
+    '''
+    sam_size_dic = read_sam_aize_dic()
+    all_aligned_num = sam_size_dic[exp_name].iloc[rep_i, cond_i]
+    norm_sample = (sample_df/all_aligned_num)*1e6
+    return norm_sample
 
 
 if __name__ == "__main__":
     exp1_df = read_experiment_to_df()
     exp_hrde_df = read_experiment_to_df('exp_hrde_guy')
     exp_mss_df = read_experiment_to_df('exp_metsetset')
+
+    gfp0 = exp1_df.iloc[0,0]
+    sx_2 = exp_hrde_df.iloc[2,1]
+
+    # sam_size_dic = read_sam_aize_dic()
+
+    # gfp0_norm = normalize_sample(gfp0, 'exp1',0,0)
+    # sx_2_norm = normalize_sample(sx_2, 'exp_hrde_guy', 2,1)
+
+    
 
