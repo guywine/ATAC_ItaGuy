@@ -43,7 +43,7 @@ if __name__=='__main__':
     ### 15 / 151 missing
     hrde_reg_intersected = ut.intersect_lists(hrde_regulated, exp_hrde1.scores1.index)
 
-    my_plots.scatter_genes_both_conds(exp_hrde1, marked_list=hrde_reg_intersected, shown_value='score')
+    my_plots.scatter_genes_both_conds(exp_hrde1, marked_list=hrde_reg_intersected, shown_value='score', log_flag=True)
 
     
 
