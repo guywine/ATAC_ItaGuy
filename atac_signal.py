@@ -16,6 +16,10 @@ class ATAC_signal:
         self.cond1, self.cond2 = rt.read_experiment(exp_name)
         self.exp_df = rt.create_exp_df(self.cond1, self.cond2, exp_name)
 
+        self.num_of_reps = self.exp_df.shape[0]
+        self.exp_name = exp_name
+        self.condition_names = tuple(self.exp_df.columns)
+
         self.mean1, self.var1 = ut.calc_mean_variance_of_dfs(self.cond1, var_type)
         self.mean2, self.var2 = ut.calc_mean_variance_of_dfs(self.cond2, var_type)
 
@@ -26,10 +30,6 @@ class ATAC_signal:
             self.cond2
         )  # median signal of all genes, in all reps
         
-        self.num_of_reps = self.exp_df.shape[0]
-        self.exp_name = exp_name
-        self.condition_names = tuple(self.exp_df.columns)
-
         self.fc = self.generate_FC_median_df()
 
         self.gid = Gene_IDs()
@@ -48,9 +48,8 @@ class ATAC_signal:
         ----------
         - df_calc: pd.DataFrame. Row - gene. Column - rep_num. Value - as calculated.
         """
-        num_of_reps = len(df_list)
         df_calc = pd.DataFrame([])
-        for df_i in range(num_of_reps):
+        for df_i in range(self.num_of_reps):
             rep_series = self.calc_node_hotspot_of_sample(df_list[df_i], calc_type)
             df_calc[f"rep {df_i}"] = rep_series
         return df_calc
@@ -258,6 +257,25 @@ class ATAC_signal:
         
         return gene_fc_df
 
+    @property
+    def gene_sum_tables(self):
+        '''
+        Returns
+        ----------
+        - cond1_sum, cond2_sum: two tables, one for each condition. Row: gene, Column: rep_num. Value: sum of all values (-1000:1000).
+        '''
+        cond1_sum = pd.DataFrame([])
+        cond2_sum = pd.DataFrame([])
+        for rep_i in range(self.num_of_reps):
+            rep_series_1 = self.cond1[rep_i].sum(axis=1)
+            rep_series_2 = self.cond2[rep_i].sum(axis=1)
+
+            cond1_sum[f"rep {rep_i}"] = rep_series_1
+            cond2_sum[f"rep {rep_i}"] = rep_series_2
+        
+        return cond1_sum, cond2_sum
+        
+        
 
 
 def get_gene_replicates(list_of_dfs: list, gene_wbid: str):
@@ -313,6 +331,9 @@ if __name__ == "__main__":
 
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
+    
+    if "exp_hrde1" not in locals():
+        exp_hrde1 = ATAC_signal("exp_hrde_guy")
 
     # if "exp_mss" not in locals():
     #     exp_mss = ATAC_signal("exp_metsetset")
