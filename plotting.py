@@ -544,7 +544,7 @@ def plot_df_cols_mark_gene(
 
 
 def scatter_genes_both_conds(
-    ATAC_exp, marked_list: list = [], shown_value: str = "sum"
+    ATAC_exp, marked_list: list = [], shown_value: str = "sum", log_flag: bool=False
 ):
     """
     - shown_value: str ['sum' / 'score']
@@ -568,6 +568,11 @@ def scatter_genes_both_conds(
         df_reps_cond1 = ATAC_exp.scores1
         df_reps_cond2 = ATAC_exp.scores2
         suptitle = f"Gene scores, exp {ATAC_exp.exp_name}"
+    
+    if log_flag:
+        suptitle = suptitle+' (log2 scale)'
+        df_reps_cond1 = np.log2(df_reps_cond1)
+        df_reps_cond2 = np.log2(df_reps_cond2)
 
     _scatter_reps(
         ATAC_exp, suptitle, df_reps_cond1, df_reps_cond2, marked_list
@@ -575,7 +580,7 @@ def scatter_genes_both_conds(
 
 
 def _scatter_reps(
-    ATAC_exp, suptitle: str, df_reps_cond1, df_reps_cond2, marked_list: list = []
+    ATAC_exp, suptitle: str, df_reps_cond1, df_reps_cond2, marked_list: list=[]
 ):
     """
     Gets two dfs with rep value for each gene.
