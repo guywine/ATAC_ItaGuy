@@ -368,3 +368,17 @@ if __name__ == "__main__":
     #     my_plots.plot_gene_atac_signal_distribution(exp1, gene)
         # print('met;set;set mutant:')
         # plot_gene_atac_signal(exp_mss, gene)
+
+    ## hrde-1 lists:
+    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
+    hrde_FC_sig = gs.get_list('mRNA_isSig')
+    hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
+    hrde_up_sig = ut.intersect_lists(hrde_FC_sig, hrde_up)
+    hrde_down = gs.get_list('mRNA_log2_FC', thresh=0, bottom=True)
+    hrde_down_sig = ut.intersect_lists(hrde_FC_sig, hrde_down)
+    hrde_regulated = ut.intersect_lists(hrde_up_sig, hrde1_kennedy)
+
+    hrde1_nearby_up, hrde1_nearby_down = ut.get_nearby_genes_list(hrde_regulated, 2000) # len 75, len 28
+    hrde1_nearby_up_1200, hrde1_nearby_down_1200 = ut.get_nearby_genes_list(hrde_regulated, 1200) # len 49, len 7
+
+    hrde_dic = {'hrde1_kennedy':hrde1_kennedy, 'hrde_reg':hrde_regulated, 'hrde-1 upstream':hrde1_nearby_up, 'hrde down sig':hrde_down_sig}
