@@ -200,66 +200,6 @@ def add_intersect(
         del dic_groups[group1], dic_groups[group2]
 
 
-def intersect_lists(lst1, lst2, inter_type: str = "intersection"):
-    """
-    Takes two lists, returns a list of required relation.
-
-    Parameters
-    ----------
-    - lst1: list
-    - lst2: list
-    - inter_type: str. 'intersection' / 'only first' / 'only second' / 'union'
-
-    Return
-    ------
-    - list
-    """
-    assert inter_type.lower() in [
-        "intersection",
-        "only first",
-        "only second",
-        "union",
-    ], f'intersection type "{inter_type}" not recognized'
-
-    st1 = set(lst1)
-    st2 = set(lst2)
-
-    assert st1 != st2, "Lists sent to intersect contain the same set of elements"
-
-    if inter_type.lower() == "union":
-        return list(st1.union(st2))
-    else:
-        assert (
-            len(st1.intersection(st2)) != 0
-        ), "Lists sent to intersect have no intersection"
-        if inter_type.lower() == "intersection":
-            return list(st1.intersection(st2))
-        elif inter_type.lower() == "only first":
-            return list(st1.difference(st2))
-        elif inter_type.lower() == "only second":
-            return list(st2.difference(st1))
-
-def wbid_list_to_names(wbid_list: list):
-    '''
-    '''
-    gid = Gene_IDs()
-    gene_names = [gid.to_name(wbid) for wbid in wbid_list if str(gid.to_name(wbid)) != 'nan']
-    return gene_names
-
-def gene_is_in_list(wbid_list:list , gene_name:str, print_flag: bool=False):
-    '''
-    '''
-    gene_names = wbid_list_to_names(wbid_list)
-    if gene_name in gene_names:
-        if print_flag:    
-            gid = Gene_IDs()
-            wbid = gid.to_wbid(gene_name)
-            print(f'gene {wbid} found')
-        return True
-    else:
-        if print_flag:
-            print('gene {gene_name} not found.')
-        return False
 
 if __name__ == "__main__":
     if "gs" not in locals():
@@ -277,36 +217,8 @@ if __name__ == "__main__":
 
 
     # name1 = 'WBGene00268208'
-    # plot_venn_from_dic(dic_groups, list_of_names=["highly 10%", "hrde-1"])
-    # add_intersect(dic_groups, 'highly 10%', 'hrde-1', inter_type='only second')
-
 
     ### create hrde-1 regulated list:
-    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
-    hrde_FC_sig = gs.get_list('mRNA_isSig')
-    hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
-    hrde_up_sig = intersect_lists(hrde_FC_sig, hrde_up)
-    hrde_regulated = intersect_lists(hrde_up_sig, hrde1_kennedy)
-    # df_mRNA_and_hrde1 = gs.big_table.loc[hrde_regulated,['mRNA_log2_FC','hrde-1-Kennedy']]
-
-    # ### get strongest genes on both parameters
-    # hrde1_strongest = df_mRNA_and_hrde1[df_mRNA_and_hrde1['hrde-1-Kennedy']>1200]
-    # mRNA_FC_strongest = df_mRNA_and_hrde1[df_mRNA_and_hrde1['mRNA_log2_FC']>3]
-    # hrde1_top = ut.intersect_lists(list(hrde1_strongest.index), list(mRNA_FC_strongest.index))
-    # hrde1_top_names = ut.list_to_name(hrde1_top)
-
-    # ### 
-
-    # hrde1_top_germ_under5 = ut.intersect_lists(germline_under5, hrde1_top)
-
-
-
-    
-
-    # import utilities as ut 
-    # ut.print_gene_ranks_in_df(df_mRNA_and_hrde1, 'oma-1', print_res=True)
-
-
 
     
 
