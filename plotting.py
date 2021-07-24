@@ -2,10 +2,12 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
+import seaborn as sns
+
 from gene_id import Gene_IDs
 import utilities as ut
-import seaborn as sns
 import calc_signals as cas
+from mRNA_gonads import Table_mRNA
 
 
 def plot_fc_gene(
@@ -547,13 +549,19 @@ def scatter_genes_both_conds(
     ATAC_exp, marked_list: list = [], shown_value: str = "sum", log_flag: bool=False
 ):
     """
-    - shown_value: str ['sum' / 'score']
+    Uses helper function: "_scatter_reps"
+
+    
     Plots a panel with scatter for each rep:
     - Each dot is a gene.
     - X: sum in cond1
     - Y: sum in cond2
 
-    If marked_list given, all the genes in list are colored in red.
+    Parameters:
+    ------------
+    - ATAC_exp: ATAC_signal. 
+    - marked_list: list of genes to color in scatter.
+    - shown_value: str ['sum' / 'score']
     """
     if not set(marked_list).issubset(ATAC_exp.scores1.index):
         raise KeyError(
@@ -571,16 +579,67 @@ def scatter_genes_both_conds(
     
     if log_flag:
         suptitle = suptitle+' (log2 scale)'
+        df_reps_cond1 += 1e-7 # later
+        df_reps_cond2 += 1e-7 # later
         df_reps_cond1 = np.log2(df_reps_cond1)
         df_reps_cond2 = np.log2(df_reps_cond2)
 
+    cond1_name = ATAC_exp.condition_names[0]
+    cond2_name = ATAC_exp.condition_names[1]
+
     _scatter_reps(
-        ATAC_exp, suptitle, df_reps_cond1, df_reps_cond2, marked_list
+        cond1_name, cond2_name, suptitle, df_reps_cond1, df_reps_cond2, marked_list
     )
 
 
+def scatter_mRNA_both_conds(marked_list:list=[], log_flag: bool=False, mean_flag: bool=False):
+    '''
+    Uses helper function: "_scatter_reps"
+
+    
+    Plots a panel with scatter for each rep:
+    - Each dot is a gene
+    - X: mRNA in hrde-1;SX mutant
+    - Y: mRNA in SX (WT-like)
+
+    Parameters:
+    ------------
+    - ATAC_exp: ATAC_signal. 
+    - marked_list: list of genes to color in scatter.
+    '''
+    m = Table_mRNA()
+
+    if not set(marked_list).issubset(m.table.index):
+        raise KeyError(
+            'some of the genes in the "marked" list were not found in the mRNA tables'
+        )
+    
+    cond1_name = 'hrde-1;SX (Mutant)'
+    cond2_name = 'SX (WT-like)'
+    suptitle = 'mRNA values in Gonads'
+
+    if mean_flag:
+        df_hrde1 = pd.DataFrame({'hrde-1 mean':m.mRNA['hrde-1 mean']})
+        df_sx = pd.DataFrame({'sx mean':m.mRNA['sx mean']})
+    else:
+        df_hrde1 = m.table.iloc[:,0:3]
+        df_sx = m.table.iloc[:,3:6]
+    
+    if log_flag:
+        suptitle = suptitle+' (log2 scale)'
+        df_hrde1 += 1e-5 # later
+        df_sx += 1e-5 # later
+        df_hrde1 = np.log2(df_hrde1)
+        df_sx = np.log2(df_sx)
+
+    _scatter_reps(
+        cond1_name, cond2_name, suptitle, df_hrde1, df_sx, marked_list
+    )
+    
+
+    
 def _scatter_reps(
-    ATAC_exp, suptitle: str, df_reps_cond1, df_reps_cond2, marked_list: list=[]
+    cond1_name: str, cond2_name: str, suptitle: str, df_reps_cond1, df_reps_cond2, marked_list: list=[]
 ):
     """
     Gets two dfs with rep value for each gene.
@@ -598,21 +657,23 @@ def _scatter_reps(
 
     # titles and labels:
     fig.suptitle(suptitle, fontsize=16)
-    fig.text(0.5, 0.04, f"{ATAC_exp.condition_names[0]}", ha="center")
-    axes[0].set_ylabel(f"{ATAC_exp.condition_names[1]}")
-
-    for rep_i in range(ATAC_exp.num_of_reps):
-        ax_now = axes[rep_i]
+    fig.text(0.5, 0.04, f"{cond1_name}", ha="center")
+    
+    ax_now = axes
+    for rep_i in range(num_of_reps):
+        if num_of_reps > 1:
+            ax_now = axes[rep_i]
         ax_now.set_title(f"{df_reps_cond1.columns[rep_i]}")
+        if rep_i==0:
+            ax_now.set_ylabel(f"{cond2_name}")
 
         genes_x = df_reps_cond1.iloc[:, rep_i]
         genes_y = df_reps_cond2.iloc[:, rep_i]
         ax_now.scatter(genes_x, genes_y, s=2, c="cornflowerblue")
 
         if marked_list:  # if list not empty
-
-            marked_xs = df_reps_cond1.loc[marked_list, f"rep {rep_i}"]
-            marked_ys = df_reps_cond2.loc[marked_list, f"rep {rep_i}"]
+            marked_xs = df_reps_cond1.loc[marked_list, df_reps_cond1.columns[rep_i]]
+            marked_ys = df_reps_cond2.loc[marked_list, df_reps_cond2.columns[rep_i]]
             ax_now.scatter(marked_xs, marked_ys, s=5, c="r")
 
     plt.show()
