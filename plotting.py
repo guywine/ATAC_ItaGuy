@@ -196,7 +196,7 @@ def plot_groups_signals(
     ATAC_exp,
     groups_dic: dict = {},
     mean_flag: bool = False,
-    var_type: str = "std",
+    var_type: str = "none",
     add_highly_lowly: bool = True,
     bootstrap: bool = False,
     boot_size: int = 2315,
@@ -302,7 +302,7 @@ def plot_groups_signals(
             plot_ax(axes[cond_i], df_means_all_reps, df_vars, legend_flag)
 
 
-def groups_df_mean_and_var_dfs_for_sample(df_sample, group_dic: dict, var_type="std"):
+def groups_df_mean_and_var_dfs_for_sample(df_sample, group_dic: dict, var_type="none"):
     """
     Gets a dictionary of gene groups. Gets for this sample:
     - means_df: col - group_name, row - location
@@ -324,7 +324,7 @@ def groups_df_mean_and_var_dfs_for_sample(df_sample, group_dic: dict, var_type="
     return means_df, vars_df
 
 
-def group_mean_and_var_for_sample(df_sample, wbid_list, var_type="std"):
+def group_mean_and_var_for_sample(df_sample, wbid_list, var_type="none"):
     """
     Gets a list of genes, and a df sample, returns the means and vars.
 
@@ -449,7 +449,16 @@ def plot_gene_atac_signal_distribution(
     drop_rep: int = 10,
 ):
     """
+    Plots distribution of FC_score for all genes. 
+    Uses the exp.fc of the object.
+
+    Plots quantiles: 5%, 50%, 95%.
+
+    If mean_flag, plots std of repeats.
+    
     - plot_type: str ['violin' / 'hist']
+
+    
     """
     gid = Gene_IDs()
     wbid = gid.to_wbid(gene_to_mark)
@@ -463,8 +472,6 @@ def plot_gene_atac_signal_distribution(
         df_ready = ut.normalize_zscore_df(fc_df)
     else:
         df_ready = fc_df
-
-    # df_ready = ATAC_exp.fc
 
     if mean_flag:
         mean_df = pd.DataFrame({"mean_FC": df_ready.mean(axis=1)})
