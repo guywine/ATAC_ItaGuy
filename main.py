@@ -6,25 +6,26 @@ import utilities as ut
 from atac_signal import ATAC_signal
 from gene_sets import Gene_sets
 import calc_signals as cas
+from mRNA_gonads import Table_mRNA
 
-def where_are_the_mutation():
-    david_df = pd.read_csv('tables/MutAccum_Number_Mutations_per_Gene.csv')
-    david_list = list(david_df['Gene'])
-    dic_david = {"David's mutated genes":david_list}
-    my_plots.plot_groups_signals(exp1, dic_david, mean_flag=True, bootstrap=True, boot_size=len(david_list), boot_iters=2000)
 
-def get_hrde_regulated():
-    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
-    hrde_FC_sig = gs.get_list('mRNA_isSig')
-    hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
-    hrde_up_sig = ut.intersect_lists(hrde_FC_sig, hrde_up)
-    hrde_regulated = ut.intersect_lists(hrde_up_sig, hrde1_kennedy)
-    return hrde_regulated
+def analyze_single_gene(ATAC_exp, gene_name: str, plot_range=(-1000,1000)):
+    '''
+    Plots both signal of gene and FC distribution.
+    Both seperately and meaned reps.
+    '''
+    print(f'Analyze gene {gene_name} for experiment {ATAC_exp.exp_name}')
+    my_plots.plot_signal_gene(ATAC_exp, gene_name, mean_flag=False, var_type='none', plot_range=plot_range)
+    my_plots.plot_signal_gene(ATAC_exp, gene_name, mean_flag=True, var_type='sem', plot_range=plot_range)
+    my_plots.plot_gene_atac_signal_distribution(ATAC_exp, gene_name, mean_flag=False, plot_type='violin') 
+    my_plots.plot_gene_atac_signal_distribution(ATAC_exp, gene_name, mean_flag=True, plot_type='violin')
+
 
 
 if __name__=='__main__':
     oma_wbid = 'WBGene00003864'
     gid = Gene_IDs()
+    m = Table_mRNA()
 
     if "gs" not in locals():
         gs = Gene_sets()
@@ -32,20 +33,181 @@ if __name__=='__main__':
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
 
-    # if "exp_mss" not in locals():
-    #     exp_mss = ATAC_signal("exp_metsetset")
+    if "exp_mss" not in locals():
+        exp_mss = ATAC_signal("exp_metsetset")
     
     if "exp_hrde1" not in locals():
         exp_hrde1 = ATAC_signal("exp_hrde_guy")
     
-    hrde_regulated = get_hrde_regulated()
+    
+    #### get hrde-1 lists
+    hrde1_regulated = ut.get_hrde_regulated(gs)
+    hrde1_reg_intersected = ut.intersect_lists(hrde_regulated, exp1.scores1.index) # later: 15 / 151 missing
 
-    ### 15 / 151 missing
-    hrde_reg_intersected = ut.intersect_lists(hrde_regulated, exp_hrde1.scores1.index)
+    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
+    hrde1_kennedy_intersected = ut.intersect_lists(hrde1_kennedy, exp1.fc.index) # later: 68 / 1527 missing
+    hrde1_kennedy_mRNA_intersected = ut.intersect_lists(hrde1_kennedy, m.table.index) # later: 47 / 1527 missing
 
+    ### check the missing genes
+    # hrde1_kennedy_missing = ut.intersect_lists(hrde1_kennedy, exp1.scores1.index, 'only first')
+    # x = pd.DataFrame({'missing hrde1-Kennedy genes:' : hrde1_kennedy_missing})
+    # x.to_csv('missing hrde1 genes', index=False)
+
+
+    #### verify normalization ######
+    my_plots.plot_groups_signals(exp1)
+    my_plots.plot_groups_signals(exp_mss)
+    my_plots.plot_groups_signals(exp_hrde1)
+
+
+    #### 1.A - Signal along GFP gene in exp1: [# later - rep1 is problematic]
+    print('1.A')
+    analyze_single_gene(exp1, 'GFP', plot_range=(-1000,700)) # later - ranks changed
+
+    #### 1.B - Signal along oma-1 gene in exp1: [# later - rep0 is problematic]
+    print('1.B')
+    analyze_single_gene(exp1, 'oma-1', plot_range=(-1000,700)) # later - ranks changed
+
+    #### 1.c [Sup.] - Variability across gene location
+    print('1.C - construction')
+
+
+    #### 2.A - Signal along GFP gene in exp_mss:
+    print('2.A')
+
+    #### 2.B - Signal along oma-1 gene in exp_mss:
+    print('2.B')
+
+    #### 2.C - 2.C. (sup ?? ) ATAC signal of H3K9 target groups WT versus met set set (H3K9//mRNA changing)
+    print('2.C - construction')
+
+
+    #### 3.A - 'define HRDE-1 regulated group'  - scatter plot
+    print('3.A - not done')
     my_plots.scatter_genes_both_conds(exp_hrde1, marked_list=hrde_reg_intersected, shown_value='score', log_flag=True)
+    my_plots.scatter_mRNA_both_conds(log_flag=True, marked_list=hrde1_kennedy_intersected)
+
+
+    #### 3.B - HRDE-1 regulated targets get open:
+    print('3.B')
+    hrde1_dic = {'hrde1 kennedy':hrde1_kennedy, 'hrde1 regulated':hrde_regulated}
+    my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde1 kennedy':hrde1_kennedy})
+    my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde1 kennedy':hrde1_kennedy}, mean_flag=True, var_type='sem')
+
+
+    ## bootstrap - Mean FC score of the hrde-1 kennedy group (FC = SX / hrde-1)
+    print('exp hrde1 - hrde kennedy')
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,0], hrde1_kennedy) # later - WTF???
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,1], hrde1_kennedy) # later - WTF???
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,2], hrde1_kennedy) # later - correct!
+    print('exp hrde1 - hrde kennedy mean')
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.mean(axis=1), hrde1_kennedy) # later - opposite!
+
+    ## bootstrap - Mean FC score of the hrde-1 regulated group (FC = SX / hrde-1)
+    print('exp hrde1 - hrde regulated')
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,0], hrde_regulated) # ok
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,1], hrde_regulated) # ok
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,2], hrde_regulated) # ok
+    print('exp hrde1 - hrde regulated mean')
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.mean(axis=1), hrde_regulated) # done
+
+
+    ## bootstrap - negative control (wrong experiment) ### later - all wrong
+    print('exp1 - hrde kennedy')
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,0], hrde1_kennedy)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,1], hrde1_kennedy)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,2], hrde1_kennedy)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,3], hrde1_kennedy)
+    print('exp1 - hrde kennedy mean')
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.mean(axis=1), hrde1_kennedy)
+
+    print('exp1 - hrde regulated')
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,0], hrde_regulated)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,1], hrde_regulated)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,2], hrde_regulated)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,3], hrde_regulated)
+    print('exp1 - hrde regulated mean')
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.mean(axis=1), hrde_regulated)
+
+
+    ####################################################
+    ############   4. by standers   ####################
+    ####################################################
+    
+    #### 4.A - Proximity
+    print('\n\n\............n\n\n')
+    print('4.A - Proximity')
+
+    ### C09G9.5
+    analyze_single_gene(exp1, 'C09G9.5')
+    analyze_single_gene(exp_mss, 'C09G9.5')
+
+    ### spr-2
+    analyze_single_gene(exp1, 'spr-2')
+    analyze_single_gene(exp_mss, 'spr-2')
+
+    ### F14E5.8
+    analyze_single_gene(exp1, 'F14E5.8')
+    analyze_single_gene(exp_mss, 'F14E5.8')
+
+    ### F14E5.7
+    analyze_single_gene(exp1, 'F14E5.7')
+    analyze_single_gene(exp_mss, 'F14E5.7')
+
+    ### F14E5.1
+    analyze_single_gene(exp1, 'F14E5.1')
+    analyze_single_gene(exp_mss, 'F14E5.1')
+
+    ### efl-3
+    analyze_single_gene(exp1, 'efl-3')
+    analyze_single_gene(exp_mss, 'efl-3')
+
+    ### unc-119
+    analyze_single_gene(exp1, 'unc-119')
+    analyze_single_gene(exp_mss, 'unc-119')
+
+    ### rad-26
+    analyze_single_gene(exp1, 'rad-26')
+    analyze_single_gene(exp_mss, 'rad-26')
+
+    ### C27B7.2
+    analyze_single_gene(exp1, 'C27B7.2')
+    analyze_single_gene(exp_mss, 'C27B7.2')
+
+    ### npax-4
+    analyze_single_gene(exp1, 'npax-4')
+    analyze_single_gene(exp_mss, 'npax-4')
+    
+    ### C09G9.8
+    analyze_single_gene(exp1, 'C09G9.8')
+    analyze_single_gene(exp_mss, 'C09G9.8')
+
+
+    #### 4.B - Sequence similarity
+    print('\n\n\............n\n\n')
+    print('4.B')
+
+    ### oma-2
+    analyze_single_gene(exp1, 'oma-2') # later: rep-0 is a problem
+    analyze_single_gene(exp_mss, 'oma-2') 
+
+
+
+
+    #### 4.D - hrde-1 by-standers
+
+
+
+
+
 
     
+
+
+
+
+
+
 
     
 
