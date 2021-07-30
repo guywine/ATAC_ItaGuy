@@ -9,22 +9,26 @@
 
 
 
-
-
-
 Test models:
 - Can we predict "strange genes" from one of the features?
 
 
 
 ## to do
-- Normalize all
+- missing genes in hrde-1 lists: send Hila the missing genes
+- add_to_avoid_zero : look at distribution, add lowest value
 
-- Recreate all graphs
+- Normalization:
+    - send hila of all_aligned to see if I messed up
+    - Check for mistakes
 
-- 3.A. 'define HRDE-1 regulated group'  - scatter plot - mRNA changes in hrde-1 + marking down HRDE-1 IP known targets, defining HRDE-1 regulated
+- Graph that shows that the least variable is the hotspot (most conserved)
 
-- Hila violin plot bins of hrde-1 nearbys: 0-2500, 2500-5000...
+- nearbys: all values are fold-change (groups that add + groups segregated [0-2500, 2500-5000])
+    - violin plot of every group
+    +
+    - bootstrap of mean for every group
+
 
 - If normaization doesn't work: Plot, scatter: each dot is a gene
     - x axis: value of hotspot in WT (*mean and median)
@@ -87,3 +91,7 @@ Test models:
 - test functions of fold-change and signal calculating (spr-2 fold change)
 - Add possibility to plot only between range
 - plot lines of groups of genes (default = highly + lowly)
+
+
+
+** to think about **
