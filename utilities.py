@@ -9,6 +9,14 @@ from mRNA_gonads import Table_mRNA
 from Ahringer import Ahringer
 # from atac_signal import ATAC_signal
 
+def get_hrde_regulated(gs):
+    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
+    hrde_FC_sig = gs.get_list('mRNA_isSig')
+    hrde_up = gs.get_list('mRNA_log2_FC', thresh=0)
+    hrde_up_sig = intersect_lists(hrde_FC_sig, hrde_up)
+    hrde_regulated = intersect_lists(hrde_up_sig, hrde1_kennedy)
+    return hrde_regulated
+
 
 def plot_ven(list_of_sets: list, list_of_names: list):
     """
@@ -285,6 +293,13 @@ def normalize_zscore_df(df: pd.DataFrame):
         df_zscore[col] = (df[col] - df[col].mean())/df[col].std(ddof=0)
     
     return df_zscore
+
+
+def where_are_the_mutation():
+    david_df = pd.read_csv('tables/MutAccum_Number_Mutations_per_Gene.csv')
+    david_list = list(david_df['Gene'])
+    dic_david = {"David's mutated genes":david_list}
+    my_plots.plot_groups_signals(exp1, dic_david, mean_flag=True, bootstrap=True, boot_size=len(david_list), boot_iters=2000)
 
 
 def protein_coding_only(df: pd.DataFrame):
