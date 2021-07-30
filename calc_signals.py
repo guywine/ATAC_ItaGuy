@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 def bootstrap_group_score_fc_histogram(gene_table, wbid_list, num_of_iters: int=1_000):
     '''
+    - gene_table: one_column df - each gene has only a single value.
     '''
     i_bootstrap_means, group_mean = bootstrap_group_score(gene_table, wbid_list, num_of_iters)
 
@@ -25,10 +26,20 @@ def bootstrap_group_score_fc_histogram(gene_table, wbid_list, num_of_iters: int=
 
 def bootstrap_group_score(gene_table, wbid_list, num_of_iters: int=1_000):
     '''
-    gene_table is a one_column df - each gene has only a single value.
-    Takes a group of genes, means them - mean.
-    Takes i_iterations of groups of the same size and creates i_bootstrap_means.
-    Than returns the perectage of the original in mean within the n_bootstrap_means.
+    Takes a group of specified genes, means them.
+    Creates many means of groups with same size as original.
+
+    Parameters
+    -------
+    - gene_table: one_column df - each gene has only a single value.
+    - wbid_list: list of wbids.
+    - num_of_iters: default 1,000.
+    
+
+    Returns
+    ----------
+    - i_bootstrap_means: pd.DF. i_iterations of groups of the same size
+    - n_bootstrap_means: float. Perectage of the original mean within the bootstrap means.
     '''
     intersected_list = list(set(gene_table.index) & set(wbid_list))
     group_mean = float(gene_table.loc[intersected_list].mean(axis=0))
