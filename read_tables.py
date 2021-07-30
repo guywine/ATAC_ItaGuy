@@ -123,8 +123,8 @@ def create_exp_df(exp_dfs_cond1: list, exp_dfs_cond2: list, exp_name: str):
 def read_and_format_atac_table(f_name: Union[pathlib.Path, str]):
     """
     Reads table of a single sample from file (if exists)
-    Removes un needed columns
-    Sets wbid as index
+    Removes un needed columns.
+    Sets wbid as index. [Removes rows with NaN in wbid]
 
     Return
     ---------
@@ -203,12 +203,15 @@ def normalize_sample(sample_df, exp_name, rep_i, cond_i):
 
 
 if __name__ == "__main__":
-    exp1_df = read_experiment_to_df()
-    exp_hrde_df = read_experiment_to_df('exp_hrde_guy')
-    exp_mss_df = read_experiment_to_df('exp_metsetset')
+    f_name = "DATA/exp1/ATAC_R0-iGFP.csv.gz"
+    atac_table_initial = read_atac_table(f_name)
+    
+    # exp1_df = read_experiment_to_df()
+    # exp_hrde_df = read_experiment_to_df('exp_hrde_guy')
+    # exp_mss_df = read_experiment_to_df('exp_metsetset')
 
-    gfp0 = exp1_df.iloc[0,0]
-    sx_2 = exp_hrde_df.iloc[2,1]
+    # gfp0 = exp1_df.iloc[0,0]
+    # sx_2 = exp_hrde_df.iloc[2,1]
 
     # sam_size_dic = read_sam_aize_dic()
 
