@@ -135,6 +135,10 @@ def read_and_format_atac_table(f_name: Union[pathlib.Path, str]):
     drop_unneeded_columns(atac_table)
     atac_table.dropna(subset=["wbid"], inplace=True)
     index_wbid(atac_table)
+
+    ## add_to_avoid_zero
+    atac_table += 0.5
+
     return atac_table
 
 
@@ -204,7 +208,7 @@ def normalize_sample(sample_df, exp_name, rep_i, cond_i):
 
 if __name__ == "__main__":
     f_name = "DATA/exp1/ATAC_R0-iGFP.csv.gz"
-    atac_table_initial = read_atac_table(f_name)
+    # atac_table_initial = read_atac_table(f_name)
     
     # exp1_df = read_experiment_to_df()
     # exp_hrde_df = read_experiment_to_df('exp_hrde_guy')
