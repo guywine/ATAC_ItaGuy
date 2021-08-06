@@ -1,4 +1,5 @@
 import pandas as pd 
+import random
 
 from gene_id import Gene_IDs
 import plotting as my_plots
@@ -21,7 +22,6 @@ def analyze_single_gene(ATAC_exp, gene_name: str, plot_range=(-1000,1000)):
     my_plots.plot_gene_atac_signal_distribution(ATAC_exp, gene_name, mean_flag=True, plot_type='violin')
 
 
-
 if __name__=='__main__':
     oma_wbid = 'WBGene00003864'
     gid = Gene_IDs()
@@ -42,7 +42,7 @@ if __name__=='__main__':
     
     #### get hrde-1 lists
     hrde1_regulated = ut.get_hrde_regulated(gs)
-    hrde1_reg_intersected = ut.intersect_lists(hrde_regulated, exp1.scores1.index) # later: 15 / 151 missing
+    hrde1_reg_intersected = ut.intersect_lists(hrde1_regulated, exp1.scores1.index) # later: 15 / 151 missing
 
     hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
     hrde1_kennedy_intersected = ut.intersect_lists(hrde1_kennedy, exp1.fc.index) # later: 68 / 1527 missing
@@ -74,9 +74,11 @@ if __name__=='__main__':
 
     #### 2.A - Signal along GFP gene in exp_mss:
     print('2.A')
+    analyze_single_gene(exp_mss, 'GFP', plot_range=(-1000,700))
 
     #### 2.B - Signal along oma-1 gene in exp_mss:
     print('2.B')
+    analyze_single_gene(exp_mss, 'oma-1', plot_range=(-1000,700))
 
     #### 2.C - 2.C. (sup ?? ) ATAC signal of H3K9 target groups WT versus met set set (H3K9//mRNA changing)
     print('2.C - construction')
@@ -84,20 +86,25 @@ if __name__=='__main__':
 
     #### 3.A - 'define HRDE-1 regulated group'  - scatter plot
     print('3.A - not done')
-    my_plots.scatter_genes_both_conds(exp_hrde1, marked_list=hrde_reg_intersected, shown_value='score', log_flag=True)
+    my_plots.scatter_genes_both_conds(exp_hrde1, marked_list=hrde1_reg_intersected, shown_value='score', log_flag=True)
     my_plots.scatter_mRNA_both_conds(log_flag=True, marked_list=hrde1_kennedy_intersected)
+    my_plots.scatter_mRNA_both_conds(log_flag=True, marked_list=hrde1_reg_intersected)
+
+    my_plots.scatter_genes_both_conds(exp1, marked_list=hrde1_reg_intersected, shown_value='score', log_flag=True)
+    my_plots.scatter_genes_both_conds(exp1, marked_list=hrde1_kennedy_intersected, shown_value='score', log_flag=True)
+
 
 
     #### 3.B - HRDE-1 regulated targets get open:
     print('3.B')
-    hrde1_dic = {'hrde1 kennedy':hrde1_kennedy, 'hrde1 regulated':hrde_regulated}
+    hrde1_dic = {'hrde1 kennedy':hrde1_kennedy, 'hrde1 regulated':hrde1_regulated}
     my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde1 kennedy':hrde1_kennedy})
     my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde1 kennedy':hrde1_kennedy}, mean_flag=True, var_type='sem')
 
 
     ## bootstrap - Mean FC score of the hrde-1 kennedy group (FC = SX / hrde-1)
     print('exp hrde1 - hrde kennedy')
-    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,0], hrde1_kennedy) # later - WTF???
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,0], hrde1_kennedy) # later - WTF??? Some biological thing
     cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,1], hrde1_kennedy) # later - WTF???
     cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,2], hrde1_kennedy) # later - correct!
     print('exp hrde1 - hrde kennedy mean')
@@ -105,11 +112,11 @@ if __name__=='__main__':
 
     ## bootstrap - Mean FC score of the hrde-1 regulated group (FC = SX / hrde-1)
     print('exp hrde1 - hrde regulated')
-    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,0], hrde_regulated) # ok
-    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,1], hrde_regulated) # ok
-    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,2], hrde_regulated) # ok
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,0], hrde1_regulated) # ok
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,1], hrde1_regulated) # ok
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,2], hrde1_regulated) # ok
     print('exp hrde1 - hrde regulated mean')
-    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.mean(axis=1), hrde_regulated) # done
+    cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.mean(axis=1), hrde1_regulated) # done
 
 
     ## bootstrap - negative control (wrong experiment) ### later - all wrong
@@ -121,13 +128,18 @@ if __name__=='__main__':
     print('exp1 - hrde kennedy mean')
     cas.bootstrap_group_score_fc_histogram(exp1.fc.mean(axis=1), hrde1_kennedy)
 
+    wbid_list = list(exp1.fc.index)
+    rand_genes_1500 = random.sample(wbid_list, 1500)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.mean(axis=1), rand_genes_1500)
+
+
     print('exp1 - hrde regulated')
-    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,0], hrde_regulated)
-    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,1], hrde_regulated)
-    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,2], hrde_regulated)
-    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,3], hrde_regulated)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,0], hrde1_regulated)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,1], hrde1_regulated)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,2], hrde1_regulated)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.iloc[:,3], hrde1_regulated)
     print('exp1 - hrde regulated mean')
-    cas.bootstrap_group_score_fc_histogram(exp1.fc.mean(axis=1), hrde_regulated)
+    cas.bootstrap_group_score_fc_histogram(exp1.fc.mean(axis=1), hrde1_regulated)
 
 
     ####################################################
