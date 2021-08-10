@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2, venn3
 from sklearn import preprocessing
+import random
 
 from gene_id import Gene_IDs
 from gene_sets import Gene_sets
@@ -691,7 +692,3 @@ def get_nearby_genes_list(wbid_list: list, nearby_d): ### later undone
     nearby_down_new = intersect_lists(nearby_down_list, wbid_list, 'only first')
 
     return nearby_up_new, nearby_down_new
-
-        
-
-
