@@ -8,7 +8,7 @@ class Table_mRNA():
         self.table = self._read_table()
         self.mRNA = self._create_mean_ranks()
         self.mean_exp = self.mRNA.loc[:,'sx mean']
-        self.fc = self._create_FC()
+        self.fc = self._create_FC() # hrde-1 / SX
     
     def _read_table(self):
         mRNA_table = '/Users/guyweintraub/Desktop/Google Drive/Rechavi Lab/Project ATAC/hrde-1/hrde1_mRNA/mRNA_rpm.csv'
