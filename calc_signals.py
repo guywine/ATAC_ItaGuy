@@ -14,7 +14,7 @@ def bootstrap_group_score_fc_histogram(gene_table, wbid_list, num_of_iters: int=
     '''
     - gene_table: one_column df - each gene has only a single value.
     '''
-    i_bootstrap_means, group_mean = ut.ootstrap_group_score(gene_table, wbid_list, num_of_iters)
+    i_bootstrap_means, group_mean = ut.bootstrap_group_score(gene_table, wbid_list, num_of_iters)
 
     fig, ax = plt.subplots(1, 1)
     ax.hist(i_bootstrap_means.iloc[:,0], bins=20, zorder=0)
@@ -23,8 +23,6 @@ def bootstrap_group_score_fc_histogram(gene_table, wbid_list, num_of_iters: int=
     hand = ax.scatter(mark_x, mark_y, c="red", marker=7, zorder=5)
 
     plt.show()
-
-
 
 
 
