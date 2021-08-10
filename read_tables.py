@@ -12,9 +12,6 @@ def read_experiment_to_df(exp_name: str = "exp1"):
     '''
     exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name)
     exp_df = create_exp_df(exp_dfs_cond1, exp_dfs_cond2, exp_name)
-    
-    ### add to avoid zero:
-    exp_add_to_avoid_zero(exp_df)
 
     return exp_df
 
@@ -120,6 +117,9 @@ def create_exp_df(exp_dfs_cond1: list, exp_dfs_cond2: list, exp_name: str):
 
     exp_df.rename(columns=conds, inplace=True)
     exp_df.index.name = "rep"
+
+    ### add to avoid zero:
+    exp_add_to_avoid_zero(exp_df)
 
     return exp_df
 
