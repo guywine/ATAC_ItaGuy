@@ -7,37 +7,6 @@
 ** To test the range: it can be interesting to plot a correlation between the range of 500:100 to a range of 150-450 for instance. 
 ** To test the normalization: plot a correlation between results with and without normalization
 
-
-
-Test models:
-- Can we predict "strange genes" from one of the features?
-
-
-
-## to do
-- missing genes in hrde-1 lists: send Hila the missing genes
-- add_to_avoid_zero : look at distribution, add lowest value
-
-- Normalization:
-    - send hila of all_aligned to see if I messed up
-    - Check for mistakes
-
-- Graph that shows that the least variable is the hotspot (most conserved)
-
-- nearbys: all values are fold-change (groups that add + groups segregated [0-2500, 2500-5000])
-    - violin plot of every group
-    +
-    - bootstrap of mean for every group
-
-
-- If normaization doesn't work: Plot, scatter: each dot is a gene
-    - x axis: value of hotspot in WT (*mean and median)
-    - y axis: value of hotspot in hrde-1 mutant (*mean and median)
-- Color hrde-regulated genes in red (the rest in grey).
-
-
-
-- median instead of means?
 - Hrde-1 Nearbys: Are hrde-1 targets isolated? Because genes will escape from the "bystander zone".
 
 ** Kolmogorov-Smirnoff: aqqumulative distribution
@@ -47,7 +16,48 @@ Test models:
 
 
 
+## to do
+- normalization: 
+    - add_to_avoid_zero lowest value in both conditions after normalization
+    - if not working: filter low values
+
+- violinplot of each condition: lowly, highly, kennedy, hrde-reg
+
+- test "bootstrap" function
+
+
+
+
+- by-stander hrde-1: do it only where the hrde-1 regulated get really condensed.
+
+- Graph that shows that the least variable is the hotspot (most conserved)
+
+- nearbys: all values are fold-change (groups that add + groups segregated [0-2500, 2500-5000])
+    - violin plot of every group
+    +
+    - bootstrap of mean for every group
+
+
+
+
+
 ## done
+
+- run bootstrap of hrde-1 groups on mRNA data. 
+    - plot scatter of both conditions and mark hrde-groups.
+    - bootstrap mRNA-FC to see if it's the same as ATAC-FC
+
+- If normaization doesn't work: Plot, scatter: each dot is a gene
+    - x axis: value of hotspot in WT (*mean and median)
+    - y axis: value of hotspot in hrde-1 mutant (*mean and median)
+- Color hrde-regulated genes in red (the rest in grey).
+
+- Normalization:
+    - send hila of all_aligned to see if I messed up
+    - Check for mistakes
+
+- missing genes in hrde-1 lists: send Hila the missing genes
+
 - for every group for which we want to show an ATAC-fold change as a group:
     - add bootstrap dotplot:
         * each iteration takes n genes and mean/median of the fc_score of all of them
