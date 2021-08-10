@@ -14,7 +14,7 @@ def read_experiment_to_df(exp_name: str = "exp1"):
     exp_df = create_exp_df(exp_dfs_cond1, exp_dfs_cond2, exp_name)
     
     ### add to avoid zero:
-    add_to_avoid_zero(exp_df)
+    exp_add_to_avoid_zero(exp_df)
 
     return exp_df
 
