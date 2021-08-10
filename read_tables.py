@@ -12,6 +12,10 @@ def read_experiment_to_df(exp_name: str = "exp1"):
     '''
     exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name)
     exp_df = create_exp_df(exp_dfs_cond1, exp_dfs_cond2, exp_name)
+    
+    ### add to avoid zero:
+    add_to_avoid_zero(exp_df)
+
     return exp_df
 
 
@@ -137,7 +141,7 @@ def read_and_format_atac_table(f_name: Union[pathlib.Path, str]):
     index_wbid(atac_table)
 
     ## add_to_avoid_zero
-    atac_table += 0.5
+    ## atac_table += 0.5
 
     return atac_table
 
@@ -187,6 +191,7 @@ def index_wbid(atac_df: pd.DataFrame):
     """
     atac_df.set_index("wbid", inplace=True)
 
+
 def read_sam_aize_dic():
     '''
     Reads "all_aligned" table
@@ -197,6 +202,7 @@ def read_sam_aize_dic():
     sam_size_dic['exp_metsetset'] = pd.read_excel('DATA/exp_metsetset.xlsx', index_col=0)
     return sam_size_dic
 
+
 def normalize_sample(sample_df, exp_name, rep_i, cond_i):
     '''
     '''
@@ -206,11 +212,35 @@ def normalize_sample(sample_df, exp_name, rep_i, cond_i):
     return norm_sample
 
 
+def exp_add_to_avoid_zero(exp_df):
+    '''
+    Checks for each rep what is the minimum value of both conditions, and ads it to both dfs of rep.
+    '''
+    for rep_i in range(exp_df.shape[0]):
+        min0 = find_min_after_zero(exp_df.iloc[rep_i,0])
+        min1 = find_min_after_zero(exp_df.iloc[rep_i,1])
+        min_of_both = min(min0, min1)
+
+        a = exp_df.iloc[rep_i,0]
+        b = exp_df.iloc[rep_i,1]
+        a+=min_of_both
+        b+=min_of_both
+
+
+def find_min_after_zero(df):
+    '''
+    finds min of whole df after zero (assuming not all zero. and positive)
+    '''
+    return (df[df>0]).min().min()
+
+
 if __name__ == "__main__":
     f_name = "DATA/exp1/ATAC_R4-iGFP.csv.gz"
-    atac_table_initial = read_atac_table(f_name)
+    atac_table_initial = read_and_format_atac_table(f_name)
     
-    # exp1_df = read_experiment_to_df()
+    exp1_df = read_experiment_to_df()
+
+    
     # exp_hrde_df = read_experiment_to_df('exp_hrde_guy')
     # exp_mss_df = read_experiment_to_df('exp_metsetset')
 
@@ -221,6 +251,10 @@ if __name__ == "__main__":
 
     # gfp0_norm = normalize_sample(gfp0, 'exp1',0,0)
     # sx_2_norm = normalize_sample(sx_2, 'exp_hrde_guy', 2,1)
+
+
+
+
 
     
 
