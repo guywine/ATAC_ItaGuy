@@ -1,5 +1,6 @@
 import pandas as pd 
 import random
+import matplotlib.pyplot as plt
 
 from gene_id import Gene_IDs
 import plotting as my_plots
@@ -48,6 +49,8 @@ if __name__=='__main__':
     hrde1_kennedy_intersected = ut.intersect_lists(hrde1_kennedy, exp1.fc.index) # later: 68 / 1527 missing
     hrde1_kennedy_mRNA_intersected = ut.intersect_lists(hrde1_kennedy, m.table.index) # later: 47 / 1527 missing
 
+    hrde1_dic = {'hrde1 kennedy':hrde1_kennedy, 'hrde1 regulated':hrde1_regulated}
+
     ### check the missing genes
     # hrde1_kennedy_missing = ut.intersect_lists(hrde1_kennedy, exp1.scores1.index, 'only first')
     # x = pd.DataFrame({'missing hrde1-Kennedy genes:' : hrde1_kennedy_missing})
@@ -62,11 +65,11 @@ if __name__=='__main__':
 
     if False:
         #### 1.A - Signal along GFP gene in exp1: [# later - rep1 is problematic]
-        print('1.A')
+        print('1.A - GFP')
         analyze_single_gene(exp1, 'GFP', plot_range=(-1000,700)) # later - ranks changed
 
         #### 1.B - Signal along oma-1 gene in exp1: [# later - rep0 is problematic]
-        print('1.B')
+        print('1.B - oma-1')
         analyze_single_gene(exp1, 'oma-1', plot_range=(-1000,700)) # later - ranks changed
 
         #### 1.c [Sup.] - Variability across gene location
@@ -102,8 +105,8 @@ if __name__=='__main__':
 
 
         #### 3.B - HRDE-1 regulated targets get open:
-        print('3.B')
-        hrde1_dic = {'hrde1 kennedy':hrde1_kennedy, 'hrde1 regulated':hrde1_regulated}
+        print('3.B - hrde-1')
+        
         my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde1 kennedy':hrde1_kennedy})
         my_plots.plot_groups_signals(exp_hrde1, groups_dic=hrde1_dic)
         my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde1 kennedy':hrde1_kennedy}, mean_flag=True, var_type='sem')
@@ -115,7 +118,7 @@ if __name__=='__main__':
         print('r1:')
         cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,0], hrde1_kennedy) # later - WTF??? Some biological thing
         print('r2:')
-        cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,1], hrde1_kennedy) # later - WTF???
+        cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,1], hrde1_kennedy)# later - WTF???
         print('r3:')
         cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.iloc[:,2], hrde1_kennedy) # later - correct!
         print('exp hrde1 - hrde kennedy mean')
@@ -227,9 +230,22 @@ if __name__=='__main__':
         analyze_single_gene(exp_mss, 'oma-2') 
 
 
-
-
         #### 4.D - hrde-1 by-standers
+        ds = [1000, 1500, 2000, 3000, 5000, 10000, 15_000, 25_000]
+
+        ### genes up:
+        for distance in ds:
+            genes_up, genes_down = ut.get_nearby_genes_list(hrde1_regulated, distance)
+            print(f'for distance: {distance}, num  of genes:{len(genes_up)}')
+            cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.mean(axis=1), genes_up)
+            plt.show()
+
+        ### genes up:
+        for distance in ds:
+            genes_up, genes_down = ut.get_nearby_genes_list(hrde1_regulated, distance)
+            print(f'for distance: {distance}, num  of genes:{len(genes_down)}')
+            cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.mean(axis=1), genes_down)
+            plt.show()
 
 
 
