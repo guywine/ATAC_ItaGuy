@@ -17,6 +17,21 @@
 
 
 ## to do
+
+"hrde-1-Kennedy" strange normalization and behaviour
+- Look at the overlap between the kennedy list (1459) to "highly expressed" (1018): only 88 genes
+
+- Look for outliers: Cat-plot the FC values.
+- Look for outliers: Get a table of atac and mRNA values.
+
+"hrde-1 regulated" bystander effect of downstream genes
+- Plot group mean atac-signal in the background of a bootstrap atac signal.
+- Plot bootstrap of group mean mRNA-FC (similar to what I did in the ATAC-FC)
+
+by-stander of oma-1/GFP:
+- Look for pattern of effect in regards to several factors.
+
+
 - normalization: 
     - add_to_avoid_zero lowest value in both conditions after normalization
     - if not working: filter low values

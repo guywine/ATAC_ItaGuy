@@ -22,6 +22,13 @@ def analyze_single_gene(ATAC_exp, gene_name: str, plot_range=(-1000,1000)):
     my_plots.plot_gene_atac_signal_distribution(ATAC_exp, gene_name, mean_flag=False, plot_type='violin') 
     my_plots.plot_gene_atac_signal_distribution(ATAC_exp, gene_name, mean_flag=True, plot_type='violin')
 
+def get_grde1_kennedy_fc_tables(hrde1_kennedy):
+    '''
+    Creates table, each row is a gene:
+    columns: mRNA-SX-mean, mRNA-hrde1-mean, ATAC-FC, ATAC-score-SX, ATAC-score-hrde1
+    '''
+    hrde1_k_fc_exp1 = exp1.fc.loc[hrde1_kennedy_intersected,:]
+
 
 if __name__=='__main__':
     oma_wbid = 'WBGene00003864'
@@ -51,6 +58,9 @@ if __name__=='__main__':
 
     hrde1_dic = {'hrde1 kennedy':hrde1_kennedy, 'hrde1 regulated':hrde1_regulated}
 
+    highly, lowly = ut.get_highly_lowly()
+
+    hrde1_kennedy_highly = ut.intersect_lists(hrde1_kennedy_intersected, highly)
     ### check the missing genes
     # hrde1_kennedy_missing = ut.intersect_lists(hrde1_kennedy, exp1.scores1.index, 'only first')
     # x = pd.DataFrame({'missing hrde1-Kennedy genes:' : hrde1_kennedy_missing})
@@ -246,6 +256,8 @@ if __name__=='__main__':
             print(f'for distance: {distance}, num  of genes:{len(genes_down)}')
             cas.bootstrap_group_score_fc_histogram(exp_hrde1.fc.mean(axis=1), genes_down)
             plt.show()
+    
+    print('end')
 
 
 
