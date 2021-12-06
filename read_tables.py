@@ -3,20 +3,20 @@ from typing import Union
 import pathlib
 
 
-def read_experiment_to_df(exp_name: str = "exp1"):
+def read_experiment_to_df(exp_name: str = "exp1", pc_only_flag:bool=False):
     '''
     Gets an experiment name ['exp1' / 'exp_gonads' / 'exp_hrde_gonads' / 'exp_hrde_guy' / 'exp_metsetset'].\n
     Reads all its samples to df, and puts all of the dfs into a big df:
     - rows: rep_num (starts from 0)
     - cols: condition name [anti gfp / anti OMA-1] or [hrde-1;SX / SX]
     '''
-    exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name)
+    exp_dfs_cond1, exp_dfs_cond2 = read_experiment(exp_name, pc_only_flag)
     exp_df = create_exp_df(exp_dfs_cond1, exp_dfs_cond2, exp_name)
 
     return exp_df
 
 
-def read_experiment(exp_name: str = "exp1"):
+def read_experiment(exp_name: str = "exp1", pc_only_flag:bool=False):
     """
     Gets an experiment name, reads all of the relevant tables to two lists, one for each condition.
 
@@ -85,12 +85,12 @@ def read_experiment(exp_name: str = "exp1"):
     for rep_i in range(num_of_reps):
         # now:
         sample_df_0 = read_and_format_atac_table(exps_dict[exp_name][0][rep_i])
-        sample_0_norm = normalize_sample(sample_df_0, exp_name, rep_i, 0)
+        sample_0_norm = normalize_sample(sample_df_0, exp_name, rep_i, 0, pc_only_flag)
         exp_dfs_cond1.append(sample_0_norm)
         ## before: exp_dfs_cond1.append(read_and_format_atac_table(exps_dict[exp_name][0][rep_i]))
 
         sample_df_1 = read_and_format_atac_table(exps_dict[exp_name][1][rep_i])
-        sample_1_norm = normalize_sample(sample_df_1, exp_name, rep_i, 1)
+        sample_1_norm = normalize_sample(sample_df_1, exp_name, rep_i, 1, pc_only_flag)
         exp_dfs_cond2.append(sample_1_norm)
         ## exp_dfs_cond2.append(read_and_format_atac_table(exps_dict[exp_name][1][rep_i]))
 
@@ -192,21 +192,26 @@ def index_wbid(atac_df: pd.DataFrame):
     atac_df.set_index("wbid", inplace=True)
 
 
-def read_sam_aize_dic():
+def read_sam_size_dic(pc_only_flag):
     '''
     Reads "all_aligned" table
     '''
     sam_size_dic = {}
-    sam_size_dic['exp1'] = pd.read_excel('DATA/exp1.xlsx', index_col=0)
-    sam_size_dic['exp_hrde_guy'] = pd.read_excel('DATA/exp_hrde_guy.xlsx', index_col=0)
-    sam_size_dic['exp_metsetset'] = pd.read_excel('DATA/exp_metsetset.xlsx', index_col=0)
+    if pc_only_flag:
+        sam_size_dic['exp1'] = pd.read_excel('DATA/exp1_pc_only.xlsx', index_col=0)
+        sam_size_dic['exp_hrde_guy'] = pd.read_excel('DATA/exp_hrde_guy_pc_only.xlsx', index_col=0)
+        sam_size_dic['exp_metsetset'] = pd.read_excel('DATA/exp_metsetset_pc_only.xlsx', index_col=0)
+    else:
+        sam_size_dic['exp1'] = pd.read_excel('DATA/exp1.xlsx', index_col=0)
+        sam_size_dic['exp_hrde_guy'] = pd.read_excel('DATA/exp_hrde_guy.xlsx', index_col=0)
+        sam_size_dic['exp_metsetset'] = pd.read_excel('DATA/exp_metsetset.xlsx', index_col=0)
     return sam_size_dic
 
 
-def normalize_sample(sample_df, exp_name, rep_i, cond_i):
+def normalize_sample(sample_df, exp_name, rep_i, cond_i, pc_only_flag):
     '''
     '''
-    sam_size_dic = read_sam_aize_dic()
+    sam_size_dic = read_sam_size_dic(pc_only_flag)
     all_aligned_num = sam_size_dic[exp_name].iloc[rep_i, cond_i]
     norm_sample = (sample_df/all_aligned_num)*1e6
     return norm_sample
@@ -214,7 +219,7 @@ def normalize_sample(sample_df, exp_name, rep_i, cond_i):
 
 def exp_add_to_avoid_zero(exp_df):
     '''
-    Checks for each rep what is the minimum value of both conditions, and ads it to both dfs of rep.
+    Checks for each rep what is the minimum value of both conditions, and adds it to both dfs of rep.
     '''
     for rep_i in range(exp_df.shape[0]):
         min0 = find_min_after_zero(exp_df.iloc[rep_i,0])
@@ -239,6 +244,8 @@ if __name__ == "__main__":
     atac_table_initial = read_and_format_atac_table(f_name)
     
     exp1_df = read_experiment_to_df()
+
+    exp1_df_pc_only = read_experiment_to_df(pc_only_flag=True)
 
     
     # exp_hrde_df = read_experiment_to_df('exp_hrde_guy')
