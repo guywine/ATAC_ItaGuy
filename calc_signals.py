@@ -107,3 +107,26 @@ def get_mean_variance(df_list: list, variance_type: str = "none"):
         df_variance = 0
 
     return df_mean_all_reps, df_variance
+
+''' new '''
+
+def bootstrap_signal_df(df_sample: pd.DataFrame, group_size: int, num_of_iters: int=1_000):
+    '''
+    '''
+    gene_pool = pd.read_csv('tables/protein_coding_wbids.csv')
+
+    df_boot_means = pd.DataFrame([])
+
+    for i in range(num_of_iters):
+        boot_group = random.sample(list(gene_pool['genes']), group_size)
+        intersected_list = list(set(df_sample.index) & set(boot_group))
+
+        df_boot_means[i] = df_sample.loc[intersected_list, :].mean(axis=0)
+    
+    return df_boot_means
+
+
+
+if __name__=='__main__':
+    df1_1 = exp_hrde1.cond1[0]
+    x = bootstrap_signal_df(df1_1, 100)

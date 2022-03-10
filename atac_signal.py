@@ -9,11 +9,11 @@ import plotting as my_plots
 # from sklearn import preprocessing
 
 class ATAC_signal:
-    def __init__(self, exp_name: str = "exp1", var_type: str = "std"):
+    def __init__(self, exp_name: str = "exp1", var_type: str = "std", pc_only_flag: bool = False):
         self.hotspot = (-500, -100)  # user to define
         self.add_to_avoid_zero_division = 0  # user to define (was 1)
 
-        self.cond1, self.cond2 = rt.read_experiment(exp_name)
+        self.cond1, self.cond2 = rt.read_experiment(exp_name, pc_only_flag)
         self.exp_df = rt.create_exp_df(self.cond1, self.cond2, exp_name)
 
         self.num_of_reps = self.exp_df.shape[0]

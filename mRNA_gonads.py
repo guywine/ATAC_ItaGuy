@@ -11,7 +11,7 @@ class Table_mRNA():
         self.fc = self._create_FC() # hrde-1 / SX
     
     def _read_table(self):
-        mRNA_table = '/Users/guyweintraub/Desktop/Google Drive/Rechavi Lab/Project ATAC/hrde-1/hrde1_mRNA/mRNA_rpm.csv'
+        mRNA_table = '/Users/guyweintraub/Google Drive/My Drive/Rechavi Lab/Project ATAC/hrde-1/hrde1_mRNA/mRNA_rpm.csv'
         mRNA_path = pathlib.Path(mRNA_table)
         mRNA = pd.read_csv(mRNA_path, index_col='Wbid')
         mRNA.drop('Unnamed: 0', axis=1, inplace=True)

@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import Union
 import pathlib
+import seaborn as sns
 
 
 def read_experiment_to_df(exp_name: str = "exp1", pc_only_flag:bool=False):
@@ -27,7 +28,29 @@ def read_experiment(exp_name: str = "exp1", pc_only_flag:bool=False):
     - exp_dfs_cond1: list of dfs, each is a sample of the first condition (gfp / hrde-1;SX)
     - exp_dfs_cond1: list of dfs, each is a sample of the second condition (oma-1 / SX)
     """
-    #### file_names
+    exps_dict = get_exps_f_names_dict()
+
+    exp_dfs_cond1 = []
+    exp_dfs_cond2 = []
+    num_of_reps = len(exps_dict[exp_name][0])
+    for rep_i in range(num_of_reps):
+        # now:
+        sample_df_0 = read_and_format_atac_table(exps_dict[exp_name][0][rep_i])
+        sample_0_norm = normalize_sample(sample_df_0, exp_name, rep_i, 0, pc_only_flag)
+        exp_dfs_cond1.append(sample_0_norm)
+        ## before: exp_dfs_cond1.append(read_and_format_atac_table(exps_dict[exp_name][0][rep_i]))
+
+        sample_df_1 = read_and_format_atac_table(exps_dict[exp_name][1][rep_i])
+        sample_1_norm = normalize_sample(sample_df_1, exp_name, rep_i, 1, pc_only_flag)
+        exp_dfs_cond2.append(sample_1_norm)
+        ## exp_dfs_cond2.append(read_and_format_atac_table(exps_dict[exp_name][1][rep_i]))
+
+    return exp_dfs_cond1, exp_dfs_cond2
+
+
+def get_exps_f_names_dict():
+    '''
+    '''
     exp1_files = [
         [
             "DATA/exp1/ATAC_R0-iGFP.csv.gz",
@@ -79,22 +102,8 @@ def read_experiment(exp_name: str = "exp1", pc_only_flag:bool=False):
     #    "exp_hrde_gonads": exp_hrde_gonads_files,
     }
 
-    exp_dfs_cond1 = []
-    exp_dfs_cond2 = []
-    num_of_reps = len(exps_dict[exp_name][0])
-    for rep_i in range(num_of_reps):
-        # now:
-        sample_df_0 = read_and_format_atac_table(exps_dict[exp_name][0][rep_i])
-        sample_0_norm = normalize_sample(sample_df_0, exp_name, rep_i, 0, pc_only_flag)
-        exp_dfs_cond1.append(sample_0_norm)
-        ## before: exp_dfs_cond1.append(read_and_format_atac_table(exps_dict[exp_name][0][rep_i]))
+    return exps_dict
 
-        sample_df_1 = read_and_format_atac_table(exps_dict[exp_name][1][rep_i])
-        sample_1_norm = normalize_sample(sample_df_1, exp_name, rep_i, 1, pc_only_flag)
-        exp_dfs_cond2.append(sample_1_norm)
-        ## exp_dfs_cond2.append(read_and_format_atac_table(exps_dict[exp_name][1][rep_i]))
-
-    return exp_dfs_cond1, exp_dfs_cond2
 
 
 def create_exp_df(exp_dfs_cond1: list, exp_dfs_cond2: list, exp_name: str):
@@ -239,14 +248,70 @@ def find_min_after_zero(df):
     return (df[df>0]).min().min()
 
 
+def plot_hist_values(df, xlim=5, bins=15, logy=False, sns_flag=False):
+    df_new = df[df<xlim]
+
+    if sns_flag:
+        sns.histplot(df_new,stat="probability")
+    else:
+        df_new.stack().plot.hist(bins=bins, logx=False, logy=logy, density=1)
+
+
+def find_smallest_sample(df, n=1000):
+    df_new = df[df>0]
+    stacked_df = df_new.stack().reset_index(drop=True).drop_duplicates()
+    small = stacked_df.nsmallest(n)
+    print(small)
+    return small
+
+
+
+
+
+
 if __name__ == "__main__":
-    f_name = "DATA/exp1/ATAC_R4-iGFP.csv.gz"
-    atac_table_initial = read_and_format_atac_table(f_name)
+    if False:
+        f_name = "DATA/exp1/ATAC_R0-iGFP.csv.gz"
+        atac_table_initial = read_and_format_atac_table(f_name)
+
+        exp1_df = read_experiment_to_df()
+
+        exp1_df_pc_only = read_experiment_to_df(pc_only_flag=True)
     
-    exp1_df = read_experiment_to_df()
+    exps_dict = get_exps_f_names_dict()
+    e1_g0 = read_and_format_atac_table(exps_dict['exp1'][0][0])
+    e1_g1 = read_and_format_atac_table(exps_dict['exp1'][0][1])
+    e1_g2 = read_and_format_atac_table(exps_dict['exp1'][0][2])
+    e1_g3 = read_and_format_atac_table(exps_dict['exp1'][0][3])
 
-    exp1_df_pc_only = read_experiment_to_df(pc_only_flag=True)
+    e1_o0 = read_and_format_atac_table(exps_dict['exp1'][1][0])
+    e1_o1 = read_and_format_atac_table(exps_dict['exp1'][1][1])
+    e1_o2 = read_and_format_atac_table(exps_dict['exp1'][1][2])
+    e1_o3 = read_and_format_atac_table(exps_dict['exp1'][1][3])
 
+    h1_h1 = read_and_format_atac_table(exps_dict['exp_hrde_guy'][0][0])
+    h1_h2 = read_and_format_atac_table(exps_dict['exp_hrde_guy'][0][1])
+    h1_h3 = read_and_format_atac_table(exps_dict['exp_hrde_guy'][0][2])
+
+    h1_wt1 = read_and_format_atac_table(exps_dict['exp_hrde_guy'][1][0])
+    h1_wt2 = read_and_format_atac_table(exps_dict['exp_hrde_guy'][1][1])
+    h1_wt3 = read_and_format_atac_table(exps_dict['exp_hrde_guy'][1][2])
+
+    mss1_g1 = read_and_format_atac_table(exps_dict['exp_metsetset'][0][0])
+    mss1_g2 = read_and_format_atac_table(exps_dict['exp_metsetset'][0][1])
+    mss1_g3 = read_and_format_atac_table(exps_dict['exp_metsetset'][0][2])
+
+    mss1_o1 = read_and_format_atac_table(exps_dict['exp_metsetset'][1][0])
+    mss1_o2 = read_and_format_atac_table(exps_dict['exp_metsetset'][1][1])
+    mss1_o3 = read_and_format_atac_table(exps_dict['exp_metsetset'][1][2])
+
+    s = find_smallest_sample(h1_h1)
+
+    s.to_csv('hrde1_hrde_R1_smallest.csv', index=False)
+
+
+
+    
     
     # exp_hrde_df = read_experiment_to_df('exp_hrde_guy')
     # exp_mss_df = read_experiment_to_df('exp_metsetset')

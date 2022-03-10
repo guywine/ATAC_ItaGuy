@@ -1,5 +1,6 @@
-import pandas as pd 
+import pandas as pd
 import random
+import numpy as np
 import matplotlib.pyplot as plt
 
 from gene_id import Gene_IDs
@@ -10,6 +11,15 @@ from gene_sets import Gene_sets
 import calc_signals as cas
 from mRNA_gonads import Table_mRNA
 
+import seaborn as sns
+
+'''
+same graph of "plot_group_signal" but with grey-bootstrap:
+- for regulated
+- for kennedy
+
+two conditions, 3 reps.
+'''
 
 def analyze_single_gene(ATAC_exp, gene_name: str, plot_range=(-1000,1000)):
     '''
@@ -22,12 +32,101 @@ def analyze_single_gene(ATAC_exp, gene_name: str, plot_range=(-1000,1000)):
     my_plots.plot_gene_atac_signal_distribution(ATAC_exp, gene_name, mean_flag=False, plot_type='violin') 
     my_plots.plot_gene_atac_signal_distribution(ATAC_exp, gene_name, mean_flag=True, plot_type='violin')
 
-def get_grde1_kennedy_fc_tables(hrde1_kennedy):
+def get_grde1_kennedy_fc_tables():
     '''
     Creates table, each row is a gene:
     columns: mRNA-SX-mean, mRNA-hrde1-mean, ATAC-FC, ATAC-score-SX, ATAC-score-hrde1
     '''
     hrde1_k_fc_exp1 = exp1.fc.loc[hrde1_kennedy_intersected,:]
+    hrde1_k_fc_exp_hrde1 = exp_hrde1.fc.loc[hrde1_kennedy_intersected,:]
+
+    hrde1_k_mrna = m.mRNA.loc[hrde1_kennedy_intersected, 'hrde-1 mean':'sx mean']
+
+    cat_plot_df(hrde1_k_fc_exp1, 'hrde-1 kennedy genes: ATAC FC, exp1')
+    cat_plot_df(hrde1_k_fc_exp_hrde1, 'hrde-1 kennedy genes: ATAC FC, exp_hrde1')
+
+    cat_plot_df(hrde1_k_mrna, 'hrde-1 kennedy genes: hrde1 mRNA')
+
+
+    cat_plot_df(exp1.fc, 'exp1 FC', hue_hrde1=True)
+
+
+
+
+def cat_plot_df(df, title:str='XXX', log_flag=False, hue_hrde1:bool=False):
+    '''
+    '''
+    long_df = df.melt(ignore_index=False)
+    if hue_hrde1:
+        add_col_if_hrde1_kennedy(long_df)
+        g = sns.catplot(x="variable", y="value", hue='hrde-1_k_flag', data=long_df, s=3)
+    else:
+        g = sns.catplot(x="variable", y="value", data=long_df, s=3)
+    
+    # if log_flag:
+    #     g.set(yscale='log')
+
+    g.fig.suptitle(title)
+
+    plt.show()
+
+
+
+def add_col_if_hrde1_kennedy(df):
+    '''
+    '''
+    global gs
+    hrde1_kennedy = gs.get_list('hrde-1-Kennedy')
+    df['hrde-1_k_flag'] = [1 if ind in hrde1_kennedy else 0 for ind in df.index]
+
+
+def plot_hist_values(df, xlim=5, bins=15, logy=False):
+    df_new = df[df<xlim]
+    df_new.stack().plot.hist(bins=bins, logx=False, logy=logy, density=1)
+
+
+def list_fold_change_of_scores(ATAC_exp, thresh1=2, thresh2=2):
+    list_fc_df = []
+    df_cond1 = ATAC_exp.scores1 + 1e-7 # later
+    df_cond2 = ATAC_exp.scores2 + 1e-7 # later
+
+    for rep_i in range(ATAC_exp.num_of_reps):
+        cond1 = ATAC_exp.scores1[f'rep {rep_i}']
+        cond2 = ATAC_exp.scores2[f'rep {rep_i}']
+        inds_above_thresh_1 = cond1[cond1>thresh1].index
+        inds_above_thresh_2 = cond2[cond2>thresh2].index
+
+        inds_intersect = ut.intersect_lists(inds_above_thresh_1, inds_above_thresh_2)
+
+        cond1_masked = cond1.loc[inds_intersect]
+        cond2_masked = cond2.loc[inds_intersect]
+
+        rep_fc = cond2_masked / cond1_masked
+
+        list_fc_df.append(rep_fc)
+    
+    return list_fc_df
+
+
+#####
+# hrde_fc_list_1_2 = list_fold_change_of_scores(exp_hrde1, thresh1=1, thresh2=2)
+# hrde_fc_list_1_2[1].plot.hist()
+
+# genes_above_2_wbids = hrde_fc_list_1_2[1][hrde_fc_list_1_2[1]>2].index
+# hrde1_outliers_above2_cond1 = exp_hrde1.scores1.loc[genes_above_2_wbids,:]
+# hrde1_outliers_above2_cond2 = exp_hrde1.scores2.loc[genes_above_2_wbids,:]
+
+# hrde1_outliers_above2_cond1.to_csv('hrde1_outliers_above2_cond1.csv')
+# hrde1_outliers_above2_cond2.to_csv('hrde1_outliers_above2_cond2.csv')
+
+
+# genes_under_2_wbids = hrde_fc_list_1_2[1][hrde_fc_list_1_2[1]<=2].index
+# hrde1_regulars_under2_cond1 = exp_hrde1.scores1.loc[genes_under_2_wbids,:]
+# hrde1_regulars_under2_cond2 = exp_hrde1.scores2.loc[genes_under_2_wbids,:]
+
+# hrde1_regulars_under2_cond1.to_csv('hrde1_regulars_under2_cond1.csv')
+# hrde1_regulars_under2_cond2.to_csv('hrde1_regulars_under2_cond2.csv')
+#####
 
 
 if __name__=='__main__':
@@ -40,12 +139,15 @@ if __name__=='__main__':
 
     if "exp1" not in locals():
         exp1 = ATAC_signal("exp1")
+        # exp1_pc = ATAC_signal('exp1', pc_only_flag=True)
 
     if "exp_mss" not in locals():
         exp_mss = ATAC_signal("exp_metsetset")
+        # exp_mss_pc = ATAC_signal("exp_metsetset", pc_only_flag=True)
     
     if "exp_hrde1" not in locals():
         exp_hrde1 = ATAC_signal("exp_hrde_guy")
+        # exp_hrde1_pc = ATAC_signal("exp_hrde_guy", pc_only_flag=True)
     
     
     #### get hrde-1 lists
@@ -58,7 +160,10 @@ if __name__=='__main__':
 
     hrde1_dic = {'hrde1 kennedy':hrde1_kennedy, 'hrde1 regulated':hrde1_regulated}
 
-    highly, lowly = ut.get_highly_lowly()
+    highly, lowly = ut.get_highly_lowly() # 1018 each
+
+    highly_no_hrde = ut.intersect_lists(highly, hrde1_kennedy, 'only first') # 930
+    lowly_no_hrde = ut.intersect_lists(lowly, hrde1_kennedy, 'only first') # 1011
 
     hrde1_kennedy_highly = ut.intersect_lists(hrde1_kennedy_intersected, highly)
     ### check the missing genes
@@ -68,9 +173,18 @@ if __name__=='__main__':
 
 
     if False:#### verify normalization ######
+        print('normalization - exp1')
         my_plots.plot_groups_signals(exp1)
+        print('normalization - exp1 pc_only')
+        my_plots.plot_groups_signals(exp1_pc)
+
+
         my_plots.plot_groups_signals(exp_mss)
-        my_plots.plot_groups_signals(exp_hrde1)
+        my_plots.plot_groups_signals(exp_mss_pc)
+
+
+        my_plots.plot_groups_signals(exp_hrde1,groups_dic={'highly w.o hrde-genes':highly_no_hrde, 'lowly w.o hrde-genes':lowly_no_hrde}, add_highly_lowly=True)
+        my_plots.plot_groups_signals(exp_hrde1_pc)
 
 
     if False:
@@ -85,7 +199,7 @@ if __name__=='__main__':
         #### 1.c [Sup.] - Variability across gene location
         print('1.C - construction')
 
-
+    
         #### 2.A - Signal along GFP gene in exp_mss:
         print('2.A')
         analyze_single_gene(exp_mss, 'GFP', plot_range=(-1000,700))
@@ -97,7 +211,7 @@ if __name__=='__main__':
         #### 2.C - 2.C. (sup ?? ) ATAC signal of H3K9 target groups WT versus met set set (H3K9//mRNA changing)
         print('2.C - construction')
 
-
+    if False:
         #### 3.A - 'define HRDE-1 regulated group'  - scatter plot
         print('3.A - not done')
         my_plots.scatter_genes_both_conds(exp_hrde1, marked_list=hrde1_reg_intersected, shown_value='score', log_flag=True)
@@ -110,16 +224,25 @@ if __name__=='__main__':
         
         ### exp1:
         my_plots.scatter_genes_both_conds(exp1, marked_list=hrde1_reg_intersected, shown_value='score', log_flag=True)
-        my_plots.scatter_genes_both_conds(exp1, marked_list=hrde1_kennedy_intersected, shown_value='score', log_flag=True)
 
+##### Itamar
+        highly_intersected = ut.intersect_lists(highly, exp1.fc.index)
+        my_plots.scatter_genes_both_conds(exp_hrde1, marked_list=highly_intersected, shown_value='score', log_flag=True)
+
+        score_higher_than_16 = list(exp_hrde1_pc.scores2[exp_hrde1_pc.scores2['rep 0']>16].index)
+
+##### Itamaer End
 
 
         #### 3.B - HRDE-1 regulated targets get open:
         print('3.B - hrde-1')
         
         my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde1 kennedy':hrde1_kennedy})
+        my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde1 regulated':hrde1_regulated})
         my_plots.plot_groups_signals(exp_hrde1, groups_dic=hrde1_dic)
         my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde1 kennedy':hrde1_kennedy}, mean_flag=True, var_type='sem')
+        my_plots.plot_groups_signals(exp_hrde1, groups_dic={'hrde1 regulated':hrde1_regulated}, mean_flag=True, var_type='sem')
+        my_plots.plot_groups_signals(exp_hrde1, groups_dic=hrde1_dic, mean_flag=True, var_type='sem')
 
 
         ## bootstrap - Mean FC score of the hrde-1 kennedy group (FC = SX / hrde-1)
@@ -258,6 +381,124 @@ if __name__=='__main__':
             plt.show()
     
     print('end')
+
+
+
+def plot_groups_signals(
+    ATAC_exp,
+    groups_dic: dict = {},
+    mean_flag: bool = False,
+    var_type: str = "none",
+    add_highly_lowly: bool = True,
+    bootstrap: bool = False,
+    boot_size: int = 2315,
+    boot_iters: int = 1000,
+    drop_rep: int = 10,
+    zscore_signal: bool = False,
+    plot_range: tuple = (0, 0),
+    drop_gene_list: list = []
+):
+    """
+    Takes an experiment, a dictionary with groups, plots panel with two axes.
+    - one ax for each condition: each group is a line with std.
+
+    If mean_flag: variance is between reps. if seperate: variance is between genes.
+
+    Parameters
+    --------
+    - ATAC_exp: ATAC_signal object.
+    - groups_dic: keys - group_name, values - list of wbids.
+    """
+    if add_highly_lowly:
+        my_plots.add_highly_lowly_to_dic(groups_dic)
+
+    if bootstrap:
+        print(f"bootstrapping {boot_iters} iterations...")
+
+    if not mean_flag:
+        for rep_i in range(ATAC_exp.num_of_reps):
+            fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+            fig.suptitle(
+                f"{ATAC_exp.exp_name}, Replicate {rep_i+1}, (variance between genes)",
+                fontsize=14,
+            )
+            for cond_i in [
+                0,
+                1,
+            ]:  # for each condition (sample) (get for this sample a df of means, and df of vars):
+                sample_df = ATAC_exp.exp_df.iloc[rep_i, cond_i]
+                if zscore_signal:  # later
+                    sample_df = ut.normalize_zscore_df(sample_df)
+                means_df, vars_df = my_plots.groups_df_mean_and_var_dfs_for_sample(
+                    sample_df, groups_dic, var_type
+                )
+
+                if bootstrap:
+                    (
+                        means_df[f"bootstrap ({boot_size} genes)"],
+                        bootstrap_var,
+                    ) = cas.bootstrap_atac_signal(
+                        sample_df, group_size=boot_size, num_of_iters=boot_iters
+                    )  # later
+                    if not isinstance(vars_df, int):
+                        vars_df[f"bootstrap ({boot_size} genes)"] = bootstrap_var
+
+                if plot_range.count(0) != 2:  # if range was given:
+                    means_df = my_plots.narrow_to_range(means_df, plot_range[0], plot_range[1])
+                    vars_df = my_plots.narrow_to_range(vars_df, plot_range[0], plot_range[1])
+
+                axes[cond_i].set_title(f"{ATAC_exp.condition_names[cond_i]}")
+                legend_flag = cond_i  # 0 / 1 [only legend on right ax]
+                my_plots.plot_ax(axes[cond_i], means_df, vars_df, legend_flag)
+
+    else:
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+        fig.suptitle(
+            f"{ATAC_exp.exp_name}, Mean of All Replicates (variance between replicates)",
+            fontsize=14,
+        )
+
+        for cond_i in [0, 1]:
+            means_df_list = []
+            for rep_i in range(ATAC_exp.num_of_reps):
+                if rep_i == drop_rep:
+                    print(f"dropped rep {rep_i}")
+                    continue
+                sample_df = ATAC_exp.exp_df.iloc[rep_i, cond_i]
+
+                ##### added:
+                if len(drop_gene_list)>0:
+                    sample_df.drop(drop_gene_list, inplace=True)
+
+                if zscore_signal:  # later
+                    sample_df = ut.normalize_zscore_df(sample_df)
+                means_df, _ = my_plots.groups_df_mean_and_var_dfs_for_sample(
+                    sample_df, groups_dic, var_type="none"
+                )
+
+                if bootstrap:
+                    (
+                        means_df[f"bootstrap ({boot_size} genes)"],
+                        _,
+                    ) = cas.bootstrap_atac_signal(
+                        sample_df, group_size=boot_size, num_of_iters=boot_iters
+                    )  # later
+                means_df_list.append(means_df)
+
+            df_means_all_reps, df_vars = my_plots.get_mean_variance_of_df_list(
+                means_df_list, var_type
+            )
+
+            if plot_range.count(0) != 2:  # if range was given:
+                df_means_all_reps = my_plots.narrow_to_range(
+                    df_means_all_reps, plot_range[0], plot_range[1]
+                )
+                df_vars = my_plots.narrow_to_range(df_vars, plot_range[0], plot_range[1])
+
+            axes[cond_i].set_title(f"{ATAC_exp.condition_names[cond_i]}")
+            legend_flag = cond_i  # 0 / 1 [only legend on right ax]
+
+            my_plots.plot_ax(axes[cond_i], df_means_all_reps, df_vars, legend_flag)
 
 
 
