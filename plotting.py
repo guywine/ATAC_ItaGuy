@@ -51,7 +51,7 @@ def plot_fc_gene(
 
     fig, ax0 = plt.subplots()
     plt.title(f"Fold-Change of signal for gene: {gene_name}", fontsize=14)
-    plt.xlabel("Location relative to TSS")
+    plt.xlabel("TSS", fontsize=14)
     plt.ylabel("FC of ATAC-seq signal (norm.)")
 
     plot_ax(ax0, gene_fc_means, gene_fc_std)
@@ -145,9 +145,9 @@ def plot_signal_gene(
         #     print(f'dropped rep {drop_rep}')
 
         fig, ax0 = plt.subplots()
-        plt.title(f"Signal for gene: {gene_name}, {ATAC_exp.exp_name}", fontsize=14)
-        plt.xlabel("Location relative to TSS")
-        plt.ylabel("ATAC-seq signal (norm.)")
+        # plt.title(f"Signal for gene: {gene_name}, {ATAC_exp.exp_name}", fontsize=14)
+        plt.xlabel("TSS", fontsize=14)
+        plt.ylabel("ATAC-seq signal (normal #reads)", fontsize=14)
 
         if plot_range.count(0) != 2:  # if range was given:
             gene_means = narrow_to_range(gene_means, plot_range[0], plot_range[1])
@@ -388,7 +388,7 @@ def plot_ax(ax, vec_df, var_df=0, legend_flag: bool = True):
     * No return - plots on ax.
     """
     lines = []
-    colors = plt.get_cmap("Set1")  # later (define outside?)
+    colors = plt.get_cmap("set1")  # later (define outside?)
 
     if isinstance(var_df, int):  # if no varince df given
         for col_i in range(vec_df.shape[1]):
@@ -709,8 +709,11 @@ def _scatter_reps(
 
 if __name__=='__main__':
     ## for oded
+    ## hist 
     # fig1 = plot_gene_atac_signal_distribution(exp1, 'GFP', mean_flag=True, plot_type='hist') 
     # fig2 = plot_gene_atac_signal_distribution(exp1, 'oma-1', mean_flag=True, plot_type='hist') 
 
     # fig3 = plot_gene_atac_signal_distribution(exp_mss, 'oma-1', mean_flag=True, plot_type='hist')
 
+    ## signal
+    plot_signal_gene(exp_mss, 'GFP', mean_flag=True, var_type='sem', plot_range=(-700,700)) 
