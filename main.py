@@ -109,23 +109,15 @@ def list_fold_change_of_scores(ATAC_exp, thresh1=2, thresh2=2):
 
 
 #####
-# hrde_fc_list_1_2 = list_fold_change_of_scores(exp_hrde1, thresh1=1, thresh2=2)
-# hrde_fc_list_1_2[1].plot.hist()
-
-# genes_above_2_wbids = hrde_fc_list_1_2[1][hrde_fc_list_1_2[1]>2].index
-# hrde1_outliers_above2_cond1 = exp_hrde1.scores1.loc[genes_above_2_wbids,:]
-# hrde1_outliers_above2_cond2 = exp_hrde1.scores2.loc[genes_above_2_wbids,:]
-
-# hrde1_outliers_above2_cond1.to_csv('hrde1_outliers_above2_cond1.csv')
-# hrde1_outliers_above2_cond2.to_csv('hrde1_outliers_above2_cond2.csv')
-
-
-# genes_under_2_wbids = hrde_fc_list_1_2[1][hrde_fc_list_1_2[1]<=2].index
-# hrde1_regulars_under2_cond1 = exp_hrde1.scores1.loc[genes_under_2_wbids,:]
-# hrde1_regulars_under2_cond2 = exp_hrde1.scores2.loc[genes_under_2_wbids,:]
-
-# hrde1_regulars_under2_cond1.to_csv('hrde1_regulars_under2_cond1.csv')
-# hrde1_regulars_under2_cond2.to_csv('hrde1_regulars_under2_cond2.csv')
+def analyze_single_gene_hist(ATAC_exp, gene_name: str, plot_range=(-1000,1000)):
+    '''
+    Plots both signal of gene and FC distribution.
+    Both seperately and meaned reps.
+    '''
+    print(f'Analyze gene {gene_name} for experiment {ATAC_exp.exp_name}')
+    my_plots.plot_signal_gene(ATAC_exp, gene_name, mean_flag=True, var_type='sem', plot_range=plot_range)
+    my_plots.plot_gene_atac_signal_distribution(ATAC_exp, gene_name, mean_flag=False, plot_type='hist') 
+    my_plots.plot_gene_atac_signal_distribution(ATAC_exp, gene_name, mean_flag=True, plot_type='hist')
 #####
 
 
