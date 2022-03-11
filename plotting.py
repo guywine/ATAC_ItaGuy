@@ -258,6 +258,9 @@ def plot_groups_signals(
                 legend_flag = cond_i  # 0 / 1 [only legend on right ax]
                 plot_ax(axes[cond_i], means_df, vars_df, legend_flag)
 
+                ## return
+                return fig
+
     else:
         fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
         fig.suptitle(
@@ -300,6 +303,9 @@ def plot_groups_signals(
             axes[cond_i].set_title(f"{ATAC_exp.condition_names[cond_i]}")
             legend_flag = cond_i  # 0 / 1 [only legend on right ax]
             plot_ax(axes[cond_i], df_means_all_reps, df_vars, legend_flag)
+
+            ### return
+            return fig
 
 
 def groups_df_mean_and_var_dfs_for_sample(df_sample, group_dic: dict, var_type="none"):
@@ -479,7 +485,7 @@ def plot_gene_atac_signal_distribution(
         gene_mean = mean_df.loc[wbid]
         gene_std = ATAC_exp.fc.loc[wbid].std()
 
-        plot_df_cols_mark_gene(
+        fig = plot_df_cols_mark_gene(
             df_reps=mean_df,
             gene_to_mark=gene_to_mark,
             plot_type=plot_type,
@@ -489,9 +495,12 @@ def plot_gene_atac_signal_distribution(
 
     else:
         print(f"gene {gene_to_mark}:")
-        plot_df_cols_mark_gene(
+        fig = plot_df_cols_mark_gene(
             df_reps=df_ready, gene_to_mark=gene_to_mark, plot_type=plot_type
         )
+    
+    ### return
+    return fig
 
 
 def plot_df_cols_mark_gene(
@@ -517,13 +526,21 @@ def plot_df_cols_mark_gene(
     for rep_i in range(num_of_reps):
         if num_of_reps > 1:
             ax_now = axes[rep_i]
-        ax_now.set_title(f"{df_reps.columns[rep_i]}")
+        # ax_now.set_title(f"{df_reps.columns[rep_i]}")
 
         if plot_type == "hist":
-            ax_now.hist(df_reps.iloc[:, rep_i], bins=20, zorder=0)
+            x, bins, p = ax_now.hist(df_reps.iloc[:, rep_i], bins=20, zorder=0, density=True, color='steelblue') #steelblue, mediumpurple
+            ## normalize to KDE
+            for item in p:
+                item.set_height(item.get_height()/sum(x))
+            ax_now.set_ylim(top=0.52)
+            ax_now.set_xlim(left=-2.2, right=2.2)
+            ax_now.set_ylabel('KDE', fontsize=16)
+            ax_now.set_xlabel('log2 FC: oma-1 RNAi/GFP RNAi', fontsize=14)
+
             genes_x = df_reps.loc[wbid][rep_i]  ### later
-            genes_y = 10  ### later
-            hand = ax_now.scatter(genes_x, genes_y, c="red", marker=7, zorder=5)
+            genes_y = 0  ### later
+            hand = ax_now.scatter(genes_x, genes_y, c="lightgreen", marker=7, zorder=5)
 
         else:
             if plot_type == "violin":
@@ -548,8 +565,12 @@ def plot_df_cols_mark_gene(
                         facecolor="purple",
                     )
                 )
-
     plt.show()
+
+    ### return
+    return fig
+
+    
 
 
 def scatter_genes_both_conds(
@@ -684,4 +705,12 @@ def _scatter_reps(
             ax_now.scatter(marked_xs, marked_ys, s=5, c="r")
 
     plt.show()
+
+
+if __name__=='__main__':
+    ## for oded
+    # fig1 = plot_gene_atac_signal_distribution(exp1, 'GFP', mean_flag=True, plot_type='hist') 
+    # fig2 = plot_gene_atac_signal_distribution(exp1, 'oma-1', mean_flag=True, plot_type='hist') 
+
+    # fig3 = plot_gene_atac_signal_distribution(exp_mss, 'oma-1', mean_flag=True, plot_type='hist')
 
